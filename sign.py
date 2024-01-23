@@ -2,7 +2,7 @@ import customtkinter
 from PIL import Image
 import os
 from config import API_KEY,NAME
-from main import *
+
 
 customtkinter.set_appearance_mode('dark')
 customtkinter.set_default_color_theme('blue')
@@ -24,16 +24,15 @@ def sign_in():
     api_key = input_api_key.get()
     if name == 'MIN':
         if api_key == 'Q9YG6hceTGDVqKqEDIgxKRGH9Gcb6LXVU3DNHjEjGrrdHcEzM6':
-            print('входим')
             app.destroy()
-            prog = App()
-            prog.mainloop()
+            from main import win
+            win.mainloop()
         else:
             input_name.configure(border_color="red",border_width=2)
             input_api_key.configure(border_color="red",border_width=2)
     else:
-            input_name.configure(border_color="red",border_width=2)
-            input_api_key.configure(border_color="red",border_width=2)
+        input_name.configure(border_color="red",border_width=2)
+        input_api_key.configure(border_color="red",border_width=2)
 
 # создаем компоненты
 image_path = os.path.join(os.path.dirname(__file__),'image/favicon.jpg')
