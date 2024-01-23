@@ -15,3 +15,4 @@ from binance.um_futures import UMFutures
 from config import *
 warnings.filterwarnings("ignore")
 import threading
+import tkinter

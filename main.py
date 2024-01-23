@@ -4,7 +4,7 @@ from models.model import *
 # открываем по центру
 win = customtkinter.CTk()
 win.title("Robo_trade")
-w = 1000
+w = 1020
 h = 800
 ws = win.winfo_screenwidth()
 hs = win.winfo_screenheight()
@@ -39,15 +39,15 @@ def frame_8_button_event():
 navigation_frame = customtkinter.CTkFrame(win, corner_radius=0)
 navigation_frame_label = customtkinter.CTkLabel(navigation_frame, text="Робо трейд", image=logo_image,compound="left", font=customtkinter.CTkFont(size=15, weight="bold"))
 home_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Главная",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=home_image, anchor="w", command=home_button_event)
-frame_2_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Историческая торговля",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image, anchor="w", command=frame_2_button_event)
-frame_3_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Реальная тестовая торговля",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=add_user_image, anchor="w", command=frame_3_button_event)
-frame_4_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Фьючерсы Binance",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=add_user_image, anchor="w", command=frame_4_button_event)
-frame_5_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Торговый робот",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=add_user_image, anchor="w", command=frame_5_button_event)
-frame_6_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Настройки робота",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=add_user_image, anchor="w", command=frame_6_button_event)
-frame_7_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Профиль",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=add_user_image, anchor="w", command=frame_7_button_event)
-frame_8_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Настройки программы",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=add_user_image, anchor="w", command=frame_8_button_event)
+frame_2_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Историческая торговля",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_1, anchor="w", command=frame_2_button_event)
+frame_3_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Реальная тестовая торговля",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_3, anchor="w", command=frame_3_button_event)
+frame_4_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Фьючерсы Binance",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_2, anchor="w", command=frame_4_button_event)
+frame_5_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Торговый робот",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_4, anchor="w", command=frame_5_button_event)
+frame_6_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Настройки робота",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_6, anchor="w", command=frame_6_button_event)
+frame_7_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Профиль",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_5, anchor="w", command=frame_7_button_event)
+frame_8_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Настройки программы",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_7, anchor="w", command=frame_8_button_event)
 home_frame = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
-second_frame = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
+second_frame = customtkinter.CTkScrollableFrame(win, corner_radius=0, fg_color="transparent",orientation='vertical')
 third_frame = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_4 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_5 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
@@ -112,6 +112,10 @@ def select_frame_by_name(name): #выбирает и открывает фрей
         frame_8.grid(row=0, column=1, sticky="nsew")
     else:
         frame_8.grid_forget()
+    if name == "frame_loading":
+        frame_loading.grid(row=0, column=1, sticky="nsew")
+    else:
+        frame_loading.grid_forget()
         
         
 
@@ -176,7 +180,6 @@ def profile():
     label_title15.grid(row=3, column=1, sticky="w",padx=20)
 
 # ИСТОРИЧЕСКАЯ ТОРГОВЛЯ
-
 set1_timveframe = {"5m":5, "15m":15, "30m":30, "1h":60}
 set1_time = {"12 часов":720, "24 часа":1440, "2 дня":2880, "3 дня":4320}
 TF = '5m'
@@ -196,23 +199,22 @@ def get_setting_time(data):
     global VOLUME
     timeframe = set1_timveframe.get(TF)
     time = set1_time.get(data)
-    VOLUME = int(time/timeframe)
-def is_loading():
-    frame_loading.grid(row=0, column=1, sticky="nsew")
-    customtkinter.CTkLabel(frame_loading, text="Загрузка данных", fg_color="transparent",anchor='center',justify='center',font=('Arial',20,'bold')).pack(pady=20)
-
-def get_dataframe_with_binance(frame_2_set2_2_1):
-    is_loading()
+    VOLUME = int(time/timeframe)  
+def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3):
     print('лоло')
-    # thread = threading.Thread(target=print(generate_dataframe(TF,VOLUME,wait_time)))
-    # thread.start()
-    # print('УСПЕХ!!!!!')
-    # file = open('../ROBO_TRADE/DF/coin.txt', mode="r")
-    # coin_mas_10 = file.read().split('|')
-    # i=-1
-    # for coin in coin_mas_10:
-    #     i=i+1
-    #     customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
+    thread = threading.Thread(target=lambda:generate_dataframe(TF,VOLUME,wait_time,frame_2_set2_3))
+    thread.start()
+    time.sleep(3)
+    print('УСПЕХ!!!!!')
+    file = open('../ROBO_TRADE/DF/coin_procent.txt', mode="r")
+    coin_mas_10 = file.read().split('|')
+    i=-1
+    for coin in coin_mas_10:
+        i=i+1
+        customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
+    select_frame_by_name("frame_2")
+
+        
 def historical_trade():
     label_title1 = customtkinter.CTkLabel(second_frame, text="Торговля по историческим данным", fg_color="transparent",anchor='center',font=('Arial',20,'bold'))
     frame_2_set1 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="transparent")
@@ -229,19 +231,58 @@ def historical_trade():
     appearance_mode_menu1 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["5m", "15m", "30m", "1h"],command=get_setting_timeframe)
     label_title1_1_2 = customtkinter.CTkLabel(frame_2_set2_1, text="Длительность", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
     appearance_mode_menu2 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["12 часов", "24 часа", "2 дня", "3 дня"],command=get_setting_time)
-    button4 = customtkinter.CTkButton(frame_2_set2_1, text="Получить данные", command=lambda:get_dataframe_with_binance(frame_2_set2_2_1))
+    button4 = customtkinter.CTkButton(frame_2_set2_1, text="Получить данные", command=lambda:get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3_1))
     #----
     label_title1_2 = customtkinter.CTkLabel(frame_2_set2_2, text="Монеты роста/падения", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
-    frame_2_set2_2_1 = customtkinter.CTkScrollableFrame(frame_2_set2_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=20, height=50)
-    
-    
+    frame_2_set2_2_1 = customtkinter.CTkScrollableFrame(frame_2_set2_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=150, height=50)
     # ----
     label_title1_3_1 = customtkinter.CTkLabel(frame_2_set2_3, text="Датасет с биржи Binance", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
-    label_title1_3_2 = customtkinter.CTkLabel(frame_2_set2_3, text="                                         ", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    label_title1_3_2 = customtkinter.CTkLabel(frame_2_set2_3, text="                                     ", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
     frame_2_set2_3_1 = customtkinter.CTkScrollableFrame(frame_2_set2_3, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=200, height=50)
+    # --------------------------------------
+    frame_2_set4 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="#2B2B2B")
+    label__2_set4 = customtkinter.CTkLabel(frame_2_set4, text="Настройка торговли", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    frame_2_set4_0 = customtkinter.CTkFrame(frame_2_set4, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set4_2 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set4_3 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set4_4 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
+    label__2_set4_1_1 = customtkinter.CTkLabel(frame_2_set4_1, text="Выбор стратегии", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_2_set4_1_1 = customtkinter.CTkScrollableFrame(frame_2_set4_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=200, height=50)
+    radio_var = tkinter.IntVar(value=1)
+    radiobutton_1 = customtkinter.CTkRadioButton(frame_2_set4_1_1, text="Канал, тренд, локаль, \nобъём", variable= radio_var, value=1,text_color='#242424',state="disabled")
+    radiobutton_2 = customtkinter.CTkRadioButton(frame_2_set4_1_1, text="Скользящие средние", variable= radio_var, value=2,text_color='#242424',state="disabled")
+    frame_2_set4_2_set_1 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="0.2",justify="center")
+    frame_2_set4_2_set_2 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="0.1",justify="center")
+    frame_2_set4_2_set_3 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="1.2",justify="center")
+    frame_2_set4_2_set_4 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="0.4",justify="center")
+    label__2_set4_2_set_1 = customtkinter.CTkLabel(frame_2_set4_2, text="Комиссия мейкер, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_2_set_2 = customtkinter.CTkLabel(frame_2_set4_2, text="Комиссия тейкер, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_2_set_3 = customtkinter.CTkLabel(frame_2_set4_2, text="Тейк профит, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_2_set_4 = customtkinter.CTkLabel(frame_2_set4_2, text="Стоп лосс, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_2_set4_3_set_1 = customtkinter.CTkEntry(frame_2_set4_3, placeholder_text="100",justify="center")
+    frame_2_set4_3_set_2 = customtkinter.CTkEntry(frame_2_set4_3, placeholder_text="20",justify="center")
+    frame_2_set4_3_set_3 = customtkinter.CTkEntry(frame_2_set4_3, placeholder_text="85",justify="center")
+    frame_2_set4_3_set_4 = customtkinter.CTkEntry(frame_2_set4_3, placeholder_text="15",justify="center")
+    label__2_set4_3_set_1 = customtkinter.CTkLabel(frame_2_set4_3, text="Деозит, $", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_3_set_2 = customtkinter.CTkLabel(frame_2_set4_3, text="Плечо", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_3_set_3 = customtkinter.CTkLabel(frame_2_set4_3, text="Верх канала, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_3_set_4 = customtkinter.CTkLabel(frame_2_set4_3, text="Низ канала, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_2_set4_4_set_1 = customtkinter.CTkEntry(frame_2_set4_4, placeholder_text="10",justify="center")
+    frame_2_set4_4_set_2 = customtkinter.CTkEntry(frame_2_set4_4, placeholder_text="10",justify="center")
+    frame_2_set4_4_set_3 = customtkinter.CTkEntry(frame_2_set4_4, placeholder_text="200000",justify="center")
+    frame_2_set4_4_set_4 = customtkinter.CTkEntry(frame_2_set4_4, placeholder_text="500000",justify="center")
+    label__2_set4_4_set_1 = customtkinter.CTkLabel(frame_2_set4_4, text="Угол тренда лонг", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_4_set_2 = customtkinter.CTkLabel(frame_2_set4_4, text="Угол тренда шорт", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_4_set_3 = customtkinter.CTkLabel(frame_2_set4_4, text="Объём торгов мин", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_4_set_4 = customtkinter.CTkLabel(frame_2_set4_4, text="Объм торгов макс", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    # --------------------------------
+    button6 = customtkinter.CTkButton(second_frame, text="Запустить торговлю")
+    
+    
     
     label_title1.pack(pady=20)
-    frame_2_set1.pack(pady=10)
+    frame_2_set1.pack(pady=10,padx=20)
     button1.grid(row=0, column=0, sticky="ew",padx=10)
     button2.grid(row=0, column=1, sticky="ew",padx=10)
     button3.grid(row=0, column=2, sticky="ew",padx=10)
@@ -260,6 +301,43 @@ def historical_trade():
     label_title1_3_1.grid(row=0, column=0, sticky="ew",pady=10)
     label_title1_3_2.grid(row=0, column=1, sticky="ew",pady=10)
     frame_2_set2_3_1.grid(row=1, column=0, columnspan=2, sticky="ew",pady=[0,20])
+    frame_2_set4.pack(pady=10, padx=20)
+    label__2_set4.pack(pady=5)
+    frame_2_set4_0.pack(pady=10)
+    frame_2_set4_1.grid(row=0, column=1, sticky="ew",padx=10)
+    frame_2_set4_2.grid(row=0, column=2, sticky="ew",padx=10)
+    frame_2_set4_3.grid(row=0, column=3, sticky="ew",padx=10)
+    frame_2_set4_4.grid(row=0, column=4, sticky="ew",padx=10)
+    label__2_set4_1_1.pack(pady=4)
+    frame_2_set4_1_1.pack(pady=4)
+    radiobutton_1.pack(pady=4, anchor='w')
+    radiobutton_2.pack(pady=4, anchor='w')
+    label__2_set4_2_set_1.pack(pady=1)
+    frame_2_set4_2_set_1.pack(pady=1)
+    label__2_set4_2_set_2.pack(pady=1)
+    frame_2_set4_2_set_2.pack(pady=1)
+    label__2_set4_2_set_3.pack(pady=1)
+    frame_2_set4_2_set_3.pack(pady=1)
+    label__2_set4_2_set_4.pack(pady=1)
+    frame_2_set4_2_set_4.pack(pady=1)
+    label__2_set4_3_set_1.pack(pady=1)
+    frame_2_set4_3_set_1.pack(pady=1)
+    label__2_set4_3_set_2.pack(pady=1)
+    frame_2_set4_3_set_2.pack(pady=1)
+    label__2_set4_3_set_3.pack(pady=1)
+    frame_2_set4_3_set_3.pack(pady=1)
+    label__2_set4_3_set_4.pack(pady=1)
+    frame_2_set4_3_set_4.pack(pady=1)
+    label__2_set4_4_set_1.pack(pady=1)
+    frame_2_set4_4_set_1.pack(pady=1)
+    label__2_set4_4_set_2.pack(pady=1)
+    frame_2_set4_4_set_2.pack(pady=1)
+    label__2_set4_4_set_3.pack(pady=1)
+    frame_2_set4_4_set_3.pack(pady=1)
+    label__2_set4_4_set_4.pack(pady=1)
+    frame_2_set4_4_set_4.pack(pady=1)
+    button6.pack(pady=[10,100])
+    
     
 
 
