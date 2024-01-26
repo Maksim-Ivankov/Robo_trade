@@ -17,3 +17,5 @@ warnings.filterwarnings("ignore")
 import threading
 import tkinter
 from tkinter import messagebox
+
+from websockets.sync.client import connect

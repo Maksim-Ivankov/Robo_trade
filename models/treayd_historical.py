@@ -133,9 +133,7 @@ def print_components_log(msg,frame,type):
                 widget.forget()
         data_print_ad_ht.insert(0,customtkinter.CTkLabel(frame, text=str(number_print_ht)+'. '+ msg, fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')))
         for component in data_print_ad_ht:
-            component.pack(anchor="w")
-        
-            
+            component.pack(anchor="w")          
 
 def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3):
     global coin_mas_10
@@ -170,44 +168,6 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3):
         time.sleep(2)
     print_components_log(f'Датафреймы добавлены!',frame_2_set2_3,'DF')
     return coin_mas_10
-# def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3):
-#     global coin_mas_10
-#     customtkinter.CTkLabel(frame_2_set2_3, text=f'Начали сбор данных', fg_color="#DAE2EC",text_color='#242424',anchor='center',font=('Arial',12,'normal')).grid(row=0, column=0, sticky="w",pady=1)
-#     coin_mas_10 = get_top_coin() # один раз запускаем функцию, чтобы обновить монету, с которой работаем
-#     open(MYDIR_COIN, "w").close()
-#     open(MYDIR_COIN_PROCENT, "w").close()
-#     fi1 = open(MYDIR_COIN,'a',encoding='utf-8')
-#     fi2 = open(MYDIR_COIN_PROCENT,'a',encoding='utf-8')
-#     arr_coin = []
-#     arr_coin_procent = []
-#     for key, value in coin_mas_10.items():
-#         arr_coin.append(key)
-#         arr_coin_procent.append(f'{key}: {value}')
-#     result_as_list1 = '|'.join(arr_coin)
-#     result_as_list2 = '|'.join(arr_coin_procent)
-#     fi1.write(result_as_list1)
-#     fi1.close()
-#     fi2.write(result_as_list2)
-#     fi2.close()
-#     # выше записываем файл с монетами роста + монеты роста и проценты
-#     remove_csv(MYDIR_WORKER)
-#     remove_csv(MYDIR_5MIN)
-#     i=0
-#     for x,result in enumerate(coin_mas_10):
-#         df = get_futures_klines(result,TF,VOLUME)
-#         df.to_csv(f'{MYDIR_WORKER}{result}.csv')
-#         i=i+1
-#         customtkinter.CTkLabel(frame_2_set2_3, text=f'{i}. {result} - {TF} добавлен', fg_color="#DAE2EC",text_color='#242424',anchor='center',font=('Arial',12,'normal')).grid(row=i, column=0, sticky="w",pady=1)
-#         time.sleep(2)
-#         df_5m = get_futures_klines(result,'5m',VOLUME_5MIN)
-#         df_5m.to_csv(f'{MYDIR_5MIN}{result}.csv')
-#         i=i+1
-#         customtkinter.CTkLabel(frame_2_set2_3, text=f'{i}. {result} - 5 мин добавлен', fg_color="#DAE2EC",text_color='#242424',anchor='center',font=('Arial',12,'normal')).grid(row=i, column=0, sticky="w",pady=1)
-#         time.sleep(2)
-#     i=i+1
-#     customtkinter.CTkLabel(frame_2_set2_3, text=f'Датафреймы добавлены', fg_color="#DAE2EC",text_color='#242424',anchor='center',font=('Arial',12,'normal')).grid(row=i, column=0, sticky="w",pady=1)
-#     return coin_mas_10
-
 
 def print_log_his(frame,msg):
     global i1

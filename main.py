@@ -57,6 +57,7 @@ frame_5_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, heig
 frame_6_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="FAQ",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_6, anchor="w", command=frame_6_button_event)
 frame_7_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Профиль",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_5, anchor="w", command=frame_7_button_event)
 frame_8_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Настройки программы",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_7, anchor="w", command=frame_8_button_event)
+time_now = customtkinter.CTkLabel(navigation_frame, text=time.strftime("%d.%m.%Y г. %H:%M:%S", time.localtime()),compound="left", font=customtkinter.CTkFont(size=12, weight="normal"))
 home_frame = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 second_frame = customtkinter.CTkScrollableFrame(win, corner_radius=0, fg_color="transparent",orientation='vertical')
 third_frame = customtkinter.CTkScrollableFrame(win, corner_radius=0, fg_color="transparent",orientation='vertical')
@@ -66,6 +67,10 @@ frame_6 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_7 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_8 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_loading = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
+
+def update_time():
+    time_now.configure(text=time.strftime("%d.%m.%Y г. %H:%M:%S", time.localtime()))
+    win.after(100, update_time)  # Запланировать выполнение этой же функции через 100 миллисекунд
 
 
 #рисуем навигацию и фреймы
@@ -80,6 +85,8 @@ frame_5_button.grid(row=5, column=0, sticky="ew")
 frame_6_button.grid(row=6, column=0, sticky="ew")
 frame_7_button.grid(row=7, column=0, sticky="ew")
 frame_8_button.grid(row=8, column=0, sticky="ew")
+time_now.grid(row=9, column=0, sticky="s",pady=40)
+
 
 def select_frame_by_name(name): #выбирает и открывает фрейм
     home_button.configure(fg_color=("gray75", "gray25") if name == "home" else "transparent")
@@ -415,7 +422,13 @@ def historical_trade():
     frame_3_set4_1_1_1.pack(pady=[5,20])
     
 # --------------------------------- Реальная тестовая торговля ---------------------------------    
+real.wait_time = int(set1_timveframe.get(bin.TF))
 
+def get_setting_timeframe_real_test_trad(data):
+    timeframe = set1_timveframe.get(data)
+    real.TF = data
+    real.wait_time = timeframe
+            
 def start_real_test_trade_btn(real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4):
     try:
         real.COMMISSION_MAKER = float(float(real_test_trade_frame_2_set4_2_set_1.get())/100)
@@ -446,8 +459,8 @@ def start_real_test_trade_btn(real_test_frame_3_1_1,real_test_frame_3_2_1,real_t
             widget.forget()
         for widget in real_test_frame_3_2_1.winfo_children():
             widget.forget()
-        thread = threading.Thread(target=lambda:real.start_real_test_trade_model(real_test_frame_3_1_1,real_test_frame_3_2_1))
-        thread.start()
+        thread2 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(real_test_frame_3_1_1,real_test_frame_3_2_1))
+        thread2.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
 
@@ -461,14 +474,17 @@ def real_test_trade():
     frame_2_set4_0 = customtkinter.CTkFrame(master=third_frame,width=1100,height=800, corner_radius=10, fg_color="#2B2B2B")
     frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
     frame_2_set4_2 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set4_25 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
     frame_2_set4_3 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
     label_title2_1 = customtkinter.CTkLabel(frame_2_set4_1, text="Имя робота для логов", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
     input_2_1 = customtkinter.CTkEntry(frame_2_set4_1, placeholder_text="Версия 1_1",justify="center")
+    real_test_trade_frame_1_label_title1_1_1 = customtkinter.CTkLabel(frame_2_set4_25, text="Таймфрейм", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
+    real_test_trade_frame_1_appearance_mode_menu1 = customtkinter.CTkOptionMenu(frame_2_set4_25, values=["5m", "15m", "30m", "1h"],command=get_setting_timeframe_real_test_trad)
     label_title3_1 = customtkinter.CTkLabel(frame_2_set4_2, text="Сколько топ монет торговать", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
     input_3_1 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="10",justify="center")
     switch_TG_var = customtkinter.StringVar(value="on")
     switch_tg = customtkinter.CTkSwitch(frame_2_set4_3, text="Оповещения в ТГ",variable=switch_TG_var, onvalue="on", offvalue="off")
-    # ----------
+    # ----------    
     frame_2_set4 = customtkinter.CTkFrame(third_frame, corner_radius=10, fg_color="#2B2B2B")
     label__2_set4 = customtkinter.CTkLabel(frame_2_set4, text="Настройка торговли", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
     frame_2_set4_01 = customtkinter.CTkFrame(frame_2_set4, corner_radius=0, fg_color="#2B2B2B")
@@ -538,10 +554,13 @@ def real_test_trade():
     button1.grid(row=0, column=0, sticky="ew",padx=10)
     button2.grid(row=0, column=1, sticky="ew",padx=10)
     button3.grid(row=0, column=2, sticky="ew",padx=10)
-    frame_2_set4_0.pack(pady=10,ipady = 10,ipadx=10)
-    frame_2_set4_1.grid(row=0, column=1, sticky="ew",padx=10)
-    frame_2_set4_2.grid(row=0, column=2, sticky="ew",padx=10)
-    frame_2_set4_3.grid(row=0, column=3, sticky="ew",padx=10)
+    frame_2_set4_0.pack(pady=10,ipady = 10,ipadx=5)
+    frame_2_set4_1.grid(row=0, column=1, sticky="ew",padx=5)
+    frame_2_set4_2.grid(row=0, column=2, sticky="ew",padx=5)
+    frame_2_set4_25.grid(row=0, column=3, sticky="ew",padx=[5,15])
+    frame_2_set4_3.grid(row=0, column=4, sticky="ew",padx=5)
+    real_test_trade_frame_1_label_title1_1_1.pack(pady=[10,0])
+    real_test_trade_frame_1_appearance_mode_menu1.pack(pady=0)
     label_title2_1.pack(pady=[10,0])
     input_2_1.pack(pady=0)
     label_title3_1.pack(pady=[10,0])
@@ -594,7 +613,7 @@ def real_test_trade():
     real_test_frame_3_1_1.pack(pady=0)
     real_test_label_3_2.pack(pady=0)
     real_test_frame_3_2_1.pack(pady=0)
-
+update_time()
 real_test_trade()
 historical_trade()
 settings_prog()
