@@ -149,17 +149,44 @@ frame_8.grid_columnconfigure(0, weight=2)
 
 def change_appearance_mode_event(new_appearance_mode):
     customtkinter.set_appearance_mode(new_appearance_mode)
+
+def get_my_ip():
+    return requests.get('https://api.ipify.org').content.decode('utf8')
+
 def settings_prog():
-    
     label_title1 = customtkinter.CTkLabel(frame_8, text="Настройки программы", fg_color="transparent",anchor='center',font=('Arial',20,'bold'))
     frame_8_set = customtkinter.CTkFrame(frame_8, corner_radius=0, fg_color="transparent")
     label_title2 = customtkinter.CTkLabel(frame_8_set, text="Оформление программы", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
     appearance_mode_menu = customtkinter.CTkOptionMenu(frame_8_set, values=["Dark", "Light", "System"],command=change_appearance_mode_event)
+    frame_2_set2 = customtkinter.CTkFrame(frame_8, corner_radius=10, fg_color="#2B2B2B")
+    label_title_8_1 = customtkinter.CTkLabel(frame_2_set2, text="Использовать прокси", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    label_title_8_2 = customtkinter.CTkLabel(frame_2_set2, text="", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    label_title_8_2.configure(text=f'Мой ip адрес - {get_my_ip()}')
+    frame_2_set2_2 = customtkinter.CTkFrame(frame_2_set2, corner_radius=10, fg_color="#2B2B2B")
+    frame_2_set2_2_1 = customtkinter.CTkFrame(frame_2_set2_2, corner_radius=10, fg_color="#2B2B2B")
+    frame_2_set2_2_2 = customtkinter.CTkFrame(frame_2_set2_2, corner_radius=10, fg_color="#2B2B2B")
+    label_title_8_3 = customtkinter.CTkLabel(frame_2_set2_2_1, text="Адрес", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title_8_4 = customtkinter.CTkLabel(frame_2_set2_2_2, text="Порт", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    input_2_1 = customtkinter.CTkEntry(frame_2_set2_2_1, placeholder_text="139.162.78.109",justify="center")
+    input_2_2 = customtkinter.CTkEntry(frame_2_set2_2_2, placeholder_text="3128",justify="center")
+    switch_TG_var2 = customtkinter.StringVar(value="0")
+    switch_tg2 = customtkinter.CTkSwitch(frame_2_set2, text="Включить прокси",variable=switch_TG_var2, onvalue="1", offvalue="0")
     label_title1.pack(pady=20)
     frame_8_set.pack()
     label_title2.grid(row=0, column=0, sticky="ew",padx=20)
     appearance_mode_menu.grid(row=0, column=1, sticky="ew")
-
+    frame_2_set2.pack(pady=20)
+    label_title_8_2.grid(row=1, column=0, sticky="ew",padx=20)
+    label_title_8_1.grid(row=0, column=0, sticky="ew",padx=20,pady=20)
+    frame_2_set2_2.grid(row=2, column=0, sticky="ew",padx=20)
+    frame_2_set2_2_1.grid(row=0, column=0, sticky="ew",padx=20)
+    frame_2_set2_2_2.grid(row=0, column=1, sticky="ew",padx=20)
+    label_title_8_3.pack(pady=10)
+    label_title_8_4.pack(pady=10)
+    input_2_1.pack(pady=0)
+    input_2_2.pack(pady=0)
+    switch_tg2.grid(row=3, column=0,padx=20,pady=20,columnspan=2)
+    
 # --------------------------------- ПРОФИЛЬ ---------------------------------
 
 def profile():

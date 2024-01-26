@@ -70,7 +70,12 @@ def start_real_test_trade_model_thread_1(real_test_frame_3_1_1,real_test_frame_3
 # Получите последние n свечей по n минут для торговой пары, обрабатываем и записывае данные в датафрейм
 def get_futures_klines(symbol,TF,VOLUME):
     try:
+        print(symbol)
+        print(TF)
+        print(VOLUME) 
+        time.sleep(2)
         x = requests.get('https://binance.com/fapi/v1/klines?symbol='+symbol.lower()+'&limit='+str(VOLUME)+'&interval='+TF)
+        print(x)
         df=pd.DataFrame(x.json())
         df.columns=['open_time','open','high','low','close','VOLUME','close_time','d1','d2','d3','d4','d5']
         df=df.drop(['d1','d2','d3','d4','d5'],axis=1)
@@ -79,9 +84,13 @@ def get_futures_klines(symbol,TF,VOLUME):
         df['low']=df['low'].astype(float)
         df['close']=df['close'].astype(float)
         df['VOLUME']=df['VOLUME'].astype(float)
+        print(df)
         return(df) # возвращаем датафрейм с подготовленными данными
     except Exception as e:
-        messagebox.showinfo('Внимание','Ошибка запрос данных с бинанса')
+        messagebox.showinfo('Внимание',f'Ошибка запроса данных с бинанса - {e}')
+        print(e)
+
+
 
 # Получаем активные монеты на бирже
 def get_top_coin():
@@ -322,6 +331,7 @@ def get_price_now_coin(symbol):
         return price
     except Exception as e:
         print('Ошибка запроса цены для открытия сделки')
+        print(e)
          
 
 def websocket_trade(real_test_frame_3_1_1,real_test_frame_3_2_1):
@@ -367,11 +377,11 @@ def start_real_test_trade_model(real_test_frame_3_1_1,real_test_frame_3_2_1):
                             break
                     if trend == "нет сигнала":
                         print_components_log(f'Нет сигналов. Ждём {wait_time*2} минут',real_test_frame_3_2_1,'OS1')
-                        timeout = time.time() + wait_time*2*60  # время, которое будет работать скрипт
-                        while time.time()< timeout:
-                            event.wait()    
-                        event.set()
-
+                        # timeout = time.time() + wait_time*2*60  # время, которое будет работать скрипт
+                        # while time.time()< timeout:
+                        #     event.wait()    
+                        # event.set()
+                        time.sleep(120)
                         # time.sleep(wait_time*2) # Двойной интервал, если нет сигнала
                     else:
                         print('Сделка!')
@@ -383,10 +393,11 @@ def start_real_test_trade_model(real_test_frame_3_1_1,real_test_frame_3_2_1):
                 if open_sl == True:  
                     websocket_trade(real_test_frame_3_1_1,real_test_frame_3_2_1)
                     print_components_log(f'Ждём {wait_time*2} минут',real_test_frame_3_2_1,'OS1')
-                    timeout = time.time() + wait_time*2*60  # время, которое будет работать скрипт
-                    while time.time()< timeout:
-                        event.wait()    
-                    event.set()    
+                    # timeout = time.time() + wait_time*2*60  # время, которое будет работать скрипт
+                    # while time.time()< timeout:
+                    #     event.wait()    
+                    # event.set()    
+                    time.sleep(120)
                 if DEPOSIT < 40:
                     break
             except KeyboardInterrupt: #
@@ -394,7 +405,8 @@ def start_real_test_trade_model(real_test_frame_3_1_1,real_test_frame_3_2_1):
                 print("СЛОМАЛИ!!!!!!!!!!")
                 break
     except Exception as e:
-        messagebox.showinfo('Внимание','Ошибка работы основного цикла торговли')
+        messagebox.showinfo('Внимание',f'Ошибка работы основного цикла торговли - - {e}')
+        print(e)
             
             
             

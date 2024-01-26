@@ -18,4 +18,4 @@ import threading
 import tkinter
 from tkinter import messagebox
 
-from websockets.sync.client import connect
+from websockets import connect
