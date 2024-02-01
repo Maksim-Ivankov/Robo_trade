@@ -17,5 +17,6 @@ warnings.filterwarnings("ignore")
 import threading
 import tkinter
 from tkinter import messagebox
+from bs4 import BeautifulSoup as bs
 
 from websockets import connect
