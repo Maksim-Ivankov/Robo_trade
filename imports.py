@@ -1,6 +1,7 @@
 import customtkinter
 from PIL import Image
 import os
+from os import walk
 import pandas as pd
 import requests
 import websockets
@@ -18,5 +19,6 @@ import threading
 import tkinter 
 from tkinter import messagebox, ttk
 from bs4 import BeautifulSoup as bs
+
 
 from websockets import connect

@@ -6,7 +6,7 @@ import models.real_test_trade as real
 
 
 
-set1_timveframe = {"5m":5, "15m":15, "30m":30, "1h":60}
+set1_timveframe = {"5m":5, "15m":15, "30m":30, "1h":60,"1m":1}
 set1_time = {"12 часов":720, "24 часа":1440, "2 дня":2880, "3 дня":4320}
 
 
@@ -25,6 +25,14 @@ win.grid_rowconfigure(0, weight=1)
 win.grid_columnconfigure(1, weight=1)
 
 coin_mas_10 = []
+
+def logger(name_log,msg):
+    path = name_log+'_log.txt'
+    f = open(path,'a',encoding='utf-8')
+    f.write('\n'+time.strftime("%d.%m.%Y | %H:%M:%S | ", time.localtime())+msg)
+    f.close()
+logger('H','------------------------------------------------------------')
+logger('H','Открыли Robo_Trade')
 
 from component.UI.images.images import * # импорт всех картинок, которые используем здесь
 
@@ -329,32 +337,49 @@ def profile():
     label_title15.grid(row=3, column=1, sticky="w",padx=20)
 
 # --------------------------------- ИСТОРИЧЕСКАЯ ТОРГОВЛЯ ---------------------------------
+work_timeframe_HM = 1
+work_timeframe_str_HM = '1m'
+timeframe_HM = 5
+time_HM = 720
 
-bin.wait_time = int(set1_timveframe.get(bin.TF))
-# обработка выбора таймфрейма в блоке создания датафреймов
+
+
+# обработка выбора рабочег о таймфрейма в блоке создания датафреймов
 def get_setting_timeframe(data):
-    timeframe = set1_timveframe.get(bin.TF)
-    time = set1_time.get("12 часов")
-    print(timeframe)
-    print(time)
-    bin.VOLUME = int(time/timeframe)
-    bin.VOLUME_5MIN = int(time/5)
+    global timeframe_HM
+    timeframe_HM = set1_timveframe.get(data) # число 5,15,30,60
     bin.TF = data
+    print(time_HM)
+# обработка выбора таймфрейма слежения за ценой в блоке создания датафреймов | слежка, сколько времени работаем, по какому основному таймфрейму
+def get_setting_timeframe_slega(data):
+    global work_timeframe_HM
+    global work_timeframe_str_HM
+    work_timeframe_str_HM = data
+    work_timeframe_HM = set1_timveframe.get(data) # число 1 или 5
+    print(work_timeframe_HM)
 # обработка выбора времени работы в блоке создания датафреймов
 def get_setting_time(data):
-    timeframe = set1_timveframe.get(bin.TF)
-    time = set1_time.get(data)
-    print(timeframe)
-    print(time)
-    bin.VOLUME = int(time/timeframe)  
-    bin.VOLUME_5MIN = int(time/5)
+    global time_HM
+    time_HM = set1_time.get(data) # сколько минут отрабатываем
+    print(timeframe_HM)
 # кнопка - получить данные, формируем файлы датафреймов
 def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3):
+    global work_timeframe_HM
+    global timeframe_HM
+    global time_HM
+    global work_timeframe_str_HM
+    bin.VOLUME = int(time_HM/timeframe_HM)
+    bin.VOLUME_5MIN = int(time_HM/work_timeframe_HM)
+
+    logger('H','Историческая торговля, формируем датафреймы')
+    logger('H',f'Историческая торговля, настройки: рабочий таймфрейм {bin.TF} мин')
+    logger('H',f'Историческая торговля, настройки: таймфрейм отслеживания цены {bin.VOLUME_5MIN} мин')
+    logger('H',f'Историческая торговля, настройки: Время работы {str(time_HM/60)} часов')
     for widget in frame_2_set2_2_1.winfo_children():
             widget.destroy()
     for widget in frame_2_set2_3.winfo_children():
             widget.destroy()
-    thread = threading.Thread(target=lambda:bin.generate_dataframe(bin.TF,bin.VOLUME,bin.VOLUME_5MIN,frame_2_set2_3))
+    thread = threading.Thread(target=lambda:bin.generate_dataframe(bin.TF,bin.VOLUME,bin.VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM))
     thread.start()
     time.sleep(3)
     file = open('../ROBO_TRADE/DF/coin_procent.txt', mode="r")
@@ -363,6 +388,8 @@ def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3):
     for coin in bin.coin_mas_10:
         i=i+1
         customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
+        
+    
     select_frame_by_name("frame_2")
 # отрисовка монет из файла, если он не пустой
 def get_coin_proc_start(frame_2_set2_2_1):
@@ -373,9 +400,31 @@ def get_coin_proc_start(frame_2_set2_2_1):
         for coin in bin.coin_mas_10:
             i=i+1
             customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
+# отрисовка датафреймов из файла           
+def get_dataset_file_start(frame_2_set2_3_1):
+    mypath = '../ROBO_TRADE/DF/5min/'
+    filenames = next(walk(mypath), (None, None, []))[2]  # [] if no file
+    symbol = filenames[0]
+    df = pd.read_csv(f'{bin.MYDIR_WORKER}{symbol}')
+    time_F = int(df.iloc[1]['open_time'] - df.iloc[0]['open_time'])/60000
+    df2 = pd.read_csv(f'{bin.MYDIR_5MIN}{symbol}')
+    time_F2 = int(df2.iloc[1]['open_time'] - df2.iloc[0]['open_time'])/60000
+
+    with open(f'{bin.MYDIR_WORKER}{symbol}') as f:
+        time_Work_F = sum(1 for line in f)-1
+    customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Рабочий ТF - {int(time_F)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+    customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Длительность - {int(time_Work_F*time_F/60)} часов' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+    customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Следим за ценой - {int(time_F2)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+    for name in filenames:
+        customtkinter.CTkLabel(frame_2_set2_3_1,text='Найден датасет '+ name , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+        symbol=name
+    
 # стартуем историческую торговлю
-def start_historical_trade(frame_3_set4_1_2,frame_3_set4_1_1_1,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4):
+def start_historical_trade(frame_2_set2_graph,frame_3_set4_1_2,frame_3_set4_1_1_1,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4):
     try:
+        global work_timeframe_HM
+        bin.work_timeframe_HM = work_timeframe_HM
+        bin.wait_time = int(set1_timveframe.get(bin.TF))
         bin.COMMISSION_MAKER = float(float(frame_2_set4_2_set_1.get())/100)
         bin.COMMISSION_TAKER = float(float(frame_2_set4_2_set_2.get())/100)
         bin.TP = float(float(frame_2_set4_2_set_3.get())/100)
@@ -388,9 +437,16 @@ def start_historical_trade(frame_3_set4_1_2,frame_3_set4_1_1_1,frame_2_set4_2_se
         bin.CORNER_SHORT = int(frame_2_set4_4_set_2.get())
         bin.CANDLE_COIN_MIN = int(frame_2_set4_4_set_3.get())
         bin.CANDLE_COIN_MAX = int(frame_2_set4_4_set_4.get())
+        logger('H','Начинаем историческую торговлю')
+        logger('H',f'Настройки ИТ: Комиссия мейкер {bin.COMMISSION_MAKER} | Комиссия тейкер {bin.COMMISSION_TAKER}')
+        logger('H',f'Настройки ИТ: Тейк профит {bin.TP} | Стоп лосс {bin.SL}')
+        logger('H',f'Настройки ИТ: Депозит {bin.DEPOSIT} | Плечо {bin.LEVERAGE}')
+        logger('H',f'Настройки ИТ: Верх канала {bin.CANAL_MAX} | Низ канала {bin.CANAL_MIN}')
+        logger('H',f'Настройки ИТ: Угол лонг {bin.CORNER_LONG} | Угол шорт {bin.CORNER_SHORT}')
+        logger('H',f'Настройки ИТ: Объём мин {bin.CANDLE_COIN_MIN} | Объём макс {bin.CANDLE_COIN_MAX}')
         for widget in frame_3_set4_1_1_1.winfo_children(): # чистим логи тоговли
             widget.forget()
-        thread = threading.Thread(target=lambda:bin.start_trade_hist_model(frame_3_set4_1_1_1,frame_3_set4_1_2))
+        thread = threading.Thread(target=lambda:bin.start_trade_hist_model(frame_2_set2_graph,frame_3_set4_1_1_1,frame_3_set4_1_2))
         thread.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
@@ -407,7 +463,9 @@ def historical_trade():
     frame_2_set2_3 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
     #----
     label_title1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Сбор данных", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
-    label_title1_1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Таймфрейм", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
+    label_title1_1_0 = customtkinter.CTkLabel(frame_2_set2_1, text="Следим за ценой", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
+    appearance_mode_menu0 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["1m", "5m"],command=get_setting_timeframe_slega)
+    label_title1_1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Рабочий таймфрейм", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
     appearance_mode_menu1 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["5m", "15m", "30m", "1h"],command=get_setting_timeframe)
     label_title1_1_2 = customtkinter.CTkLabel(frame_2_set2_1, text="Длительность", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
     appearance_mode_menu2 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["12 часов", "24 часа", "2 дня", "3 дня"],command=get_setting_time)
@@ -469,7 +527,7 @@ def historical_trade():
     frame_2_set4_4_set_3.insert(0, "200000")
     frame_2_set4_4_set_4.insert(0, "500000")
     # --------------------------------
-    button6 = customtkinter.CTkButton(second_frame, text="Запустить торговлю",command=lambda:start_historical_trade(frame_3_set4_1_2,frame_3_set4_1_1_1,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4))
+    button6 = customtkinter.CTkButton(second_frame, text="Запустить торговлю",command=lambda:start_historical_trade(frame_2_set2_graph,frame_3_set4_1_2,frame_3_set4_1_1_1,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4))
     # --------------------------------
     frame_3_set4_1 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="#2B2B2B")
     frame_3_set4_1_1 = customtkinter.CTkFrame(frame_3_set4_1, corner_radius=0, fg_color="#2B2B2B")
@@ -484,9 +542,12 @@ def historical_trade():
     customtkinter.CTkLabel(frame_3_set4_1_2, text="- в лонг:  | - в шорт: ", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
     customtkinter.CTkLabel(frame_3_set4_1_2, text="Прибыль от сделок:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
     customtkinter.CTkLabel(frame_3_set4_1_2, text="Убыток от сделок:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    customtkinter.CTkLabel(frame_3_set4_1_2, text="Комиссия биржи:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')    
+    customtkinter.CTkLabel(frame_3_set4_1_2, text="Комиссия биржи:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')  
+    # -----------------------------------
+    frame_2_set2_graph = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="transparent")  
     
     get_coin_proc_start(frame_2_set2_2_1)
+    get_dataset_file_start(frame_2_set2_3_1)
     
     label_title1.pack(pady=20)
     frame_2_set1.pack(pady=10,padx=20)
@@ -498,11 +559,13 @@ def historical_trade():
     frame_2_set2_2.grid(row=0, column=2, sticky="ew",padx=10)
     frame_2_set2_3.grid(row=0, column=3, sticky="ew",padx=10,columnspan = 2)
     label_title1_1.grid(row=0, column=0, sticky="ew")
-    label_title1_1_1.grid(row=1, column=0, sticky="ew")
-    appearance_mode_menu1.grid(row=2, column=0, sticky="ew",pady=[0,10])
-    label_title1_1_2.grid(row=3, column=0, sticky="ew")
-    appearance_mode_menu2.grid(row=4, column=0, sticky="ew",pady=[0,10])
-    button4.grid(row=5, column=0, sticky="ew",pady=10,padx=20)
+    label_title1_1_0.grid(row=1, column=0, sticky="ew")
+    appearance_mode_menu0.grid(row=2, column=0, sticky="ew",pady=[0,5])
+    label_title1_1_1.grid(row=3, column=0, sticky="ew")
+    appearance_mode_menu1.grid(row=4, column=0, sticky="ew",pady=[0,5])
+    label_title1_1_2.grid(row=5, column=0, sticky="ew")
+    appearance_mode_menu2.grid(row=6, column=0, sticky="ew",pady=[0,5])
+    button4.grid(row=7, column=0, sticky="ew",pady=15,padx=20)
     label_title1_2.grid(row=0, column=0, sticky="ew",pady=10)
     frame_2_set2_2_1.grid(row=1, column=0, sticky="ew",pady=[0,20])
     label_title1_3_1.grid(row=0, column=0, sticky="ew",pady=10)
@@ -544,11 +607,13 @@ def historical_trade():
     label__2_set4_4_set_4.pack(pady=1)
     frame_2_set4_4_set_4.pack(pady=1)
     button6.pack(pady=[10,10])
-    frame_3_set4_1.pack(pady=[10,100],padx=20)
+    frame_3_set4_1.pack(pady=[10,10],padx=20)
     frame_3_set4_1_1.grid(row=0, column=1, sticky="ew",padx=10)
     frame_3_set4_1_2.grid(row=0, column=2, sticky="ew",padx=10)
     label__3_set4_1_1_set_1.pack(pady=5)
     frame_3_set4_1_1_1.pack(pady=[5,20])
+    frame_2_set2_graph.pack(pady=[0,20],padx=20)
+    
     
 # --------------------------------- Реальная тестовая торговля ---------------------------------    
 real.wait_time = int(set1_timveframe.get(bin.TF))

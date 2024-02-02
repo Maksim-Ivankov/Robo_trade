@@ -1,3 +1,5 @@
+from tkinter import *
+from math import *
 import os
 import sys
 sys.path.insert(1,os.path.join(sys.path[0],'../'))
@@ -13,8 +15,8 @@ DEPOSIT_START = DEPOSIT
 LEVERAGE = 20 # торговое плечо
 COMMISSION_MAKER = 0.002 # комиссия а вход
 COMMISSION_TAKER = 0.001 # комиссия на выхд
-VOLUME = 48 # сколько свечей получить при запросе к бирже
-VOLUME_5MIN = 144
+VOLUME = 144 # сколько свечей получить при запросе к бирже
+VOLUME_5MIN = 720 # сколько свечей получить в режиме слежения за ценой
 CANAL_MAX = 0.85 # Верх канала
 CANAL_MIN = 0.15 # Низ канала
 CORNER_SHORT = 10 # Угол наклона шорт
@@ -53,8 +55,14 @@ data_print_ad_df = []
 number_print_df = 0
 number_print_ht = 0
 data_print_ad_ht = []
+work_timeframe_HM = 1
+width_canvas = 700
+height_canvas = 300
+width_telo = 3 # Ширина тела свечи
+width_spile = 1 # Ширина хвоста, шпиля
 
 client = UMFutures(key=key, secret=secret)
+
 
 # Получите последние n свечей по n минут для торговой пары, обрабатываем и записывае данные в датафрейм
 def get_futures_klines(symbol,TF,VOLUME):
@@ -120,6 +128,10 @@ def print_components_log(msg,frame,type):
     global number_print_df
     global number_print_ht
     global data_print_ad_ht
+    path ='H_log.txt'
+    f = open(path,'a',encoding='utf-8')
+    f.write('\n'+time.strftime("%d.%m.%Y | %H:%M:%S | ", time.localtime())+msg)
+    f.close()
     if type == 'DF':
         number_print_df=number_print_df+1
         for widget in frame.winfo_children():
@@ -135,7 +147,7 @@ def print_components_log(msg,frame,type):
         for component in data_print_ad_ht:
             component.pack(anchor="w")          
 
-def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3):
+def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM):
     global coin_mas_10
     print_components_log('Начали сбор данных',frame_2_set2_3,'DF')
     coin_mas_10 = get_top_coin() # один раз запускаем функцию, чтобы обновить монету, с которой работаем
@@ -163,9 +175,9 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3):
         df.to_csv(f'{MYDIR_WORKER}{result}.csv')
         print_components_log(f'{result} - {TF} добавлен',frame_2_set2_3,'DF')
         time.sleep(2)
-        df_5m = get_futures_klines(result,'5m',VOLUME_5MIN)
+        df_5m = get_futures_klines(result,work_timeframe_str_HM,VOLUME_5MIN)
         df_5m.to_csv(f'{MYDIR_5MIN}{result}.csv')
-        print_components_log(f'{result} - 5 мин добавлен',frame_2_set2_3,'DF')
+        print_components_log(f'{result} - {work_timeframe_str_HM} мин добавлен',frame_2_set2_3,'DF')
         time.sleep(2)
     print_components_log(f'Датафреймы добавлены!',frame_2_set2_3,'DF')
     return coin_mas_10
@@ -368,24 +380,48 @@ def get_df_coin_now_price(index):
                 return 0
             return df_our_coin_5min[x].iloc[index]['close']
         
-
+# возвращаем список индексов таймфреймов 1м внутри 5м по цене закрытия на текущем шаге итерации
 def get_price_5min(time):
     for x,result in enumerate(coin_mas_10):
         global coutnt_index_time_df
         if str(result) == str(symbol):
             df_new = df_our_coin_5min[x][df_our_coin_5min[x]['close_time'] == time].index[0]
             index_time_df = []
-            print(f'УЛАЛА - {df_new+coutnt_index_time_df*int(wait_time/5),df_new+int(wait_time/5)+coutnt_index_time_df*int(wait_time/5)}')
-            for i in range(df_new+coutnt_index_time_df*int(wait_time/5),df_new+int(wait_time/5)+coutnt_index_time_df*int(wait_time/5)):
+            for i in range(df_new+coutnt_index_time_df*int(wait_time/work_timeframe_HM),df_new+int(wait_time/work_timeframe_HM)+coutnt_index_time_df*int(wait_time/work_timeframe_HM)):
                 index_time_df.append(i)
             coutnt_index_time_df = coutnt_index_time_df+1
             return index_time_df
 
 # -------------------------------------- Перебор по датафрейму --------------------------------------
 
-        
+def paint_candle(canv,x0,y0,y1,high,low):
+    height = height_canvas
+    if y0>=y1:
+        canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#ff2b2b")
+        canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#ff2b2b", fill="#ff2b2b")
+        canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#ff2b2b")
+    if y0<y1:
+        canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#45f757")
+        canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#45f757", fill="#45f757")
+        canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#45f757")
+def paint_bar(canv,prices,prices_old):
+    # определяем границы для масштабирования графика
+    price_max = (prices_old.loc[prices_old['close'] == prices_old['close'].max()].iloc[0]['close'])*1.05
+    price_min = (prices_old.loc[prices_old['close'] == prices_old['close'].min()].iloc[0]['close'])*0.95
+    OldRange = (price_max - price_min) 
+    NewRange = height_canvas 
+    OldRange1 = (VOLUME)  
+    NewRange1 = (width_canvas*(144/VOLUME))  
+    for index, row in prices.iterrows():
+        x0 = ((index * NewRange1) / OldRange1)+10
+        y0 = (((row['open'] - price_min) * NewRange) / OldRange)
+        y1 = (((row['close'] - price_min) * NewRange) / OldRange)
+        high = (((row['high'] - price_min) * NewRange) / OldRange)
+        low = (((row['low'] - price_min) * NewRange) / OldRange)
+        paint_candle(canv,x0,y0,y1,high,low)
 
-def start_trade_hist_model(frame_3_set4_1_1_1,frame_3_set4_1_2):
+
+def start_trade_hist_model(frame_2_set2_graph,frame_3_set4_1_1_1,frame_3_set4_1_2):
     global coin_mas_10
     global symbol
     global coutnt_index_time_df
@@ -398,55 +434,49 @@ def start_trade_hist_model(frame_3_set4_1_1_1,frame_3_set4_1_2):
     fi = open(MYDIR_COIN,'r')
     coin_mas_10 = fi.read().split('|')
     fi.close()
+    canvas_mas = []
+    count_mas = 0
     for x,result in enumerate(coin_mas_10):
         df = pd.read_csv(f'{MYDIR_WORKER}{result}.csv')
         df_our_coin.append(df)
         df_5min = pd.read_csv(f'{MYDIR_5MIN}{result}.csv')
         df_our_coin_5min.append(df_5min)
-        print(f'Всего шагов - {VOLUME}')
+        canvas_mas.insert(count_mas, Canvas(frame_2_set2_graph, width = width_canvas, height = height_canvas, bg = "#2B2B2B", cursor = "pencil",border=0,bd=0,highlightthickness=0))
+        customtkinter.CTkLabel(frame_2_set2_graph, text=result, fg_color="transparent",anchor='center',font=('Arial',14,'bold')).pack(pady=1, anchor='w')
+        canvas_mas[count_mas].pack(pady=10)	
+        canvas_mas[count_mas].create_line(10,height_canvas,10,0,width=1,arrow=LAST) 
+        canvas_mas[count_mas].create_line(0,height_canvas-10,width_canvas,height_canvas-10,width=1,arrow=LAST) 
+        count_mas = count_mas+1
+        
     for index in range(VOLUME):
-        print(index)
         data_numbers.append(index)
         if index>4: # начинаем не с нуля, а с 5-ой свечи
             if open_sl == False: # если нет позиции
                 coutnt_index_time_df = 0
                 for x,result in enumerate(coin_mas_10):
-                    prices = get_df_coin(result)
-                    prices = prices.iloc[data_numbers] # берем из фрема свечи по текущий шаг итерации
+                    prices_old = get_df_coin(result)
+                    prices = prices_old.iloc[data_numbers] # берем из фрема свечи по текущий шаг итерации
+                    paint_bar(canvas_mas[x],prices.iloc[-1:],prices_old)
                     trend = check_if_signal(prices,index)
                     if trend != 'нет сигнала':
                         symbol = result  
-                        print(f'Сигнал монета {symbol}')
                         time_close_tf = prices.iloc[[index]]['close_time'][index]
                         break
                     else:
                         trend = "нет сигнала"                
                 if trend != "нет сигнала" and prices.iloc[index]['VOLUME']>CANDLE_COIN_MIN and prices.iloc[index]['VOLUME']<CANDLE_COIN_MAX:
-                    print('ОТКРЫЛИ СДЕЛКУ')
                     open_position(trend,get_trade_VOLUME(prices.iloc[index]['close']),prices.iloc[index]['close'],frame_3_set4_1_1_1) # если есть сигнал и мы не стоим в позиции, то открываем позицию
             if open_sl == True:
-                print('Вот он выход 8')
-                print(f'11 - {get_price_5min(time_close_tf)}')
                 for index_5min in get_price_5min(time_close_tf):
                     price_now = get_df_coin_now_price(index_5min)
-                    print(f'13 - {price_now}')
-                    print('Вот он выход 7')
                     if price_now != 0:
-                        print('Вот он выход 2')
                         if check_trade(price_now,frame_3_set4_1_1_1): # следим за монетой, отрабатываем тп и сл
-                            print('Вышли из сделки')
                             break
                     else:
-                        print('Вот он выход 10')
                         break       
         if DEPOSIT < 40:
-            print('Депозит меньше 40$, прекращаем торговлю')
             break
-        print('Вот он выход 4')
-    print('Вот он выход 9')
     print_components_log('Закончил торговлю',frame_3_set4_1_1_1,'HT')
-    print('Закончил торговлю')
-    print(wait_time)
     for widget in frame_3_set4_1_2.winfo_children():
             widget.forget()
     customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Начальный депозит: {DEPOSIT_START}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
