@@ -394,16 +394,37 @@ def get_price_5min(time):
 
 # -------------------------------------- Перебор по датафрейму --------------------------------------
 
+
+# рисуем треугольники лонга и шорта
+def paint_trade(canv,trend,index,prices,prices_old):
+    height = height_canvas
+    price_max = (prices_old.loc[prices_old['close'] == prices_old['close'].max()].iloc[0]['close'])*1.05
+    price_min = (prices_old.loc[prices_old['close'] == prices_old['close'].min()].iloc[0]['close'])*0.95
+    OldRange = (price_max - price_min) 
+    NewRange = height_canvas 
+    OldRange1 = (VOLUME)  
+    NewRange1 = (width_canvas/(144/VOLUME))
+    if trend == 'long':
+        x0 = ((index * NewRange1) / OldRange1)+10
+        y0 = height-(((prices - price_min) * NewRange) / OldRange)
+        canv.lift(canv.create_polygon([x0+5+2,y0+10],[x0-5+2,y0+10],[x0+2,y0],fill="green", outline="black"))
+        
+    if trend == 'short':
+        x0 = ((index * NewRange1) / OldRange1)+10
+        y0 = height-(((prices - price_min) * NewRange) / OldRange)
+        canv.lift(canv.create_polygon([x0+5+2,y0-10],[x0-5+2,y0-10],[x0+2,y0],fill="red", outline="black"))
+        
+    
 def paint_candle(canv,x0,y0,y1,high,low):
     height = height_canvas
     if y0>=y1:
-        canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#ff2b2b")
-        canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#ff2b2b", fill="#ff2b2b")
-        canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#ff2b2b")
+        canv.tag_lower(canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#ff2b2b"))
+        canv.tag_lower(canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#ff2b2b", fill="#ff2b2b"))
+        canv.tag_lower(canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#ff2b2b"))
     if y0<y1:
-        canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#45f757")
-        canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#45f757", fill="#45f757")
-        canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#45f757")
+        canv.tag_lower(canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#45f757"))
+        canv.tag_lower(canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#45f757", fill="#45f757"))
+        canv.tag_lower(canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#45f757"))
 def paint_bar(canv,prices,prices_old):
     # определяем границы для масштабирования графика
     price_max = (prices_old.loc[prices_old['close'] == prices_old['close'].max()].iloc[0]['close'])*1.05
@@ -411,7 +432,7 @@ def paint_bar(canv,prices,prices_old):
     OldRange = (price_max - price_min) 
     NewRange = height_canvas 
     OldRange1 = (VOLUME)  
-    NewRange1 = (width_canvas*(144/VOLUME))  
+    NewRange1 = (width_canvas/(144/VOLUME))  
     for index, row in prices.iterrows():
         x0 = ((index * NewRange1) / OldRange1)+10
         y0 = (((row['open'] - price_min) * NewRange) / OldRange)
@@ -459,14 +480,20 @@ def start_trade_hist_model(frame_2_set2_graph,frame_3_set4_1_1_1,frame_3_set4_1_
                     paint_bar(canvas_mas[x],prices.iloc[-1:],prices_old)
                     trend = check_if_signal(prices,index)
                     if trend != 'нет сигнала':
+                        canvas_coin = canvas_mas[x]
                         symbol = result  
                         time_close_tf = prices.iloc[[index]]['close_time'][index]
                         break
                     else:
                         trend = "нет сигнала"                
                 if trend != "нет сигнала" and prices.iloc[index]['VOLUME']>CANDLE_COIN_MIN and prices.iloc[index]['VOLUME']<CANDLE_COIN_MAX:
+                    paint_trade(canvas_coin,trend,index,prices.iloc[index]['close'],prices_old)
                     open_position(trend,get_trade_VOLUME(prices.iloc[index]['close']),prices.iloc[index]['close'],frame_3_set4_1_1_1) # если есть сигнал и мы не стоим в позиции, то открываем позицию
             if open_sl == True:
+                for x,result in enumerate(coin_mas_10):
+                    prices_old = get_df_coin(result)
+                    prices = prices_old.iloc[data_numbers]
+                    paint_bar(canvas_mas[x],prices.iloc[-1:],prices_old)
                 for index_5min in get_price_5min(time_close_tf):
                     price_now = get_df_coin_now_price(index_5min)
                     if price_now != 0:
@@ -476,9 +503,12 @@ def start_trade_hist_model(frame_2_set2_graph,frame_3_set4_1_1_1,frame_3_set4_1_
                         break       
         if DEPOSIT < 40:
             break
+    for x,result in enumerate(coin_mas_10):
+        prices_old = get_df_coin(result)
+        paint_bar(canvas_mas[x],prices_old,prices_old)
     print_components_log('Закончил торговлю',frame_3_set4_1_1_1,'HT')
     for widget in frame_3_set4_1_2.winfo_children():
-            widget.forget()
+        widget.forget()
     customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Начальный депозит: {DEPOSIT_START}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
     customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Конечный депозит: {round(DEPOSIT,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
     customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Процент торговли: {round(float((float(DEPOSIT/DEPOSIT_START)-1)*100),1)}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')

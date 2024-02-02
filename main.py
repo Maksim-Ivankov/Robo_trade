@@ -412,6 +412,8 @@ def get_dataset_file_start(frame_2_set2_3_1):
 
     with open(f'{bin.MYDIR_WORKER}{symbol}') as f:
         time_Work_F = sum(1 for line in f)-1
+    bin.VOLUME = int(time_Work_F)
+    print(bin.VOLUME)
     customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Рабочий ТF - {int(time_F)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
     customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Длительность - {int(time_Work_F*time_F/60)} часов' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
     customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Следим за ценой - {int(time_F2)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
