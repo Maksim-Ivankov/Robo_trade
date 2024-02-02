@@ -58,7 +58,8 @@ client = UMFutures(key=key, secret=secret)
 
 # Получите последние n свечей по n минут для торговой пары, обрабатываем и записывае данные в датафрейм
 def get_futures_klines(symbol,TF,VOLUME):
-    x = requests.get('https://binance.com/fapi/v1/klines?symbol='+symbol.lower()+'&limit='+str(VOLUME)+'&interval='+TF)
+    print('https://fapi.binance.com/fapi/v1/klines?symbol='+symbol.upper()+'&limit='+str(VOLUME)+'&interval='+TF)
+    x = requests.get('https://fapi.binance.com/fapi/v1/klines?symbol='+symbol.upper()+'&limit='+str(VOLUME)+'&interval='+TF)
     df=pd.DataFrame(x.json())
     df.columns=['open_time','open','high','low','close','VOLUME','close_time','d1','d2','d3','d4','d5']
     df=df.drop(['d1','d2','d3','d4','d5'],axis=1)
@@ -77,7 +78,6 @@ def get_top_coin():
     coin_min={}
     coin_mas1 = {}
     coin_mas2 = {}
-    coin_mas_10 = []
     for i in data:
         change[i['symbol']] = float(i['priceChangePercent'])
     coin_max = dict(sorted(change.items(), key=lambda item: item[1],reverse=True))
@@ -158,6 +158,7 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3):
     remove_csv(MYDIR_WORKER)
     remove_csv(MYDIR_5MIN)
     for x,result in enumerate(coin_mas_10):
+        print(f'{result},{TF},{VOLUME}')
         df = get_futures_klines(result,TF,VOLUME)
         df.to_csv(f'{MYDIR_WORKER}{result}.csv')
         print_components_log(f'{result} - {TF} добавлен',frame_2_set2_3,'DF')
@@ -168,6 +169,8 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3):
         time.sleep(2)
     print_components_log(f'Датафреймы добавлены!',frame_2_set2_3,'DF')
     return coin_mas_10
+
+
 
 def print_log_his(frame,msg):
     global i1

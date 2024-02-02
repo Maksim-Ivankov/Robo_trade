@@ -15,8 +15,8 @@ from binance.um_futures import UMFutures
 from config import *
 warnings.filterwarnings("ignore")
 import threading
-import tkinter
-from tkinter import messagebox
+import tkinter 
+from tkinter import messagebox, ttk
 from bs4 import BeautifulSoup as bs
 
 from websockets import connect

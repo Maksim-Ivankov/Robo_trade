@@ -74,7 +74,7 @@ def get_futures_klines(symbol,TF,VOLUME):
         print(TF)
         print(VOLUME) 
         time.sleep(2)
-        x = requests.get('https://binance.com/fapi/v1/klines?symbol='+symbol.lower()+'&limit='+str(VOLUME)+'&interval='+TF)
+        x = requests.get('https://fapi.binance.com/fapi/v1/klines?symbol='+symbol.lower()+'&limit='+str(VOLUME)+'&interval='+TF)
         print(x)
         df=pd.DataFrame(x.json())
         df.columns=['open_time','open','high','low','close','VOLUME','close_time','d1','d2','d3','d4','d5']
@@ -323,7 +323,7 @@ def check_if_signal(ohlc,index):
 
 def get_price_now_coin(symbol):
     try:
-        key = "https://api.binance.com/api/v3/ticker/price?symbol="+symbol
+        key = "https://fapi.binance.com/fapi/v1/ticker/price?symbol="+symbol
         data = requests.get(key)   
         data = data.json() 
         price = data['price']

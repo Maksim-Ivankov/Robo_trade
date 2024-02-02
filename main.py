@@ -146,13 +146,13 @@ select_frame_by_name("home")
 frame_8.grid_columnconfigure(0, weight=2)
 
 # --------------------------------- НАСТРОЙКИ ПРОГРАММЫ ---------------------------------
-
+# меняем ржим ночной или дневной
 def change_appearance_mode_event(new_appearance_mode):
     customtkinter.set_appearance_mode(new_appearance_mode)
-
+# получаем текущий ip c сайта - https://api.ipify.org
 def get_my_ip():
     return requests.get('https://api.ipify.org').content.decode('utf8')
-
+# получаем таблицу бесплатных прокси с сайта - https://free-proxy-list.net/
 def get_free_proxies():
     url = "https://free-proxy-list.net/"
     # получаем ответ HTTP и создаем объект soup
@@ -175,11 +175,23 @@ def get_free_proxies():
         except IndexError:
             continue
     return proxies
-
-def create_window_proxy():
+# подставляем занчения выбранного прокси
+def install_proxy_to_empty(input_2_1,input_2_2,ip,port):
+    input_2_1.delete(0, len(input_2_1.get()))
+    input_2_2.delete(0, len(input_2_2.get()))
+    input_2_1.insert(0,ip)
+    input_2_2.insert(0,port)
+# выбираем строку в таблице
+def update_item(tv,input_2_1,input_2_2):
+    selected = tv.focus()
+    temp = tv.item(selected, 'values')
+    install_proxy_to_empty(input_2_1,input_2_2,temp[0],temp[1])   
+# показываем окно с таблицей бесплатных прокси
+def create_window_proxy(input_2_1,input_2_2):
+    
     window_proxy = customtkinter.CTk()
     window_proxy.title("Бесплатные прокси")
-    w = 700
+    w = 800
     h = 400
     ws = window_proxy.winfo_screenwidth()
     hs = window_proxy.winfo_screenheight()
@@ -189,47 +201,48 @@ def create_window_proxy():
     
     #-------------------Отрисовка окна-----------------------
     customtkinter.CTkLabel(window_proxy, text="Список бесплатных прокси", fg_color="transparent",anchor='center',font=('Arial',20,'bold')).pack(pady=10)
-    #print(f'Обнаружено бесплатных прокси - {len(free_proxies)}:')
-    frame_data = customtkinter.CTkScrollableFrame(window_proxy, corner_radius=10, fg_color="transparent", orientation='vertical', height=300, width=620)
+    frame_data = customtkinter.CTkScrollableFrame(window_proxy, corner_radius=10, fg_color="transparent", orientation='vertical', height=240, width=720)
     frame_data.pack(pady=10)
-    count=1
-    customtkinter.CTkLabel(frame_data, text='IP адрес', fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=0, column=0, sticky="ew",padx=2,pady=2)
-    customtkinter.CTkLabel(frame_data, text='Порт', fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=0, column=1, sticky="ew",padx=2,pady=2)
-    customtkinter.CTkLabel(frame_data, text='Код', fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=0, column=2, sticky="ew",padx=2,pady=2)
-    customtkinter.CTkLabel(frame_data, text='Страна', fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=0, column=3, sticky="ew",padx=2,pady=2)
-    customtkinter.CTkLabel(frame_data, text='Анонимность', fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=0, column=4, sticky="ew",padx=2,pady=2)
-    customtkinter.CTkLabel(frame_data, text='Google', fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=0, column=5, sticky="ew",padx=2,pady=2)
-    customtkinter.CTkLabel(frame_data, text='Https', fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=0, column=6, sticky="ew",padx=2,pady=2)
-    customtkinter.CTkLabel(frame_data, text='Время проверки', fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=0, column=7, sticky="ew",padx=2,pady=2)
+    tv = ttk.Treeview(frame_data, columns=(1,2,3,4,5,6), show='headings',height=14)
+    tv.pack()
+    tv.heading(1, text="IP адрес")
+    tv.heading(2, text="Порт")
+    tv.heading(3, text="Страна")
+    tv.heading(4, text="Анонимность")
+    tv.heading(5, text="Https")
+    tv.heading(6, text="Время проверки")
+    count=0
     for i in get_free_proxies():
         ip_one = i.split("|")
-        create_window_proxy_emp1 = customtkinter.CTkEntry(frame_data, placeholder_text=ip_one[0],justify="center")
-        create_window_proxy_emp2 = customtkinter.CTkEntry(frame_data, placeholder_text=ip_one[1],justify="center",width=40)
-        create_window_proxy_emp1.insert(0,ip_one[0])
-        create_window_proxy_emp2.insert(0,ip_one[1])
-        create_window_proxy_emp1.grid(row=count, column=0, sticky="ew",padx=2,pady=2)
-        create_window_proxy_emp2.grid(row=count, column=1, sticky="ew",padx=2,pady=2)
-        # customtkinter.CTkEntry(frame_data, text=ip_one[0], fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=count, column=0, sticky="ew",padx=2,pady=2,ipad=2)
-        # customtkinter.CTkEntry(frame_data, text=ip_one[1], fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=count, column=1, sticky="ew",padx=2,pady=2,ipad=2)
-        customtkinter.CTkLabel(frame_data, text=ip_one[2], fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=count, column=2, sticky="ew",padx=2,pady=2)
-        customtkinter.CTkLabel(frame_data, text=ip_one[3], fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=count, column=3, sticky="ew",padx=2,pady=2)
-        customtkinter.CTkLabel(frame_data, text=ip_one[4], fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=count, column=4, sticky="ew",padx=2,pady=2)
-        customtkinter.CTkLabel(frame_data, text=ip_one[5], fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=count, column=5, sticky="ew",padx=2,pady=2)
-        customtkinter.CTkLabel(frame_data, text=ip_one[6], fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=count, column=6, sticky="ew",padx=2,pady=2)
-        customtkinter.CTkLabel(frame_data, text=ip_one[7], fg_color="#2B2B2B",anchor='center',font=('Arial',12,'normal')).grid(row=count, column=7, sticky="ew",padx=2,pady=2)
+        tv.insert(parent='', index=count, iid=count, values=(ip_one[0],ip_one[1],ip_one[3],ip_one[4],ip_one[6],ip_one[7]))
         count=count+1
-    
+    customtkinter.CTkButton(window_proxy, text="Выбрать прокси",width=30, command = lambda:update_item(tv,input_2_1,input_2_2)).pack(pady=10)
     window_proxy.mainloop()
-
-def start_proxy(switch_TG_var2,input_2_1,input_2_2):
-    try:
-        print(switch_TG_var2.get())
-        print(input_2_1.get())
-        print(int(input_2_2.get()))
-    except ValueError: 
-        messagebox.showinfo('Внимание','Введите правильные значения в ip и порте прокси')
-        switch_TG_var2.set('0')
-
+# Создаём сессию
+def get_session(proxies):
+    # создать HTTP‑сеанс
+    session = requests.Session()
+    session.proxies = {"http": proxies, "https": proxies}
+    return session
+#запускаем прокси
+def start_proxy():
+    
+    s = get_session('91.243.61.168:14552')
+    print("Страница запроса с IP:", s.get("https://icanhazip.com", timeout=1.5).text.strip())
+    # try:
+    #     if switch_TG_var2.get()=='1':
+    #         ses = str(input_2_1.get())+':'+str(int(input_2_2.get()))
+    #         print(ses)
+    #         s = get_session('114.156.77.107:8080')
+    #         print("Страница запроса с IP:", s.get("http://icanhazip.com", timeout=1.5).text.strip())
+    #     else:
+    #         print('Ошибка подкчлюения')
+    #         switch_TG_var2.set('0')
+    # except Exception as e: 
+    #     # messagebox.showinfo('Внимание','Введите правильные значения в ip и порте прокси')
+    #     print('ошибка')
+    #     switch_TG_var2.set('0')
+# рисуем страницу с настройками
 def settings_prog():
     label_title1 = customtkinter.CTkLabel(frame_8, text="Настройки программы", fg_color="transparent",anchor='center',font=('Arial',20,'bold'))
     frame_2_set1 = customtkinter.CTkFrame(frame_8, corner_radius=10, fg_color="transparent")
@@ -242,7 +255,6 @@ def settings_prog():
     frame_2_set2 = customtkinter.CTkFrame(frame_8, corner_radius=10, fg_color="#2B2B2B")
     label_title_8_1 = customtkinter.CTkLabel(frame_2_set2, text="Использовать прокси", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
     label_title_8_2 = customtkinter.CTkLabel(frame_2_set2, text="", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
-    # label_title_8_2.configure(text=f'Мой ip адрес - {11111}')
     label_title_8_2.configure(text=f'Мой ip адрес - {get_my_ip()}')
     frame_2_set2_2 = customtkinter.CTkFrame(frame_2_set2, corner_radius=10, fg_color="#2B2B2B")
     frame_2_set2_2_1 = customtkinter.CTkFrame(frame_2_set2_2, corner_radius=10, fg_color="#2B2B2B")
@@ -252,8 +264,8 @@ def settings_prog():
     input_2_1 = customtkinter.CTkEntry(frame_2_set2_2_1, placeholder_text="139.162.78.109",justify="center")
     input_2_2 = customtkinter.CTkEntry(frame_2_set2_2_2, placeholder_text="3128",justify="center")
     switch_TG_var2 = customtkinter.StringVar(value="0")
-    switch_tg2 = customtkinter.CTkSwitch(frame_2_set2, text="Включить прокси",variable=switch_TG_var2, onvalue="1", offvalue="0",command=lambda:start_proxy(switch_TG_var2,input_2_1,input_2_2))
-    button_settings_prog_3_1 = customtkinter.CTkButton(frame_2_set2, text="Список бесплатных прокси", command=create_window_proxy)
+    switch_tg2 = customtkinter.CTkSwitch(frame_2_set2, text="Включить прокси",variable=switch_TG_var2, onvalue="1", offvalue="0",command=lambda:start_proxy())
+    button_settings_prog_3_1 = customtkinter.CTkButton(frame_2_set2, text="Список бесплатных прокси", command=lambda:create_window_proxy(input_2_1,input_2_2))
     
     
     label_title1.pack(pady=20)
@@ -730,6 +742,10 @@ def real_test_trade():
     real_test_frame_3_1_1.pack(pady=0)
     real_test_label_3_2.pack(pady=0)
     real_test_frame_3_2_1.pack(pady=0)
+
+
+
+
 update_time()
 real_test_trade()
 historical_trade()
