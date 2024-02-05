@@ -38,6 +38,16 @@ def logger(name_log,msg):
     f.close()
 logger('H','------------------------------------------------------------')
 logger('H','Открыли Robo_Trade')
+#меряем пинг каждую минуту и рисуем круг нужного цвета
+def speed_test():
+    win.after(60000, speed_test)
+    response_list = ping('52.84.150.36', size=40, count=10).rtt_avg_ms
+    if response_list>300 and response_list<900:
+        indikator_ping.itemconfig(indicator_cicle,fill="#ff921c")
+    if response_list>900:
+        indikator_ping.itemconfig(indicator_cicle,fill="red")
+    if response_list<300:
+        indikator_ping.itemconfig(indicator_cicle,fill="green")
 
 from component.UI.images.images import * # импорт всех картинок, которые используем здесь
 
@@ -70,7 +80,10 @@ frame_5_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, heig
 frame_6_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="FAQ",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_6, anchor="w", command=frame_6_button_event)
 frame_7_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Профиль",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_5, anchor="w", command=frame_7_button_event)
 frame_8_button = customtkinter.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Настройки программы",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),image=chat_image_7, anchor="w", command=frame_8_button_event)
-time_now = customtkinter.CTkLabel(navigation_frame, text=time.strftime("%d.%m.%Y г. %H:%M:%S", time.localtime()),compound="left", font=customtkinter.CTkFont(size=12, weight="normal"))
+navigation_frame_time_speed = customtkinter.CTkFrame(navigation_frame, corner_radius=0, fg_color="transparent")
+time_now = customtkinter.CTkLabel(navigation_frame_time_speed, text=time.strftime("%d.%m.%Y г. %H:%M:%S", time.localtime()),compound="left", font=customtkinter.CTkFont(size=12, weight="normal"))
+indikator_ping = tkinter.Canvas(navigation_frame_time_speed, width=15, height=15, bg="#2B2B2B",border=0,bd=0,highlightthickness=0)
+indicator_cicle = indikator_ping.create_oval(4, 4, 15, 15, fill="green")
 home_frame = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 second_frame = customtkinter.CTkScrollableFrame(win, corner_radius=0, fg_color="transparent",orientation='vertical')
 third_frame = customtkinter.CTkScrollableFrame(win, corner_radius=0, fg_color="transparent",orientation='vertical')
@@ -98,7 +111,9 @@ frame_6_button.grid(row=6, column=0, sticky="ew")
 frame_7_button.grid(row=7, column=0, sticky="ew")
 frame_8_button.grid(row=8, column=0, sticky="ew")
 card_trade_menu.grid(row=9, column=0, sticky="ew")
-time_now.grid(row=10, column=0, sticky="s",pady=20)
+navigation_frame_time_speed.grid(row=10, column=0, sticky="s",pady=20)
+time_now.grid(row=0, column=1, sticky="s",pady=10)
+indikator_ping.grid(row=0, column=0, sticky="s",pady=20,padx=5)
 
 def select_frame_by_name(name): #выбирает и открывает фрейм
     home_button.configure(fg_color=("gray75", "gray25") if name == "home" else "transparent")
@@ -801,7 +816,7 @@ def real_test_trade():
 
 
 
-
+speed_test()
 update_time()
 real_test_trade()
 historical_trade()

@@ -19,6 +19,8 @@ import threading
 import tkinter 
 from tkinter import messagebox, ttk
 from bs4 import BeautifulSoup as bs
+import speedtest
+from pythonping import ping
 
 
 from websockets import connect
