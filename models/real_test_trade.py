@@ -369,7 +369,7 @@ async def websocket_trade(card_trade_menu_2,real_test_frame_3_1_1,real_test_fram
         global stop_loss_price
         global DEPOSIT
         clean_card_menu(card_trade_menu_2)
-        customtkinter.CTkLabel(card_trade_menu_2, text="В позиции", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1)
+        customtkinter.CTkLabel(card_trade_menu_2, text="В позиции", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=0)
         card_trade_menu_2_1 = customtkinter.CTkFrame(card_trade_menu_2,  fg_color="transparent")
         card_trade_menu_2_1.pack()
         customtkinter.CTkLabel(card_trade_menu_2_1, text=symbol, fg_color="transparent",anchor='w',font=('Arial',12,'bold')).grid(row=0,column=0,padx=10)
@@ -377,16 +377,19 @@ async def websocket_trade(card_trade_menu_2,real_test_frame_3_1_1,real_test_fram
             customtkinter.CTkLabel(card_trade_menu_2_1, text='Лонг', fg_color="transparent",text_color='#0AFF89',anchor='w',font=('Arial',12,'bold')).grid(row=0,column=1,padx=[40,50])
         if signal_trade == 'short':
             customtkinter.CTkLabel(card_trade_menu_2_1, text='Шорт', fg_color="transparent",text_color='#DA1010',anchor='w',font=('Arial',12,'bold')).grid(row=0,column=1,padx=[40,50])
-        
-        customtkinter.CTkLabel(card_trade_menu_2, text=f"Цена входа: {price_trade}", fg_color="transparent",anchor='w',font=('Arial',12,'bold')).pack(pady=1,anchor="w",padx=10)
-        customtkinter.CTkLabel(card_trade_menu_2, text=f"TP: {round(take_profit_price,4)}", fg_color="transparent",anchor='w',font=('Arial',12,'bold')).pack(pady=1,anchor="w",padx=10)
-        customtkinter.CTkLabel(card_trade_menu_2, text=f"SL: {round(stop_loss_price,4)}", fg_color="transparent",anchor='w',font=('Arial',12,'bold')).pack(pady=1,anchor="w",padx=10)
+        customtkinter.CTkLabel(card_trade_menu_2, text=f"Цена входа: {price_trade}", fg_color="transparent",anchor='w',font=('Arial',12,'bold')).pack(pady=0,anchor="w",padx=10)
+        card_trade_menu_2_2 = customtkinter.CTkFrame(card_trade_menu_2,  fg_color="transparent")
+        card_trade_menu_2_2.pack()
+        comission = round(float(value_trade)*float(price_trade)*(COMMISSION_MAKER+COMMISSION_TAKER))
+        customtkinter.CTkLabel(card_trade_menu_2_2, text=f"TP: {round(take_profit_price,4)}", fg_color="transparent",justify="left", anchor="w",font=('Arial',12,'bold')).grid(row=0,column=0,sticky='w' ,padx=0)
+        customtkinter.CTkLabel(card_trade_menu_2_2, text=f"SL: {round(stop_loss_price,4)}", fg_color="transparent",anchor='w',font=('Arial',12,'bold')).grid(row=0,column=1,padx=10)
+        customtkinter.CTkLabel(card_trade_menu_2, text=f"Комиссия: {comission}", fg_color="transparent",anchor='w',font=('Arial',12,'bold')).pack(pady=0,anchor="w",padx=10)
         price_now_ws = customtkinter.CTkLabel(card_trade_menu_2, text=f"Текущая цена: ", fg_color="transparent",anchor='w',font=('Arial',12,'bold'))
-        price_now_ws.pack(pady=1,anchor="w",padx=10)
+        price_now_ws.pack(pady=0,anchor="w",padx=10)
         card_trade_menu_2_pnl = customtkinter.CTkLabel(card_trade_menu_2, text=f"P&L: ", fg_color="transparent",anchor='w',font=('Arial',12,'bold'),text_color='white')
-        card_trade_menu_2_pnl.pack(pady=1,anchor="w",padx=10)
+        card_trade_menu_2_pnl.pack(pady=0,anchor="w",padx=10)
         card_trade_menu_2_balance = customtkinter.CTkLabel(card_trade_menu_2, text=f"Баланс: ", fg_color="transparent",anchor='w',font=('Arial',12,'bold'))
-        card_trade_menu_2_balance.pack(pady=1,anchor="w",padx=10)
+        card_trade_menu_2_balance.pack(pady=0,anchor="w",padx=10)
         
         url = 'wss://fstream.binance.com/stream?streams='+symbol.lower()+'@miniTicker'
         async with websockets.connect(url) as ws:
@@ -402,9 +405,9 @@ async def websocket_trade(card_trade_menu_2,real_test_frame_3_1_1,real_test_fram
                         card_trade_menu_2_pnl.configure(text_color='#0AFF89')
                         
                     if pnl_proc<0:
-                        card_trade_menu_2_pnl.configure(text=f"P&L: {pnl_proc} | {pnl_dol}$",text_color='#DA1010')
+                        card_trade_menu_2_pnl.configure(text=f"P&L: {pnl_proc}% | {pnl_dol}$",text_color='#DA1010')
                         card_trade_menu_2_pnl.configure(text_color='#DA1010')
-                    card_trade_menu_2_balance.configure(text=f"Баланс: {round(DEPOSIT+pnl_dol,4)}")
+                    card_trade_menu_2_balance.configure(text=f"Баланс: {round(DEPOSIT+pnl_dol-comission,4)}$")
                     
                     if check_trade(data['c'],real_test_frame_3_2_1): # следим за монетой, отрабатываем тп и сл
                         print_components_log('----------------',real_test_frame_3_1_1,'WS')
