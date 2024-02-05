@@ -80,6 +80,8 @@ frame_6 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_7 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_8 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_loading = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
+card_trade_menu = customtkinter.CTkFrame(navigation_frame, corner_radius=0, fg_color="transparent")
+
 def update_time():
     time_now.configure(text=time.strftime("%d.%m.%Y г. %H:%M:%S", time.localtime()))
     win.after(100, update_time)  # Запланировать выполнение этой же функции через 100 миллисекунд
@@ -95,7 +97,8 @@ frame_5_button.grid(row=5, column=0, sticky="ew")
 frame_6_button.grid(row=6, column=0, sticky="ew")
 frame_7_button.grid(row=7, column=0, sticky="ew")
 frame_8_button.grid(row=8, column=0, sticky="ew")
-time_now.grid(row=9, column=0, sticky="s",pady=40)
+card_trade_menu.grid(row=9, column=0, sticky="ew")
+time_now.grid(row=10, column=0, sticky="s",pady=20)
 
 def select_frame_by_name(name): #выбирает и открывает фрейм
     home_button.configure(fg_color=("gray75", "gray25") if name == "home" else "transparent")
@@ -637,7 +640,7 @@ def start_real_test_trade_btn(input_2_1,switch_TG_var,real_test_frame_3_1_1,real
             widget.forget()
         for widget in real_test_frame_3_2_1.winfo_children():
             widget.forget()
-        thread2 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(name_bot_real_test,sost_tg_message,real_test_frame_3_1_1,real_test_frame_3_2_1))
+        thread2 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(card_trade_menu,name_bot_real_test,sost_tg_message,real_test_frame_3_1_1,real_test_frame_3_2_1))
         thread2.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
@@ -660,7 +663,7 @@ def real_test_trade():
     real_test_trade_frame_1_appearance_mode_menu1 = customtkinter.CTkOptionMenu(frame_2_set4_25, values=["5m", "15m", "30m", "1h"],command=get_setting_timeframe_real_test_trad)
     label_title3_1 = customtkinter.CTkLabel(frame_2_set4_2, text="Сколько топ монет торговать", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
     input_3_1 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="10",justify="center")
-    switch_TG_var = customtkinter.StringVar(value="on")
+    switch_TG_var = customtkinter.StringVar(value="off")
     switch_tg = customtkinter.CTkSwitch(frame_2_set4_3, text="Оповещения в ТГ",variable=switch_TG_var, onvalue="on", offvalue="off")
     # ----------    
     frame_2_set4 = customtkinter.CTkFrame(third_frame, corner_radius=10, fg_color="#2B2B2B")
