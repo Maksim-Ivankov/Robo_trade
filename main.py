@@ -29,7 +29,7 @@ win.grid_rowconfigure(0, weight=1)
 win.grid_columnconfigure(1, weight=1)
 
 coin_mas_10 = []
-
+        
 #Логер в файлы
 def logger(name_log,msg):
     path = name_log+'_log.txt'
@@ -173,8 +173,13 @@ frame_8.grid_columnconfigure(0, weight=2)
 def change_appearance_mode_event(new_appearance_mode):
     customtkinter.set_appearance_mode(new_appearance_mode)
 # получаем текущий ip c сайта - https://api.ipify.org
+
 def get_my_ip():
-    return requests.get('https://api.ipify.org').content.decode('utf8')
+    try:
+        return requests.get('https://api.ipify.org').content.decode('utf8')
+    except Exception as e:
+        messagebox.showinfo('Внимание','Ошибка работы, нет сети. Подключитесь к интернету.')
+    # return requests.get('https://api.ipify.org').content.decode('utf8')
 # получаем таблицу бесплатных прокси с сайта - https://free-proxy-list.net/
 def get_free_proxies():
     url = "https://free-proxy-list.net/"
