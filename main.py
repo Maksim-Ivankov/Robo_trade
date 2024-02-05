@@ -445,13 +445,17 @@ def start_historical_trade(frame_2_set2_graph,frame_3_set4_1_2,frame_3_set4_1_1_
         thread.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
+# открываем логи торгов в блокноте
+def open_history_trade_log():
+    print('Открыли логи истор торгов')
+    os.system("notepad H_log.txt")
 # отрисовка страницы - историческая торговля
 def historical_trade():
     label_title1 = customtkinter.CTkLabel(second_frame, text="Торговля по историческим данным", fg_color="transparent",anchor='center',font=('Arial',20,'bold'))
     frame_2_set1 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="transparent")
     button1 = customtkinter.CTkButton(frame_2_set1, text="Информация")
     button2 = customtkinter.CTkButton(frame_2_set1, text="Инструкция")
-    button3 = customtkinter.CTkButton(frame_2_set1, text="История торгов")
+    button3 = customtkinter.CTkButton(frame_2_set1, text="История торгов",command=open_history_trade_log)
     frame_2_set2 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="#2B2B2B")
     frame_2_set2_1 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
     frame_2_set2_2 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
