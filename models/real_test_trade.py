@@ -3,6 +3,7 @@ import sys
 sys.path.insert(1,os.path.join(sys.path[0],'../'))
 from imports import *
 import _thread
+from models.tg import *
 
 TF = '5m' # таймфрейм
 wait_time = 5 # сколько минут ждать для обновления цены с биржи
@@ -53,13 +54,20 @@ data_print_ad_df = []
 number_print_df = 0
 number_print_ht = 0
 data_print_ad_ht = []
-
+tg_message = ''
+name_bot = ''
 client = UMFutures(key=key, secret=secret)
 
 flag_trade_real_test = True
 
 
-def start_real_test_trade_model_thread_1(real_test_frame_3_1_1,real_test_frame_3_2_1):
+def start_real_test_trade_model_thread_1(name_bot_real_test,sost_tg_message,real_test_frame_3_1_1,real_test_frame_3_2_1):
+    global tg_message
+    global name_bot
+    name_bot = name_bot_real_test
+    tg_message = sost_tg_message
+    print(f'реал тест имя бота- {name_bot}')
+    print(f'реал тест сост тг- {tg_message}')
     try:
         thread25 = threading.Thread(target=lambda:start_real_test_trade_model(real_test_frame_3_1_1,real_test_frame_3_2_1))
         thread25.start()
@@ -143,7 +151,14 @@ def print_components_log(msg,frame,type):
     global number_print_df
     global number_print_ht
     global data_print_ad_ht
+    global tg_message
+    global name_bot
     if type == 'OS1':
+        print('Сработали логи')
+        if tg_message == 'on':
+            print('Отправляем в тг')
+            print(f'{name_bot} - {msg}')
+            print_tg(name_bot,msg)
         number_print_df=number_print_df+1
         for widget in frame.winfo_children():
                 widget.forget()
@@ -336,7 +351,7 @@ def get_price_now_coin(symbol):
 
 def websocket_trade(real_test_frame_3_1_1,real_test_frame_3_2_1):
     try:
-        url = 'wss://stream.binance.com:9443/stream?streams='+symbol.lower()+'@miniTicker'
+        url = 'wss://fstream.binance.com/stream?streams='+symbol.lower()+'@miniTicker'
         with connect(url) as ws:
             while True:        
                 try:

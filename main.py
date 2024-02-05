@@ -8,6 +8,10 @@ import models.real_test_trade as real
 
 set1_timveframe = {"5m":5, "15m":15, "30m":30, "1h":60,"1m":1}
 set1_time = {"12 часов":720, "24 часа":1440, "2 дня":2880, "3 дня":4320}
+work_timeframe_HM = 1
+work_timeframe_str_HM = '1m'
+timeframe_HM = 5
+time_HM = 720
 
 
 # открываем по центру
@@ -26,6 +30,7 @@ win.grid_columnconfigure(1, weight=1)
 
 coin_mas_10 = []
 
+#Логер в файлы
 def logger(name_log,msg):
     path = name_log+'_log.txt'
     f = open(path,'a',encoding='utf-8')
@@ -75,12 +80,9 @@ frame_6 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_7 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_8 = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
 frame_loading = customtkinter.CTkFrame(win, corner_radius=0, fg_color="transparent")
-
 def update_time():
     time_now.configure(text=time.strftime("%d.%m.%Y г. %H:%M:%S", time.localtime()))
     win.after(100, update_time)  # Запланировать выполнение этой же функции через 100 миллисекунд
-
-
 #рисуем навигацию и фреймы
 navigation_frame.grid(row=0, column=0, sticky="nsew")
 navigation_frame.grid_rowconfigure(9, weight=1)
@@ -94,7 +96,6 @@ frame_6_button.grid(row=6, column=0, sticky="ew")
 frame_7_button.grid(row=7, column=0, sticky="ew")
 frame_8_button.grid(row=8, column=0, sticky="ew")
 time_now.grid(row=9, column=0, sticky="s",pady=40)
-
 
 def select_frame_by_name(name): #выбирает и открывает фрейм
     home_button.configure(fg_color=("gray75", "gray25") if name == "home" else "transparent")
@@ -146,11 +147,7 @@ def select_frame_by_name(name): #выбирает и открывает фрей
         
 
         # создаем страницы фреймов
-
 select_frame_by_name("home")
-        
-
-# frame_8.grid_rowconfigure(0, weight=1)
 frame_8.grid_columnconfigure(0, weight=2)
 
 # --------------------------------- НАСТРОЙКИ ПРОГРАММЫ ---------------------------------
@@ -337,12 +334,6 @@ def profile():
     label_title15.grid(row=3, column=1, sticky="w",padx=20)
 
 # --------------------------------- ИСТОРИЧЕСКАЯ ТОРГОВЛЯ ---------------------------------
-work_timeframe_HM = 1
-work_timeframe_str_HM = '1m'
-timeframe_HM = 5
-time_HM = 720
-
-
 
 # обработка выбора рабочег о таймфрейма в блоке создания датафреймов
 def get_setting_timeframe(data):
@@ -419,8 +410,7 @@ def get_dataset_file_start(frame_2_set2_3_1):
     customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Следим за ценой - {int(time_F2)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
     for name in filenames:
         customtkinter.CTkLabel(frame_2_set2_3_1,text='Найден датасет '+ name , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
-        symbol=name
-    
+        symbol=name  
 # стартуем историческую торговлю
 def start_historical_trade(frame_2_set2_graph,frame_3_set4_1_2,frame_3_set4_1_1_1,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4):
     try:
@@ -615,18 +605,18 @@ def historical_trade():
     label__3_set4_1_1_set_1.pack(pady=5)
     frame_3_set4_1_1_1.pack(pady=[5,20])
     frame_2_set2_graph.pack(pady=[0,20],padx=20)
-    
-    
+
 # --------------------------------- Реальная тестовая торговля ---------------------------------    
 real.wait_time = int(set1_timveframe.get(bin.TF))
-
+# получаем таймфрейм
 def get_setting_timeframe_real_test_trad(data):
     timeframe = set1_timveframe.get(data)
     real.TF = data
     real.wait_time = timeframe
-            
-def start_real_test_trade_btn(real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4):
+# запускаем реальную тестовую торговлю            
+def start_real_test_trade_btn(input_2_1,switch_TG_var,real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4):
     try:
+        global name_bot_real_test
         real.COMMISSION_MAKER = float(float(real_test_trade_frame_2_set4_2_set_1.get())/100)
         real.COMMISSION_TAKER = float(float(real_test_trade_frame_2_set4_2_set_2.get())/100)
         real.TP = float(float(real_test_trade_frame_2_set4_2_set_3.get())/100)
@@ -639,27 +629,19 @@ def start_real_test_trade_btn(real_test_frame_3_1_1,real_test_frame_3_2_1,real_t
         real.CORNER_SHORT = int(real_test_trade_frame_2_set4_4_set_2.get())
         real.CANDLE_COIN_MIN = int(real_test_trade_frame_2_set4_4_set_3.get())
         real.CANDLE_COIN_MAX = int(real_test_trade_frame_2_set4_4_set_4.get())
-        # print(real.COMMISSION_MAKER)
-        # print(real.COMMISSION_TAKER)
-        # print(real.TP)
-        # print(real.SL)
-        # print(real.DEPOSIT)
-        # print(real.LEVERAGE)
-        # print(real.CANAL_MAX)
-        # print(real.CANAL_MIN)
-        # print(real.CORNER_LONG)
-        # print(real.CORNER_SHORT)
-        # print(real.CANDLE_COIN_MIN)
-        # print(real.CANDLE_COIN_MAX)
+        sost_tg_message = switch_TG_var.get()
+        name_bot_real_test = input_2_1.get()
+        print(f'main галка тг- {sost_tg_message}')
+        print(f'main имя бота- {name_bot_real_test}')
         for widget in real_test_frame_3_1_1.winfo_children():
             widget.forget()
         for widget in real_test_frame_3_2_1.winfo_children():
             widget.forget()
-        thread2 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(real_test_frame_3_1_1,real_test_frame_3_2_1))
+        thread2 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(name_bot_real_test,sost_tg_message,real_test_frame_3_1_1,real_test_frame_3_2_1))
         thread2.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
-
+# рсиуем окно реальной тестовой торговли
 def real_test_trade():
     label_title1 = customtkinter.CTkLabel(third_frame, text="Реальная тестовая торговля", fg_color="transparent",anchor='center',font=('Arial',20,'bold'))
     frame_2_set1 = customtkinter.CTkFrame(third_frame, corner_radius=10, fg_color="transparent")
@@ -731,7 +713,7 @@ def real_test_trade():
     real_test_trade_frame_2_set4_4_set_4.insert(0, "500000")
      # --------------------------------
     real_test_frame_2_buttons = customtkinter.CTkFrame(master=third_frame, corner_radius=10, fg_color="transparent")
-    start_trade_real_test = customtkinter.CTkButton(real_test_frame_2_buttons, text="Запустить торговлю",command=lambda:start_real_test_trade_btn(real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4))
+    start_trade_real_test = customtkinter.CTkButton(real_test_frame_2_buttons, text="Запустить торговлю",command=lambda:start_real_test_trade_btn(input_2_1,switch_TG_var,real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4))
     stop_trade_real_test = customtkinter.CTkButton(real_test_frame_2_buttons, text="Остановить торговлю")
     # --------------------------------
     real_test_frame_3 = customtkinter.CTkFrame(master=third_frame, corner_radius=10, fg_color="#2B2B2B")
