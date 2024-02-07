@@ -14,6 +14,7 @@ timeframe_HM = 5
 time_HM = 720
 
 
+
 # открываем по центру
 win = customtkinter.CTk()
 win.title("Robo_trade")
@@ -645,10 +646,12 @@ def get_setting_timeframe_real_test_trad(data):
     real.TF = data
     real.wait_time = timeframe
     logger('RT',f'Реальная тестовая торговля | Таймфрейм- {real.TF}')
+
 # запускаем реальную тестовую торговлю            
 def start_real_test_trade_btn(input_2_1,switch_TG_var,real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4):
     try:
         global name_bot_real_test
+        global thread2
         real.COMMISSION_MAKER = float(float(real_test_trade_frame_2_set4_2_set_1.get())/100)
         real.COMMISSION_TAKER = float(float(real_test_trade_frame_2_set4_2_set_2.get())/100)
         real.TP = float(float(real_test_trade_frame_2_set4_2_set_3.get())/100)
@@ -684,6 +687,9 @@ def start_real_test_trade_btn(input_2_1,switch_TG_var,real_test_frame_3_1_1,real
         thread2.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
+def stop_real_test_trade():
+    print('Нажали на кнопку - завершить торговлю, но пока поток не завершился')
+    real.stop_real_test_trade_flag = True
 # рсиуем окно реальной тестовой торговли
 def real_test_trade():
     label_title1 = customtkinter.CTkLabel(third_frame, text="Реальная тестовая торговля", fg_color="transparent",anchor='center',font=('Arial',20,'bold'))
@@ -757,7 +763,7 @@ def real_test_trade():
      # --------------------------------
     real_test_frame_2_buttons = customtkinter.CTkFrame(master=third_frame, corner_radius=10, fg_color="transparent")
     start_trade_real_test = customtkinter.CTkButton(real_test_frame_2_buttons, text="Запустить торговлю",command=lambda:start_real_test_trade_btn(input_2_1,switch_TG_var,real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4))
-    stop_trade_real_test = customtkinter.CTkButton(real_test_frame_2_buttons, text="Остановить торговлю")
+    stop_trade_real_test = customtkinter.CTkButton(real_test_frame_2_buttons, text="Остановить торговлю", command=stop_real_test_trade)
     # --------------------------------
     real_test_frame_3 = customtkinter.CTkFrame(master=third_frame, corner_radius=10, fg_color="#2B2B2B")
     real_test_frame_3_1 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")

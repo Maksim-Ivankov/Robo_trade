@@ -14,7 +14,7 @@ DEPOSIT_START = DEPOSIT
 LEVERAGE = 20 # торговое плечо
 COMMISSION_MAKER = 0.002 # комиссия а вход
 COMMISSION_TAKER = 0.001 # комиссия на выхд
-VOLUME = 48 # сколько свечей получить при запросе к бирже
+VOLUME = 10 # сколько свечей получить при запросе к бирже
 VOLUME_5MIN = 144
 CANAL_MAX = 0.85 # Верх канала
 CANAL_MIN = 0.15 # Низ канала
@@ -58,6 +58,8 @@ tg_message = ''
 name_bot = ''
 client = UMFutures(key=key, secret=secret)
 price_now = 0
+trend_for_print = ''
+stop_real_test_trade_flag = False
 
 flag_trade_real_test = True
 
@@ -404,16 +406,26 @@ async def websocket_trade(card_trade_menu_2,real_test_frame_3_1_1,real_test_fram
                     pnl_dol = round(float(value_trade)*float(price_trade)*float(pnl_proc)/100,4)
                     print_components_log(data['c'],real_test_frame_3_1_1,'WS')
                     price_now_ws.configure(text=f"Текущая цена: {data['c']}")
-                    if pnl_proc>=0:
-                        card_trade_menu_2_pnl.configure(text=f"P&L: {pnl_proc} | {pnl_dol}$",text_color='#0AFF89')
-                        card_trade_menu_2_pnl.configure(text_color='#0AFF89')
-                        
-                    if pnl_proc<0:
-                        card_trade_menu_2_pnl.configure(text=f"P&L: {pnl_proc}% | {pnl_dol}$",text_color='#DA1010')
-                        card_trade_menu_2_pnl.configure(text_color='#DA1010')
+                    if trend_for_print == 'long':
+                        if pnl_proc>=0:
+                            card_trade_menu_2_pnl.configure(text=f"P&L: {pnl_proc} | {pnl_dol}$",text_color='#0AFF89')
+                            card_trade_menu_2_pnl.configure(text_color='#0AFF89')
+
+                        if pnl_proc<0:
+                            card_trade_menu_2_pnl.configure(text=f"P&L: {pnl_proc}% | {pnl_dol}$",text_color='#DA1010')
+                            card_trade_menu_2_pnl.configure(text_color='#DA1010')
+                    if trend_for_print == 'short':
+                        if pnl_proc<=0:
+                            card_trade_menu_2_pnl.configure(text=f"P&L: {-pnl_proc} | {pnl_dol}$",text_color='#0AFF89')
+                            card_trade_menu_2_pnl.configure(text_color='#0AFF89')
+                            
+                        if pnl_proc>0:
+                            card_trade_menu_2_pnl.configure(text=f"P&L: {-pnl_proc}% | {pnl_dol}$",text_color='#DA1010')
+                            card_trade_menu_2_pnl.configure(text_color='#DA1010')
                     card_trade_menu_2_balance.configure(text=f"Баланс: {round(DEPOSIT+pnl_dol-comission,4)}$")
-                    
+                    print(data['c'])
                     if check_trade(data['c'],real_test_frame_3_2_1): # следим за монетой, отрабатываем тп и сл
+                        print('ВЫХОДИМ ИЗ ПОЗИЦИИ!!!!!!!!!!!')
                         print_components_log('----------------',real_test_frame_3_1_1,'WS')
                         break
                 except websockets.exceptions.ConnectionClosed:
@@ -435,9 +447,12 @@ def start_real_test_trade_model(card_trade_menu_2,real_test_frame_3_1_1,real_tes
         print('Стартуем')
         global coin_mas_10
         global symbol
+        global trend_for_print
+        global stop_real_test_trade_flag
+        
         event = threading.Event()
         coin_mas_10 = get_top_coin()
-        while True:
+        while stop_real_test_trade_flag == False:
             try:     
                 if open_sl == False:
                     clean_card_menu(card_trade_menu_2)
@@ -448,13 +463,15 @@ def start_real_test_trade_model(card_trade_menu_2,real_test_frame_3_1_1,real_tes
                         trend = check_if_signal(prices,30)
                         time.sleep(2) # Интервал в 2 секунд, чтобы бинанс не долбить
                         print_components_log(f'Монета - {result}, {trend}',real_test_frame_3_2_1,'OS1')
+                        trend_for_print = trend
                         if trend != 'нет сигнала':
                             symbol = result
                             print('СИГНАЛ!')
                             break
+                        trend = "нет сигнала"
                     if trend == "нет сигнала":
                         print_components_log(f'Нет сигналов. Ждём {wait_time*2} минут',real_test_frame_3_2_1,'OS1')
-                        time.sleep(120)
+                        time.sleep(1)
                     else:
                         print('Сделка!')
                         price__now = get_price_now_coin(symbol)
@@ -477,6 +494,8 @@ def start_real_test_trade_model(card_trade_menu_2,real_test_frame_3_1_1,real_tes
                 print_components_log(f'Завершили торговлю',real_test_frame_3_2_1,'OS1')
                 print("СЛОМАЛИ!!!!!!!!!!")
                 break
+        print('Нажали на кнопку - завершить торговлю, поток завершился')
+        print_components_log(f'Завершили торговлю',real_test_frame_3_2_1,'OS1')
     except Exception as e:
         messagebox.showinfo('Внимание',f'Ошибка работы основного цикла торговли - - {e}')
         print(e)
