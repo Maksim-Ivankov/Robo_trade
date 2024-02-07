@@ -487,6 +487,7 @@ def start_trade_hist_model(frame_2_set2_graph,frame_3_set4_1_1_1,frame_3_set4_1_
                     else:
                         trend = "нет сигнала"                
                 if trend != "нет сигнала" and prices.iloc[index]['VOLUME']>CANDLE_COIN_MIN and prices.iloc[index]['VOLUME']<CANDLE_COIN_MAX:
+                    trend = 'long'
                     paint_trade(canvas_coin,trend,index,prices.iloc[index]['close'],prices_old)
                     open_position(trend,get_trade_VOLUME(prices.iloc[index]['close']),prices.iloc[index]['close'],frame_3_set4_1_1_1) # если есть сигнал и мы не стоим в позиции, то открываем позицию
             if open_sl == True:

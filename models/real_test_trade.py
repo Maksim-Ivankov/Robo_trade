@@ -165,6 +165,10 @@ def print_components_log(msg,frame,type):
     global name_bot
     if type == 'OS1':
         print('Сработали логи')
+        path ='RT_log.txt'
+        f = open(path,'a',encoding='utf-8')
+        f.write('\n'+time.strftime("%d.%m.%Y | %H:%M:%S | ", time.localtime())+msg)
+        f.close()
         if tg_message == 'on':
             print('Отправляем в тг')
             print(f'{name_bot} - {msg}')
@@ -444,7 +448,6 @@ def start_real_test_trade_model(card_trade_menu_2,real_test_frame_3_1_1,real_tes
                         trend = check_if_signal(prices,30)
                         time.sleep(2) # Интервал в 2 секунд, чтобы бинанс не долбить
                         print_components_log(f'Монета - {result}, {trend}',real_test_frame_3_2_1,'OS1')
-                        trend = 'long'
                         if trend != 'нет сигнала':
                             symbol = result
                             print('СИГНАЛ!')

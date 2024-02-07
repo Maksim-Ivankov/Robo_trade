@@ -635,11 +635,16 @@ def historical_trade():
 
 # --------------------------------- Реальная тестовая торговля ---------------------------------    
 real.wait_time = int(set1_timveframe.get(bin.TF))
+# открываем логи торгов в блокноте
+def open_real_test_trade_log():
+    print('Открыли логи реальная тестовая торговля')
+    os.system("notepad RT_log.txt")
 # получаем таймфрейм
 def get_setting_timeframe_real_test_trad(data):
     timeframe = set1_timveframe.get(data)
     real.TF = data
     real.wait_time = timeframe
+    logger('RT',f'Реальная тестовая торговля | Таймфрейм- {real.TF}')
 # запускаем реальную тестовую торговлю            
 def start_real_test_trade_btn(input_2_1,switch_TG_var,real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4):
     try:
@@ -658,6 +663,17 @@ def start_real_test_trade_btn(input_2_1,switch_TG_var,real_test_frame_3_1_1,real
         real.CANDLE_COIN_MAX = int(real_test_trade_frame_2_set4_4_set_4.get())
         sost_tg_message = switch_TG_var.get()
         name_bot_real_test = input_2_1.get()
+        logger('RT',f'------------------------------------------------------------------------')
+        logger('RT',f'Реальная тестовая торговля | Начали торговлю')
+        logger('RT',f'Реальная тестовая торговля | Настройки:')
+        logger('RT',f'Реальная тестовая торговля | Комисия мейкер - {real.COMMISSION_MAKER}, тейкер - {real.COMMISSION_TAKER}')
+        logger('RT',f'Реальная тестовая торговля | Тейк - {real.TP}, стоп - {real.SL}')
+        logger('RT',f'Реальная тестовая торговля | Депозит - {real.DEPOSIT}, плечо - {real.LEVERAGE}')
+        logger('RT',f'Реальная тестовая торговля | Канал макс - {real.CANAL_MAX}, канал мин - {real.CANAL_MIN}')
+        logger('RT',f'Реальная тестовая торговля | Угол лонг - {real.CORNER_LONG}, угол шорт - {real.CORNER_SHORT}')
+        logger('RT',f'Реальная тестовая торговля | Объём мин - {real.CANDLE_COIN_MIN}, макс - {real.CANDLE_COIN_MAX}')
+        logger('RT',f'Реальная тестовая торговля | Название бота - {name_bot_real_test}')
+        logger('RT',f'Реальная тестовая торговля | Галка тг- {sost_tg_message}')
         print(f'main галка тг- {sost_tg_message}')
         print(f'main имя бота- {name_bot_real_test}')
         for widget in real_test_frame_3_1_1.winfo_children():
@@ -674,7 +690,7 @@ def real_test_trade():
     frame_2_set1 = customtkinter.CTkFrame(third_frame, corner_radius=10, fg_color="transparent")
     button1 = customtkinter.CTkButton(frame_2_set1, text="Информация")
     button2 = customtkinter.CTkButton(frame_2_set1, text="Инструкция")
-    button3 = customtkinter.CTkButton(frame_2_set1, text="История торгов")
+    button3 = customtkinter.CTkButton(frame_2_set1, text="История торгов", command = open_real_test_trade_log)
     # ----------
     frame_2_set4_0 = customtkinter.CTkFrame(master=third_frame,width=1100,height=800, corner_radius=10, fg_color="#2B2B2B")
     frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
