@@ -1,6 +1,7 @@
 from imports import *
 import models.treayd_historical as bin
 import models.main_TV as TV
+import strategy.print_settings.strat1 as strat
 import models.real_test_trade as real
 import models.treayd_historical_2_bollindger as bin_2
 
@@ -132,6 +133,7 @@ def select_frame_by_name(name): #выбирает и открывает фрей
         home_frame.grid_forget()
     if name == "frame_2":
         second_frame.grid(row=0, column=1, sticky="nsew")
+        historical_trade()
     else:
         second_frame.grid_forget()
     if name == "frame_3":
@@ -354,17 +356,6 @@ def main_page():
     frame_2_set1.pack(anchor='n',pady=20)
 
 
-
-
-
-
-
-
-
-
-
-
-
 # --------------------------------- ПРОФИЛЬ ---------------------------------
 
 def profile():
@@ -525,12 +516,226 @@ frame_2_set2_graph_2 = customtkinter.CTkFrame(win)
 frame_2_set2_graph = customtkinter.CTkFrame(win)
 frame_3_set4_1 = customtkinter.CTkFrame(win)
 frame_3_set4_1_trat_2 = customtkinter.CTkFrame(win)
+
+
+strat_mas = ['strat1'] # выбор по умолчанию - 1 вариант
+# сохраняет в массив выше выбранные стратегии и удаляет невыбранные
+check_var = customtkinter.StringVar(value=strat_mas[0])
+def checkbox_event_strat(): 
+    global strat_mas
+    match check_var.get():
+        case '0' : strat_mas.remove('strat1')
+        case '1' : strat_mas.remove('strat2')
+        case '2' : strat_mas.remove('strat3')
+        case '3' : strat_mas.remove('strat4')
+        case '4' : strat_mas.remove('strat5')
+        case '5' : strat_mas.remove('strat6')
+        case '6' : strat_mas.remove('strat7')
+        case '7' : strat_mas.remove('strat8')
+        case '8' : strat_mas.remove('strat9')
+        case '9' : strat_mas.remove('strat10')
+        case '10': strat_mas.remove('strat11')
+        case '11': strat_mas.remove('strat12')
+        case '12': strat_mas.remove('strat13')
+        case '13': strat_mas.remove('strat14')
+        case '14': strat_mas.remove('strat15')
+        case '15': strat_mas.remove('strat16')
+        case '16': strat_mas.remove('strat17')
+        case '17': strat_mas.remove('strat18')
+        case '18': strat_mas.remove('strat19')
+        case '19': strat_mas.remove('strat20')
+        case '20': strat_mas.remove('strat21')
+        case '21': strat_mas.remove('strat22')
+        case '22': strat_mas.remove('strat23')
+        case '23': strat_mas.remove('strat24')
+        case 'strat1' : strat_mas.append('strat1')
+        case 'strat2' : strat_mas.append('strat2')
+        case 'strat3' : strat_mas.append('strat3')
+        case 'strat4' : strat_mas.append('strat4')
+        case 'strat5' : strat_mas.append('strat5')
+        case 'strat6' : strat_mas.append('strat6')
+        case 'strat7' : strat_mas.append('strat7')
+        case 'strat8' : strat_mas.append('strat8')
+        case 'strat9' : strat_mas.append('strat9')
+        case 'strat10': strat_mas.append('strat10')
+        case 'strat11': strat_mas.append('strat11')
+        case 'strat12': strat_mas.append('strat12')
+        case 'strat13': strat_mas.append('strat13')
+        case 'strat14': strat_mas.append('strat14')
+        case 'strat15': strat_mas.append('strat15')
+        case 'strat16': strat_mas.append('strat16')
+        case 'strat17': strat_mas.append('strat17')
+        case 'strat18': strat_mas.append('strat18')
+        case 'strat19': strat_mas.append('strat19')
+        case 'strat20': strat_mas.append('strat20')
+        case 'strat21': strat_mas.append('strat21')
+        case 'strat22': strat_mas.append('strat22')
+        case 'strat23': strat_mas.append('strat23')
+        case 'strat24': strat_mas.append('strat24')
+    print(strat_mas)
+
+
+
+
 def start_historical_trade_strat_2_bollindger(frame_2_set2_graph_2):
     try:
         thread25 = threading.Thread(target=lambda:bin_2.main(frame_2_set2_graph_2))
         thread25.start()
     except Exception as e:
         messagebox.showinfo('Внимание','Ошибка начала торговли по стратегии Боллинджера')
+
+def open_step_1_historical(frame):
+    print('1')
+    for widget in frame.winfo_children(): # чистим табличку
+        widget.destroy()
+    print('1')
+    label_title112 = customtkinter.CTkLabel(frame, text="Получите данные по монетам для исторической торговли\n с биржи, либо используйте загруженные ранее данные", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+    frame_2_set2 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B")
+    frame_2_set2_1 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set2_2 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set2_3 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
+    label_title1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Сбор данных", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    label_title1_1_0 = customtkinter.CTkLabel(frame_2_set2_1, text="Следим за ценой", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
+    appearance_mode_menu0 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["1m", "5m"],command=get_setting_timeframe_slega)
+    label_title1_1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Рабочий таймфрейм", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
+    appearance_mode_menu1 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["5m", "15m", "30m", "1h"],command=get_setting_timeframe)
+    label_title1_1_2 = customtkinter.CTkLabel(frame_2_set2_1, text="Длительность", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
+    appearance_mode_menu2 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["12 часов", "24 часа", "2 дня", "3 дня"],command=get_setting_time)
+    button4 = customtkinter.CTkButton(frame_2_set2_1, text="Получить данные", command=lambda:get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3_1))
+    label_title1_2 = customtkinter.CTkLabel(frame_2_set2_2, text="Монеты роста/падения", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    frame_2_set2_2_1 = customtkinter.CTkScrollableFrame(frame_2_set2_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=150, height=250)
+    label_title1_3_1 = customtkinter.CTkLabel(frame_2_set2_3, text="Датасет с биржи Binance", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    label_title1_3_2 = customtkinter.CTkLabel(frame_2_set2_3, text="                                     ", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    frame_2_set2_3_1 = customtkinter.CTkScrollableFrame(frame_2_set2_3, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=200, height=250)
+    button32 = customtkinter.CTkButton(frame, text="Выбрать стратегию торговли",command=lambda:open_step_2_historical(frame))
+    
+    get_coin_proc_start(frame_2_set2_2_1)
+    get_dataset_file_start(frame_2_set2_3_1)
+    
+    label_title112.pack(pady=20)
+    frame_2_set2.pack(pady=10)
+    frame_2_set2_1.grid(row=0, column=1, sticky="ew",padx=10)
+    frame_2_set2_2.grid(row=0, column=2, sticky="ew",padx=10)
+    frame_2_set2_3.grid(row=0, column=3, sticky="ew",padx=10,columnspan = 2)
+    label_title1_1.grid(row=0, column=0, sticky="ew")
+    label_title1_1_0.grid(row=1, column=0, sticky="ew")
+    appearance_mode_menu0.grid(row=2, column=0, sticky="ew",pady=[0,5])
+    label_title1_1_1.grid(row=3, column=0, sticky="ew")
+    appearance_mode_menu1.grid(row=4, column=0, sticky="ew",pady=[0,5])
+    label_title1_1_2.grid(row=5, column=0, sticky="ew")
+    appearance_mode_menu2.grid(row=6, column=0, sticky="ew",pady=[0,5])
+    button4.grid(row=7, column=0, sticky="ew",pady=15,padx=20)
+    label_title1_2.grid(row=0, column=0, sticky="ew",pady=10)
+    frame_2_set2_2_1.grid(row=1, column=0, sticky="ew",pady=[0,20])
+    label_title1_3_1.grid(row=0, column=0, sticky="ew",pady=10)
+    label_title1_3_2.grid(row=0, column=1, sticky="ew",pady=10)
+    frame_2_set2_3_1.grid(row=1, column=0, columnspan=2, sticky="ew",pady=[0,20])
+    button32.pack(pady=20)
+
+def open_step_2_historical(frame):
+    for widget in frame.winfo_children(): # чистим табличку
+        widget.destroy()
+    print('1')
+    label_title112 = customtkinter.CTkLabel(frame, text="Выберете одну или несколько стратегий исторической торговли", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+    frame_2_set4 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B")
+    label__2_set4 = customtkinter.CTkLabel(frame_2_set4, text="Выбор стратегии", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    frame_2_set4_0 = customtkinter.CTkFrame(frame_2_set4, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set4_1_1 = customtkinter.CTkScrollableFrame(frame_2_set4_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=500, height=450)
+    radiobutton_1 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat1", offvalue="0",text="Канал, тренд, локаль, объём",text_color='#242424')
+    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat2", offvalue="1",text="Линии Боллинджера",text_color='#242424')
+    radiobutton_3 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat3", offvalue="2",text="BarUpDn",text_color='#242424')
+    radiobutton_4 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat4", offvalue="3",text="Полосы Боллинджера направленные",text_color='#242424')
+    radiobutton_5 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat5", offvalue="4",text="Channel BreakOut",text_color='#242424')
+    radiobutton_6 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat6", offvalue="5",text="Consecutive Up/Down",text_color='#242424')
+    radiobutton_7 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat7", offvalue="6",text="Greedy",text_color='#242424')
+    radiobutton_8 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat8", offvalue="7",text="InSide Bar",text_color='#242424')
+    radiobutton_9 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat9", offvalue="8",text="Канал Кельтнера",text_color='#242424')
+    radiobutton_10 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat10", offvalue="9",text="MACD",text_color='#242424')
+    radiobutton_11 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat11", offvalue="10",text="Моментум",text_color='#242424')
+    radiobutton_12 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat12", offvalue="11",text="Пересечение двух линий скользящих средних",text_color='#242424')
+    radiobutton_13 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat13", offvalue="12",text="Пересечение скользящих средних",text_color='#242424')
+    radiobutton_14 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat14", offvalue="13",text="OutSide Bar",text_color='#242424')
+    radiobutton_15 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat15", offvalue="14",text="Параболическая остановка и разворот",text_color='#242424')
+    radiobutton_16 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat16", offvalue="15",text="Pivot Extension",text_color='#242424')
+    radiobutton_17 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat17", offvalue="16",text="Контрольная точка разворота",text_color='#242424')
+    radiobutton_18 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat18", offvalue="17",text="Ценовые каналы",text_color='#242424')
+    radiobutton_19 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat19", offvalue="18",text="Роб Букер - Прорыв ADX",text_color='#242424')
+    radiobutton_20 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat20", offvalue="19",text="RSI",text_color='#242424')
+    radiobutton_21 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat21", offvalue="20",text="Медленный стохастик",text_color='#242424')
+    radiobutton_22 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat22", offvalue="21",text="Супертренд",text_color='#242424')
+    radiobutton_23 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat23", offvalue="22",text="Технический индикатор рынка",text_color='#242424')
+    radiobutton_24 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat24", offvalue="23",text="Volty Expan Close",text_color='#242424')
+    frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
+    button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:open_step_1_historical(frame))
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Настроить стратегию торговлю",command=lambda:open_step_3_historical(frame))
+    # ----
+
+    label_title112.pack(pady=5)
+    frame_2_set4.pack(pady=10, padx=20)
+    label__2_set4.pack(pady=5)
+    frame_2_set4_0.pack(pady=10)
+    frame_2_set4_1.grid(row=0, column=1, sticky="ew",padx=10)
+    frame_2_set4_1_1.pack(pady=4)
+    radiobutton_1.pack(pady=4, anchor='w')
+    radiobutton_2.pack(pady=4, anchor='w')
+    radiobutton_3.pack(pady=4, anchor='w')
+    radiobutton_4.pack(pady=4, anchor='w')
+    radiobutton_5.pack(pady=4, anchor='w')
+    radiobutton_6.pack(pady=4, anchor='w')
+    radiobutton_7.pack(pady=4, anchor='w')
+    radiobutton_8.pack(pady=4, anchor='w')
+    radiobutton_9.pack(pady=4, anchor='w')
+    radiobutton_10.pack(pady=4, anchor='w')
+    radiobutton_11.pack(pady=4, anchor='w')
+    radiobutton_12.pack(pady=4, anchor='w')
+    radiobutton_13.pack(pady=4, anchor='w')
+    radiobutton_14.pack(pady=4, anchor='w')
+    radiobutton_15.pack(pady=4, anchor='w')
+    radiobutton_16.pack(pady=4, anchor='w')
+    radiobutton_17.pack(pady=4, anchor='w')
+    radiobutton_18.pack(pady=4, anchor='w')
+    radiobutton_19.pack(pady=4, anchor='w')
+    radiobutton_20.pack(pady=4, anchor='w')
+    radiobutton_21.pack(pady=4, anchor='w')
+    radiobutton_22.pack(pady=4, anchor='w')
+    radiobutton_23.pack(pady=4, anchor='w')
+    radiobutton_24.pack(pady=4, anchor='w')
+    frame_2_set412.pack(pady=20, anchor='n')
+    button3212.grid(row=0, column=0, sticky="ew",padx=10)
+    button3213.grid(row=0, column=1, sticky="ew",padx=10)
+
+def open_step_3_historical(frame):
+    global strat_mas
+    for widget in frame.winfo_children(): # чистим табличку
+        widget.destroy()
+    for i in strat_mas:
+        match i:
+            case 'strat1' : strat.strat1(frame,open_step_2_historical)
+            case 'strat2' : strat.strat2()
+            case 'strat3' : strat.strat3()
+            case 'strat4' : strat.strat4()
+            case 'strat5' : strat.strat5()
+            case 'strat6' : strat.strat6()
+            case 'strat7' : strat.strat7()
+            case 'strat8' : strat.strat8()
+            case 'strat9' : strat.strat9()
+            case 'strat10': strat.strat10()
+            case 'strat11': strat.strat11()
+            case 'strat12': strat.strat12()
+            case 'strat13': strat.strat13()
+            case 'strat14': strat.strat14()
+            case 'strat15': strat.strat15()
+            case 'strat16': strat.strat16()
+            case 'strat17': strat.strat17()
+            case 'strat18': strat.strat18()
+            case 'strat19': strat.strat19()
+            case 'strat20': strat.strat20()
+            case 'strat21': strat.strat21()
+            case 'strat22': strat.strat22()
+            case 'strat23': strat.strat23()
+            case 'strat24': strat.strat24()
+
 def get_strategy_HT(frame_2_set4_0,radio_var):
     print(radio_var.get())
     global frame_2_strat_1
@@ -684,76 +889,29 @@ def get_strategy_HT(frame_2_set4_0,radio_var):
         frame_2_set2_graph_2.pack(pady=[0,20],padx=20)   
 # отрисовка страницы - историческая торговля
 def historical_trade():
+    
+    for widget in second_frame.winfo_children(): # чистим табличку
+        widget.destroy()    
+    
     label_title1 = customtkinter.CTkLabel(second_frame, text="Торговля по историческим данным", fg_color="transparent",anchor='center',font=('Arial',20,'bold'))
     frame_2_set1 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="transparent")
     button1 = customtkinter.CTkButton(frame_2_set1, text="Информация")
     button2 = customtkinter.CTkButton(frame_2_set1, text="Инструкция")
     button3 = customtkinter.CTkButton(frame_2_set1, text="История торгов",command=open_history_trade_log)
-    frame_2_set2 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="#2B2B2B")
-    frame_2_set2_1 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
-    frame_2_set2_2 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
-    frame_2_set2_3 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
-    #----
-    label_title1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Сбор данных", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
-    label_title1_1_0 = customtkinter.CTkLabel(frame_2_set2_1, text="Следим за ценой", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
-    appearance_mode_menu0 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["1m", "5m"],command=get_setting_timeframe_slega)
-    label_title1_1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Рабочий таймфрейм", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
-    appearance_mode_menu1 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["5m", "15m", "30m", "1h"],command=get_setting_timeframe)
-    label_title1_1_2 = customtkinter.CTkLabel(frame_2_set2_1, text="Длительность", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
-    appearance_mode_menu2 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["12 часов", "24 часа", "2 дня", "3 дня"],command=get_setting_time)
-    button4 = customtkinter.CTkButton(frame_2_set2_1, text="Получить данные", command=lambda:get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3_1))
-    #----
-    label_title1_2 = customtkinter.CTkLabel(frame_2_set2_2, text="Монеты роста/падения", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
-    frame_2_set2_2_1 = customtkinter.CTkScrollableFrame(frame_2_set2_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=150, height=50)
-    # ----
-    label_title1_3_1 = customtkinter.CTkLabel(frame_2_set2_3, text="Датасет с биржи Binance", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
-    label_title1_3_2 = customtkinter.CTkLabel(frame_2_set2_3, text="                                     ", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
-    frame_2_set2_3_1 = customtkinter.CTkScrollableFrame(frame_2_set2_3, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=200, height=50)
-    # ----
-    frame_2_set4 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="#2B2B2B")
-    label__2_set4 = customtkinter.CTkLabel(frame_2_set4, text="Настройка торговли", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
-    frame_2_set4_0 = customtkinter.CTkFrame(frame_2_set4, corner_radius=0, fg_color="#2B2B2B")
-    frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
-    label__2_set4_1_1 = customtkinter.CTkLabel(frame_2_set4_1, text="Выбор стратегии", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    frame_2_set4_1_1 = customtkinter.CTkScrollableFrame(frame_2_set4_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=200, height=250)
-    radio_var = tkinter.IntVar(value=1)
-    radiobutton_1 = customtkinter.CTkRadioButton(frame_2_set4_1_1, text="Канал, тренд, локаль, \nобъём", variable= radio_var, value=1,text_color='#242424',command = lambda:get_strategy_HT(frame_2_set4_0,radio_var))
-    radiobutton_2 = customtkinter.CTkRadioButton(frame_2_set4_1_1, text="Линии Боллинджера", variable= radio_var, value=2,text_color='#242424',command = lambda:get_strategy_HT(frame_2_set4_0,radio_var))
-    # ----
-
-    get_coin_proc_start(frame_2_set2_2_1)
-    get_dataset_file_start(frame_2_set2_3_1)
+    frame_2_set1_step1 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="transparent")
+    
+    
+    
     label_title1.pack(pady=20)
     frame_2_set1.pack(pady=10,padx=20)
     button1.grid(row=0, column=0, sticky="ew",padx=10)
     button2.grid(row=0, column=1, sticky="ew",padx=10)
     button3.grid(row=0, column=2, sticky="ew",padx=10)
-    frame_2_set2.pack(pady=10)
-    frame_2_set2_1.grid(row=0, column=1, sticky="ew",padx=10)
-    frame_2_set2_2.grid(row=0, column=2, sticky="ew",padx=10)
-    frame_2_set2_3.grid(row=0, column=3, sticky="ew",padx=10,columnspan = 2)
-    label_title1_1.grid(row=0, column=0, sticky="ew")
-    label_title1_1_0.grid(row=1, column=0, sticky="ew")
-    appearance_mode_menu0.grid(row=2, column=0, sticky="ew",pady=[0,5])
-    label_title1_1_1.grid(row=3, column=0, sticky="ew")
-    appearance_mode_menu1.grid(row=4, column=0, sticky="ew",pady=[0,5])
-    label_title1_1_2.grid(row=5, column=0, sticky="ew")
-    appearance_mode_menu2.grid(row=6, column=0, sticky="ew",pady=[0,5])
-    button4.grid(row=7, column=0, sticky="ew",pady=15,padx=20)
-    label_title1_2.grid(row=0, column=0, sticky="ew",pady=10)
-    frame_2_set2_2_1.grid(row=1, column=0, sticky="ew",pady=[0,20])
-    label_title1_3_1.grid(row=0, column=0, sticky="ew",pady=10)
-    label_title1_3_2.grid(row=0, column=1, sticky="ew",pady=10)
-    frame_2_set2_3_1.grid(row=1, column=0, columnspan=2, sticky="ew",pady=[0,20])
-    frame_2_set4.pack(pady=10, padx=20)
-    label__2_set4.pack(pady=5)
-    frame_2_set4_0.pack(pady=10)
-    frame_2_set4_1.grid(row=0, column=1, sticky="ew",padx=10)
-    label__2_set4_1_1.pack(pady=4)
-    frame_2_set4_1_1.pack(pady=4)
-    radiobutton_1.pack(pady=4, anchor='w')
-    radiobutton_2.pack(pady=4, anchor='w')
-    get_strategy_HT(frame_2_set4_0,radio_var)
+    frame_2_set1_step1.pack()
+    
+    open_step_1_historical(frame_2_set1_step1)
+    
+   
     
 # --------------------------------- РЕАЛЬНАЯ ТЕСТОВАЯ ТОРГОВЛЯ ---------------------------------    
 real.wait_time = int(set1_timveframe.get(bin.TF))
@@ -969,7 +1127,6 @@ def real_test_trade():
 speed_test()
 update_time()
 real_test_trade()
-historical_trade()
 settings_prog()
 profile()
 main_page()
