@@ -1,3 +1,5 @@
+from tkinter import *
+from math import *
 import os
 import sys
 sys.path.insert(1,os.path.join(sys.path[0],'../'))
@@ -26,6 +28,7 @@ MYDIR_WORKER = '../ROBO_TRADE/DF/worker/'
 MYDIR_5MIN = '../ROBO_TRADE/DF/5min/'
 MYDIR_COIN = '../ROBO_TRADE/DF/coin.txt'
 MYDIR_COIN_PROCENT = '../ROBO_TRADE/DF/coin_procent.txt'
+how_mach_coin = 10 # сколько монет торговать
 
 day_trade = round((wait_time*VOLUME)/(60*24),4)
 open_sl = False # флаг на открытые позиции
@@ -60,28 +63,30 @@ client = UMFutures(key=key, secret=secret)
 price_now = 0
 trend_for_print = ''
 stop_real_test_trade_flag = False
-
+width_canvas = 700
+height_canvas = 300
 flag_trade_real_test = True
 
 
-def start_real_test_trade_model_thread_1(card_trade_menu,name_bot_real_test,sost_tg_message,real_test_frame_3_1_1,real_test_frame_3_2_1):
+def start_real_test_trade_model_thread_1(real_test_frame_4,card_trade_menu,name_bot_real_test,sost_tg_message,real_test_frame_3_1_1,real_test_frame_3_2_1):
     global tg_message
     global name_bot
     name_bot = name_bot_real_test
     tg_message = sost_tg_message
     print(f'реал тест имя бота- {name_bot}')
     print(f'реал тест сост тг- {tg_message}')
+    for widget in card_trade_menu.winfo_children(): # чистим табличку
+            widget.forget()
     card_trade_menu_1 = customtkinter.CTkFrame(card_trade_menu, corner_radius=5, fg_color="#242424")
     card_trade_menu_2 = customtkinter.CTkFrame(card_trade_menu, corner_radius=5, fg_color="#242424")
     switch_TG_var2 = customtkinter.StringVar(value="on")
     card_trade_menu_1_switch_tg = customtkinter.CTkSwitch(card_trade_menu_1, text="Робот запущен",variable=switch_TG_var2, onvalue="on", offvalue="off")
-    
     card_trade_menu_1.pack()
     card_trade_menu_1_switch_tg.pack(padx=35,pady=5)
     card_trade_menu_2.pack(pady=10)
     
     try:
-        thread25 = threading.Thread(target=lambda:start_real_test_trade_model(card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1))
+        thread25 = threading.Thread(target=lambda:start_real_test_trade_model(real_test_frame_4,card_trade_menu,switch_TG_var2,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1))
         thread25.start()
     except Exception as e:
         messagebox.showinfo('Внимание','Ошибка начала торговли')
@@ -131,7 +136,7 @@ def get_top_coin():
             coin_mas1[key] = value
             if i==1:
                 coin_max_val = value
-            if i== 10:
+            if i== how_mach_coin:
                 break
         i=0
         for key, value in coin_min.items():
@@ -139,7 +144,7 @@ def get_top_coin():
             coin_mas2[key] = value
             if i==1:
                 coin_min_val = value
-            if i== 10:
+            if i== how_mach_coin:
                 break
         if abs(coin_max_val)>abs(coin_min_val):
             result = coin_mas1
@@ -348,6 +353,7 @@ def check_if_signal(ohlc,index):
         if prepared_df['position_in_channel'][i-1]<CANAL_MIN: # проверяем, прижаты ли мы к верхней границе канала
             if prepared_df['slope'][i-1]<CORNER_LONG: # смотрим, какой наклон графика
                 signal='long'
+                signal = 'short'
     return signal
     
 # -------------------------------------- СТРАТЕГИЯ --------------------------------------
@@ -365,7 +371,7 @@ def get_price_now_coin(symbol):
         print(e)
          
 
-async def websocket_trade(card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1):
+async def websocket_trade(real_test_frame_4,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1):
     try:
         global price_trade #цена входа
         global signal_trade # тренд
@@ -397,30 +403,68 @@ async def websocket_trade(card_trade_menu_2,real_test_frame_3_1_1,real_test_fram
         card_trade_menu_2_balance = customtkinter.CTkLabel(card_trade_menu_2, text=f"Баланс: ", fg_color="transparent",anchor='w',font=('Arial',12,'bold'))
         card_trade_menu_2_balance.pack(pady=0,anchor="w",padx=10)
         
+        part_our = float(TP)/float(SL) + 1
+        h_center = height_canvas*(1-1/part_our)
+        
+        canvas_trade = Canvas(real_test_frame_4, width = width_canvas, height = height_canvas, bg = "#2B2B2B", cursor = "pencil",border=0,bd=0,highlightthickness=0)
+        if signal_trade == 'long':
+            canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#5dff3e")
+            canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#ff4040")
+        if signal_trade == 'short':
+            canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#ff4040")
+            canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#5dff3e")
+        canvas_trade.create_line(10,h_center,width_canvas-10,h_center,width=2,fill="black")
+        canvas_trade.pack(pady=10)
+        
+        price_max = float(take_profit_price)
+        price_min = float(stop_loss_price)
+        OldRange = (price_max - price_min) 
+        NewRange = height_canvas-20 
+        OldRange1 = 170  
+        NewRange1 = int((width_canvas-20)/170)
+        index = 1
+        x_old = int((index * NewRange1))+10
+        y_old = int(round(height_canvas-(((float(price_trade) - price_min) * NewRange) / OldRange),0))-10
         url = 'wss://fstream.binance.com/stream?streams='+symbol.lower()+'@miniTicker'
         async with websockets.connect(url) as ws:
             while True:        
                 try:
+                    if x_old>680:
+                        print('Переполнили канвас!')
+                        index=1
+                        x_old = x_old - 680
+                        canvas_trade.delete("all")
+                        if signal_trade == 'long':
+                            canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#5dff3e")
+                            canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#ff4040")
+                        if signal_trade == 'short':
+                            canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#ff4040")
+                            canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#5dff3e")
+                        canvas_trade.create_line(10,h_center,width_canvas-10,h_center,width=2,fill="black")
+                    index = index+1
                     data = json.loads(await ws.recv())['data']
                     pnl_proc = round((float(data['c'])/float(price_trade)-1)*100,4)
                     pnl_dol = round(float(value_trade)*float(price_trade)*float(pnl_proc)/100,4)
                     print_components_log(data['c'],real_test_frame_3_1_1,'WS')
                     price_now_ws.configure(text=f"Текущая цена: {data['c']}")
-                    if trend_for_print == 'long':
+                    x = int((index * NewRange1))+10
+                    y = int(round(height_canvas-(((float(data['c']) - price_min) * NewRange) / OldRange),0))-10
+                    canvas_trade.create_line(x_old,y_old,x,y,width=1,fill="white") 
+                    x_old = x
+                    y_old = y
+                    if signal_trade == 'long':
                         if pnl_proc>=0:
                             card_trade_menu_2_pnl.configure(text=f"P&L: {pnl_proc} | {pnl_dol}$",text_color='#0AFF89')
                             card_trade_menu_2_pnl.configure(text_color='#0AFF89')
-
                         if pnl_proc<0:
                             card_trade_menu_2_pnl.configure(text=f"P&L: {pnl_proc}% | {pnl_dol}$",text_color='#DA1010')
                             card_trade_menu_2_pnl.configure(text_color='#DA1010')
-                    if trend_for_print == 'short':
+                    if signal_trade == 'short':
                         if pnl_proc<=0:
-                            card_trade_menu_2_pnl.configure(text=f"P&L: {-pnl_proc} | {pnl_dol}$",text_color='#0AFF89')
+                            card_trade_menu_2_pnl.configure(text=f"P&L: {-pnl_proc} | {-pnl_dol}$",text_color='#0AFF89')
                             card_trade_menu_2_pnl.configure(text_color='#0AFF89')
-                            
                         if pnl_proc>0:
-                            card_trade_menu_2_pnl.configure(text=f"P&L: {-pnl_proc}% | {pnl_dol}$",text_color='#DA1010')
+                            card_trade_menu_2_pnl.configure(text=f"P&L: {-pnl_proc}% | {-pnl_dol}$",text_color='#DA1010')
                             card_trade_menu_2_pnl.configure(text_color='#DA1010')
                     card_trade_menu_2_balance.configure(text=f"Баланс: {round(DEPOSIT+pnl_dol-comission,4)}$")
                     print(data['c'])
@@ -432,6 +476,7 @@ async def websocket_trade(card_trade_menu_2,real_test_frame_3_1_1,real_test_fram
                     break
     except Exception as e:
         messagebox.showinfo('Внимание','Ошибка работы вебсокетов')
+        print(e)
         
 
 # -------------------------------------- Перебор по датафрейму --------------------------------------
@@ -441,7 +486,7 @@ def clean_card_menu(frame):
         widget.forget()
 
 
-def start_real_test_trade_model(card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1):
+def start_real_test_trade_model(real_test_frame_4,card_trade_menu,switch_TG_var2,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1):
     try:
         print_components_log(f'Начали торговлю',real_test_frame_3_2_1,'OS1')
         print('Стартуем')
@@ -452,27 +497,32 @@ def start_real_test_trade_model(card_trade_menu_2,real_test_frame_3_1_1,real_tes
         
         event = threading.Event()
         coin_mas_10 = get_top_coin()
-        while stop_real_test_trade_flag == False:
+        while stop_real_test_trade_flag == False or switch_TG_var2.get()=='on':
             try:     
                 if open_sl == False:
                     clean_card_menu(card_trade_menu_2)
                     customtkinter.CTkLabel(card_trade_menu_2, text="Нет активных позиций", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=[10,160],padx=35)
                     for x,result in enumerate(coin_mas_10):
+                        if stop_real_test_trade_flag: break
+                        if switch_TG_var2.get()=='off': break
                         prices = get_futures_klines(result,TF,30)
                         time.sleep(2)
                         trend = check_if_signal(prices,30)
                         time.sleep(2) # Интервал в 2 секунд, чтобы бинанс не долбить
                         print_components_log(f'Монета - {result}, {trend}',real_test_frame_3_2_1,'OS1')
                         trend_for_print = trend
+                        trend = 'long'
                         if trend != 'нет сигнала':
                             symbol = result
                             print('СИГНАЛ!')
                             break
-                        trend = "нет сигнала"
                     if trend == "нет сигнала":
-                        print_components_log(f'Нет сигналов. Ждём {wait_time*2} минут',real_test_frame_3_2_1,'OS1')
-                        time.sleep(1)
+                        if stop_real_test_trade_flag: break
+                        if switch_TG_var2.get()=='off': break
+                        print_components_log(f'Нет сигналов. Ждём {wait_time} минут',real_test_frame_3_2_1,'OS1')
+                        time.sleep(wait_time*60)
                     else:
+                        trend = 'long'
                         print('Сделка!')
                         price__now = get_price_now_coin(symbol)
                         print(price__now)
@@ -480,24 +530,33 @@ def start_real_test_trade_model(card_trade_menu_2,real_test_frame_3_1_1,real_tes
                         print(vol_trade)
                         open_position(trend,vol_trade,price__now,real_test_frame_3_2_1) # если есть сигнал и мы не стоим в позиции, то открываем позицию
                 if open_sl == True:  
+                    if stop_real_test_trade_flag: break
+                    if switch_TG_var2.get()=='off': break
                     loop22 = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop22)
                     loop22 = asyncio.get_event_loop()
-                    loop22.run_until_complete(websocket_trade(card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1)) 
+                    loop22.run_until_complete(websocket_trade(real_test_frame_4,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1)) 
+                    for widget in real_test_frame_4.winfo_children(): # чистим график вебсокетов
+                        widget.forget()
                     clean_card_menu(card_trade_menu_2)
                     customtkinter.CTkLabel(card_trade_menu_2, text="Нет активных позиций", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=[10,160],padx=35)
-                    print_components_log(f'Ждём {wait_time*2} минут',real_test_frame_3_2_1,'OS1')
-                    time.sleep(120)
+                    # print_components_log(f'Ждём {wait_time*2} минут',real_test_frame_3_2_1,'OS1')
+                    # time.sleep(wait_time*2*60)
                 if DEPOSIT < 40:
                     break
             except KeyboardInterrupt: #
                 print_components_log(f'Завершили торговлю',real_test_frame_3_2_1,'OS1')
                 print("СЛОМАЛИ!!!!!!!!!!")
                 break
+        if stop_real_test_trade_flag: 
+            switch_TG_var2.set('off')
         print('Нажали на кнопку - завершить торговлю, поток завершился')
+        time.sleep(3)
+        for widget in card_trade_menu.winfo_children(): # чистим табличку
+            widget.forget()
         print_components_log(f'Завершили торговлю',real_test_frame_3_2_1,'OS1')
     except Exception as e:
-        messagebox.showinfo('Внимание',f'Ошибка работы основного цикла торговли - - {e}')
+        messagebox.showinfo('Внимание',f'Ошибка работы основного цикла торговли - {e}')
         print(e)
             
             

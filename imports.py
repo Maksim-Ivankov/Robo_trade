@@ -21,6 +21,8 @@ from tkinter import messagebox, ttk
 from bs4 import BeautifulSoup as bs
 import speedtest
 from pythonping import ping
+from models.treayd_historical import DEPOSIT,LEVERAGE,MYDIR_COIN,MYDIR_WORKER,VOLUME
+import math
 
 
 from websockets import connect
