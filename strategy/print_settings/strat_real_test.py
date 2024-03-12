@@ -1,7 +1,36 @@
 import customtkinter
+from tkinter import messagebox, ttk
+
+def strat1_param(frame,step_4_real_test_trade,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4):
+    if frame_2_set4_2_set_1.get()=='': 
+        messagebox.showinfo('Внимание','Введите комиссию мейкер')
+    elif frame_2_set4_2_set_2.get()=='': 
+        messagebox.showinfo('Внимание','Введите комиссию тейкер')
+    elif frame_2_set4_2_set_3.get()=='': 
+        messagebox.showinfo('Внимание','Введите тейк профит')
+    elif frame_2_set4_2_set_4.get()=='': 
+        messagebox.showinfo('Внимание','Введите cтоп лосс')
+    elif frame_2_set4_3_set_1.get()=='': 
+        messagebox.showinfo('Внимание','Введите депозит')
+    elif frame_2_set4_3_set_2.get()=='': 
+        messagebox.showinfo('Внимание','Введите плечо')
+    elif frame_2_set4_3_set_3.get()=='': 
+        messagebox.showinfo('Внимание','Введите верх канала')
+    elif frame_2_set4_3_set_4.get()=='': 
+        messagebox.showinfo('Внимание','Введите низ канала')
+    elif frame_2_set4_4_set_1.get()=='': 
+        messagebox.showinfo('Внимание','Введите угол тренда лонг')
+    elif frame_2_set4_4_set_2.get()=='': 
+        messagebox.showinfo('Внимание','Введите угол тренда шорт')
+    elif frame_2_set4_4_set_3.get()=='': 
+        messagebox.showinfo('Внимание','Введите объём торгов мин')
+    elif frame_2_set4_4_set_4.get()=='': 
+        messagebox.showinfo('Внимание','Введите объём торгов макс')
+    else:
+        step_4_real_test_trade(frame)
 
 
-def strat1(frame,step_2_real_test_trade):
+def strat1(frame,step_2_real_test_trade,step_4_real_test_trade):
     label_title112 = customtkinter.CTkLabel(frame, text="Настройте стратегии и запустите реальную тестовую торговлю", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
     frame_2_strat_1= customtkinter.CTkFrame(frame, corner_radius=0, fg_color="#2B2B2B")
     label__2_set4_2_set_1_title = customtkinter.CTkLabel(frame_2_strat_1, text="Канал, тренд, локаль, объём", fg_color="transparent",anchor='center',font=('Arial',15,'bold'))
@@ -34,7 +63,7 @@ def strat1(frame,step_2_real_test_trade):
     label__2_set4_4_set_4 = customtkinter.CTkLabel(frame_2_set4_4, text="Объм торгов макс", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:step_2_real_test_trade(frame))
-    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю")
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command=lambda:strat1_param(frame,step_4_real_test_trade,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4))
     frame_2_set4_2_set_1.insert(0, "0.2")
     frame_2_set4_2_set_2.insert(0, "0.1")
     frame_2_set4_2_set_3.insert(0, "1.2")

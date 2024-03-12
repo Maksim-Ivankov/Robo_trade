@@ -928,11 +928,19 @@ def get_setting_timeframe_real_test_trad(data):
     real.wait_time = timeframe
     logger('RT',f'Реальная тестовая торговля | Таймфрейм- {real.TF}')
 #how_mach_coin
-# запускаем реальную тестовую торговлю            
+# запускаем реальную тестовую торговлю   
+
+
+sost_tg_message_real_test = 'off'
+
+
+
+         
 def start_real_test_trade_btn(input_3_1,real_test_frame_4,input_2_1,switch_TG_var,real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4):
     try:
-        global name_bot_real_test
+        
         global thread2
+        
         real.COMMISSION_MAKER = float(float(real_test_trade_frame_2_set4_2_set_1.get())/100)
         real.COMMISSION_TAKER = float(float(real_test_trade_frame_2_set4_2_set_2.get())/100)
         real.TP = float(float(real_test_trade_frame_2_set4_2_set_3.get())/100)
@@ -945,9 +953,7 @@ def start_real_test_trade_btn(input_3_1,real_test_frame_4,input_2_1,switch_TG_va
         real.CORNER_SHORT = int(real_test_trade_frame_2_set4_4_set_2.get())
         real.CANDLE_COIN_MIN = int(real_test_trade_frame_2_set4_4_set_3.get())
         real.CANDLE_COIN_MAX = int(real_test_trade_frame_2_set4_4_set_4.get())
-        sost_tg_message = switch_TG_var.get()
-        name_bot_real_test = input_2_1.get()
-        real.how_mach_coin = input_3_1.get()
+        
         logger('RT',f'------------------------------------------------------------------------')
         logger('RT',f'Реальная тестовая торговля | Начали торговлю')
         logger('RT',f'Реальная тестовая торговля | Настройки:')
@@ -958,12 +964,12 @@ def start_real_test_trade_btn(input_3_1,real_test_frame_4,input_2_1,switch_TG_va
         logger('RT',f'Реальная тестовая торговля | Угол лонг - {real.CORNER_LONG}, угол шорт - {real.CORNER_SHORT}')
         logger('RT',f'Реальная тестовая торговля | Объём мин - {real.CANDLE_COIN_MIN}, макс - {real.CANDLE_COIN_MAX}')
         logger('RT',f'Реальная тестовая торговля | Название бота - {name_bot_real_test}')
-        logger('RT',f'Реальная тестовая торговля | Галка тг- {sost_tg_message}')
+        logger('RT',f'Реальная тестовая торговля | Галка тг- {sost_tg_message_real_test}')
         for widget in real_test_frame_3_1_1.winfo_children():
             widget.forget()
         for widget in real_test_frame_3_2_1.winfo_children():
             widget.forget()
-        thread2 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(real_test_frame_4,card_trade_menu,name_bot_real_test,sost_tg_message,real_test_frame_3_1_1,real_test_frame_3_2_1))
+        thread2 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(real_test_frame_4,card_trade_menu,name_bot_real_test,sost_tg_message_real_test,real_test_frame_3_1_1,real_test_frame_3_2_1))
         thread2.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
@@ -1028,7 +1034,30 @@ def checkbox_event_strat_real_test():
         case 'strat24': strat_mas_real_test.append('strat24')
     print(strat_mas_real_test)
 
+def step_2_real_test_trade_prom(frame,switch_TG_var,input_2_1,input_3_1):
+    global name_bot_real_test
+    global sost_tg_message_real_test
+    sost_tg_message_real_test = switch_TG_var.get()
+    name_bot_real_test = input_2_1.get()
+    real.how_mach_coin = input_3_1.get()
+    if name_bot_real_test=='': 
+        messagebox.showinfo('Внимание','Введите имя бота')
+    elif real.how_mach_coin=='': 
+        messagebox.showinfo('Внимание','Введите количество монет для торговли')
+    else:
+        step_2_real_test_trade(frame)
+
+def step_3_real_test_trade_prom(frame):
+    global strat_mas_real_test
+    if len(strat_mas_real_test)==0: 
+        messagebox.showinfo('Внимание','Выберете хотя бы одну стратегию')
+    else:
+        step_3_real_test_trade(frame)
+
+name_bot_real_test = "Версия 1_1"
+
 def step_1_real_test_trade(frame):
+    
     label_title112 = customtkinter.CTkLabel(frame, text="Настройте робота для дальнейшей реальной тестовой торговли", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
     frame_2_set4_0 = customtkinter.CTkFrame(master=frame,width=1100,height=800, corner_radius=10, fg_color="#2B2B2B")
     frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
@@ -1041,12 +1070,13 @@ def step_1_real_test_trade(frame):
     real_test_trade_frame_1_appearance_mode_menu1 = customtkinter.CTkOptionMenu(frame_2_set4_25, values=["5m", "15m", "30m", "1h"],command=get_setting_timeframe_real_test_trad)
     label_title3_1 = customtkinter.CTkLabel(frame_2_set4_2, text="Сколько топ монет торговать", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
     input_3_1 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="10",justify="center")
-    switch_TG_var = customtkinter.StringVar(value="off")
+    switch_TG_var = customtkinter.StringVar(value=sost_tg_message_real_test)
     switch_tg = customtkinter.CTkSwitch(frame_2_set4_3, text="Оповещения в ТГ",variable=switch_TG_var, onvalue="on", offvalue="off")
-    button32 = customtkinter.CTkButton(frame, text="Выбрать стратегию торговли",command=lambda:step_2_real_test_trade(frame))
+    button32 = customtkinter.CTkButton(frame, text="Выбрать стратегию торговли",command=lambda:step_2_real_test_trade_prom(frame,switch_TG_var,input_2_1,input_3_1))
     
-    input_2_1.insert(0, "Версия 1_1")
-    input_3_1.insert(0, "10")
+    input_2_1.insert(0, name_bot_real_test)
+    input_3_1.insert(0, real.how_mach_coin)
+    real_test_trade_frame_1_appearance_mode_menu1.set(real.TF)
 
     label_title112.pack(pady=10,anchor='n')
     frame_2_set4_0.pack(pady=10,ipady = 10,ipadx=5)
@@ -1100,7 +1130,7 @@ def step_2_real_test_trade(frame):
     radiobutton_24 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat24", offvalue="23",text="Volty Expan Close",text_color='#242424')
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:real_test_trade())
-    button3213 = customtkinter.CTkButton(frame_2_set412, text="Настроить стратегию торговли",command=lambda:step_3_real_test_trade(frame))
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Настроить стратегию торговли",command=lambda:step_3_real_test_trade_prom(frame))
     # ----
 
     label_title112.pack(pady=5)
@@ -1144,7 +1174,7 @@ def step_3_real_test_trade(frame):
         widget.destroy()
     for i in strat_mas_real_test:
         match i:
-            case 'strat1' : strat_real_test.strat1(frame,step_2_real_test_trade)
+            case 'strat1' : strat_real_test.strat1(frame,step_2_real_test_trade,step_4_real_test_trade)
             case 'strat2' : strat_real_test.strat2()
             case 'strat3' : strat_real_test.strat3()
             case 'strat4' : strat_real_test.strat4()
@@ -1168,6 +1198,69 @@ def step_3_real_test_trade(frame):
             case 'strat22': strat_real_test.strat22()
             case 'strat23': strat_real_test.strat23()
             case 'strat24': strat_real_test.strat24()
+
+def step_4_real_test_trade(frame):
+    for widget in frame.winfo_children(): # чистим табличку
+        widget.destroy()
+    global name_bot_real_test
+    global sost_tg_message_real_test
+    global strat_mas_real_test
+    strat_now_rt = []
+    for i in strat_mas_real_test:
+        match check_var_real_test.get():
+            case 'strat1' : strat_now_rt.append('Канал, тренд, локаль, объём')
+            case 'strat2' : strat_now_rt.append('Линии Боллинджера')
+            case 'strat3' : strat_now_rt.append('BarUpDn')
+            case 'strat4' : strat_now_rt.append('Полосы Боллинджера направленные')
+            case 'strat5' : strat_now_rt.append('Channel BreakOut')
+            case 'strat6' : strat_now_rt.append('Consecutive Up/Down')
+            case 'strat7' : strat_now_rt.append('Greedy')
+            case 'strat8' : strat_now_rt.append('InSide Bar')
+            case 'strat9' : strat_now_rt.append('Канал Кельтнера')
+            case 'strat10': strat_now_rt.append('MACD')
+            case 'strat11': strat_now_rt.append('Моментум')
+            case 'strat12': strat_now_rt.append('Пересечение двух линий скользящих средних')
+            case 'strat13': strat_now_rt.append('Пересечение скользящих средних')
+            case 'strat14': strat_now_rt.append('OutSide Bar')
+            case 'strat15': strat_now_rt.append('Параболическая остановка и разворот')
+            case 'strat16': strat_now_rt.append('Pivot Extension')
+            case 'strat17': strat_now_rt.append('Контрольная точка разворота')
+            case 'strat18': strat_now_rt.append('Ценовые каналы')
+            case 'strat19': strat_now_rt.append('Роб Букер - Прорыв ADX')
+            case 'strat20': strat_now_rt.append('RSI')
+            case 'strat21': strat_now_rt.append('Медленный стохастик')
+            case 'strat22': strat_now_rt.append('Супертренд')
+            case 'strat23': strat_now_rt.append('Технический индикатор рынка')
+            case 'strat24': strat_now_rt.append('Volty Expan Close')
+    label_title112 = customtkinter.CTkLabel(frame, text="Проверьте настройки и запустите торговлю", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+    frame_2_strat_1= customtkinter.CTkFrame(frame, corner_radius=0, fg_color="#2B2B2B")
+    label_title2_1_1 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Имя робота для логов - {name_bot_real_test}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    label_title2_1_2 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Таймфрейм - {real.TF}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    label_title2_1_3 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Сколько топ монет торговать - {real.how_mach_coin}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    label_title2_1_4 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Оповещения в ТГ - {'да' if sost_tg_message_real_test=='on' else 'нет'}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    label_title2_1_5 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Выбраны стратегии:", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    
+    
+    
+    
+    frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
+    button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:step_3_real_test_trade(frame))
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю")
+    
+    label_title112.pack(pady=0, anchor='n')
+    frame_2_strat_1.pack(pady=20, anchor='n')
+    label_title2_1_1.pack(pady=5, anchor='n')
+    label_title2_1_2.pack(pady=5, anchor='n')
+    label_title2_1_3.pack(pady=5, anchor='n')
+    label_title2_1_4.pack(pady=5, anchor='n')
+    label_title2_1_5.pack(pady=5, anchor='n')
+    for i in strat_now_rt:
+        customtkinter.CTkLabel(frame_2_strat_1, text=i, fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200).pack(pady=5, anchor='n')
+        print(i)
+    
+    frame_2_set412.pack(pady=20, anchor='n')
+    button3212.grid(row=0, column=0, sticky="ew",padx=10)
+    button3213.grid(row=0, column=1, sticky="ew",padx=10)
 
 def real_test_trade():
     for widget in third_frame.winfo_children(): # чистим табличку
