@@ -1199,7 +1199,7 @@ def step_3_real_test_trade(frame):
             case 'strat23': strat_real_test.strat23()
             case 'strat24': strat_real_test.strat24()
 
-def step_4_real_test_trade(frame):
+def step_4_real_test_trade(frame,data_settings_1=[]):
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
     global name_bot_real_test
@@ -1243,6 +1243,8 @@ def step_4_real_test_trade(frame):
     
     
     
+    
+    
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:step_3_real_test_trade(frame))
     button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю")
@@ -1256,8 +1258,21 @@ def step_4_real_test_trade(frame):
     label_title2_1_5.pack(pady=5, anchor='n')
     for i in strat_now_rt:
         customtkinter.CTkLabel(frame_2_strat_1, text=i, fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200).pack(pady=5, anchor='n')
-        print(i)
-    
+    if len(data_settings_1)!=0:
+        customtkinter.CTkLabel(frame_2_strat_1, text='Настройки стратегии - Канал, тренд, локаль, объём', fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Комиссия мейкер, {float(data_settings_1[0])*100}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Комиссия тейкер, {float(data_settings_1[1])*100}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Тейк профит, {float(data_settings_1[2])*100}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Стоп лосс, {float(data_settings_1[3])*100}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Деозит, {data_settings_1[4]}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Плечо {data_settings_1[5]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Верх канала, {float(data_settings_1[6])*100} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Низ канала, {float(data_settings_1[7])*100} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Угол тренда лонг {data_settings_1[8]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Угол тренда шорт {data_settings_1[9]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Объём торгов мин {data_settings_1[10]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_1, text=f"Объм торгов макс {data_settings_1[11]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=5, anchor='n')
+
     frame_2_set412.pack(pady=20, anchor='n')
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)

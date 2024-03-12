@@ -1,5 +1,6 @@
 import customtkinter
-from tkinter import messagebox, ttk
+from tkinter import messagebox
+import models.real_test_trade as real
 
 def strat1_param(frame,step_4_real_test_trade,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4):
     if frame_2_set4_2_set_1.get()=='': 
@@ -27,7 +28,22 @@ def strat1_param(frame,step_4_real_test_trade,frame_2_set4_2_set_1,frame_2_set4_
     elif frame_2_set4_4_set_4.get()=='': 
         messagebox.showinfo('Внимание','Введите объём торгов макс')
     else:
-        step_4_real_test_trade(frame)
+        real.COMMISSION_MAKER = float(float(frame_2_set4_2_set_1.get())/100)
+        real.COMMISSION_TAKER = float(float(frame_2_set4_2_set_2.get())/100)
+        real.TP = float(float(frame_2_set4_2_set_3.get())/100)
+        real.SL = float(float(frame_2_set4_2_set_4.get())/100)
+        real.DEPOSIT = int(frame_2_set4_3_set_1.get())
+        real.LEVERAGE = int(frame_2_set4_3_set_2.get())
+        real.CANAL_MAX = float(float(frame_2_set4_3_set_3.get())/100)
+        real.CANAL_MIN = float(float(frame_2_set4_3_set_4.get())/100)
+        real.CORNER_LONG = int(frame_2_set4_4_set_1.get())
+        real.CORNER_SHORT = int(frame_2_set4_4_set_2.get())
+        real.CANDLE_COIN_MIN = int(frame_2_set4_4_set_3.get())
+        real.CANDLE_COIN_MAX = int(frame_2_set4_4_set_4.get())
+        data_settings_1 = [real.COMMISSION_MAKER,real.COMMISSION_TAKER,real.TP,real.SL,real.DEPOSIT,real.LEVERAGE,real.CANAL_MAX,real.CANAL_MIN,real.CORNER_LONG,real.CORNER_SHORT,real.CANDLE_COIN_MIN,real.CANDLE_COIN_MAX]
+        
+        step_4_real_test_trade(frame,data_settings_1)
+
 
 
 def strat1(frame,step_2_real_test_trade,step_4_real_test_trade):
@@ -64,18 +80,20 @@ def strat1(frame,step_2_real_test_trade,step_4_real_test_trade):
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:step_2_real_test_trade(frame))
     button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command=lambda:strat1_param(frame,step_4_real_test_trade,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4))
-    frame_2_set4_2_set_1.insert(0, "0.2")
-    frame_2_set4_2_set_2.insert(0, "0.1")
-    frame_2_set4_2_set_3.insert(0, "1.2")
-    frame_2_set4_2_set_4.insert(0, "0.4")
-    frame_2_set4_3_set_1.insert(0, "100")
-    frame_2_set4_3_set_2.insert(0, "20")
-    frame_2_set4_3_set_3.insert(0, "85")
-    frame_2_set4_3_set_4.insert(0, "15")
-    frame_2_set4_4_set_1.insert(0, "10")
-    frame_2_set4_4_set_2.insert(0, "10")
-    frame_2_set4_4_set_3.insert(0, "200000")
-    frame_2_set4_4_set_4.insert(0, "500000")
+    frame_2_set4_2_set_1.insert(0, round(real.COMMISSION_MAKER*100,3))
+    frame_2_set4_2_set_2.insert(0, round(real.COMMISSION_TAKER*100,3))
+    frame_2_set4_2_set_3.insert(0, round(real.TP*100,3))
+    frame_2_set4_2_set_4.insert(0, round(real.SL*100,3))
+    frame_2_set4_3_set_1.insert(0, real.DEPOSIT)
+    frame_2_set4_3_set_2.insert(0, real.LEVERAGE)
+    frame_2_set4_3_set_3.insert(0, round(real.CANAL_MAX*100,3))
+    frame_2_set4_3_set_4.insert(0, round(real.CANAL_MIN*100,3))
+    frame_2_set4_4_set_1.insert(0, real.CORNER_LONG)
+    frame_2_set4_4_set_2.insert(0, real.CORNER_SHORT)
+    frame_2_set4_4_set_3.insert(0, real.CANDLE_COIN_MIN)
+    frame_2_set4_4_set_4.insert(0, real.CANDLE_COIN_MAX)
+    
+    
     label_title112.pack(pady=0, anchor='n')
     frame_2_strat_1.pack(pady=20, anchor='n')
     label__2_set4_2_set_1_title.grid(row=0, column=0, sticky="ew",padx=10,columnspan = 3,pady=10)
