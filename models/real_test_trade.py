@@ -371,7 +371,7 @@ def get_price_now_coin(symbol):
         print(e)
          
 
-async def websocket_trade(real_test_frame_4,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1):
+async def websocket_trade(switch_TG_var2,real_test_frame_4,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1):
     try:
         global price_trade #цена входа
         global signal_trade # тренд
@@ -426,8 +426,6 @@ async def websocket_trade(real_test_frame_4,card_trade_menu_2,real_test_frame_3_
             y_old = int(round((((float(price_trade) - price_min) * NewRange) / OldRange),0))-10
         canvas_trade.create_line(10,h_center,width_canvas-10,h_center,width=2,fill="black")
         canvas_trade.pack(pady=10)
-        
-        
         
         url = 'wss://fstream.binance.com/stream?streams='+symbol.lower()+'@miniTicker'
         async with websockets.connect(url) as ws:
@@ -489,6 +487,8 @@ async def websocket_trade(real_test_frame_4,card_trade_menu_2,real_test_frame_3_
                             card_trade_menu_2_pnl.configure(text_color='#DA1010')
                         card_trade_menu_2_balance.configure(text=f"Баланс: {round(DEPOSIT-pnl_dol-comission,4)}$") 
                     print(data['c'])
+                    if stop_real_test_trade_flag: break
+                    if switch_TG_var2.get()=='off': break
                     if check_trade(data['c'],real_test_frame_3_2_1): # следим за монетой, отрабатываем тп и сл
                         print('ВЫХОДИМ ИЗ ПОЗИЦИИ!!!!!!!!!!!')
                         print_components_log('----------------',real_test_frame_3_1_1,'WS')
@@ -555,7 +555,7 @@ def start_real_test_trade_model(real_test_frame_4,card_trade_menu,switch_TG_var2
                     loop22 = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop22)
                     loop22 = asyncio.get_event_loop()
-                    loop22.run_until_complete(websocket_trade(real_test_frame_4,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1)) 
+                    loop22.run_until_complete(websocket_trade(switch_TG_var2,real_test_frame_4,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1)) 
                     for widget in real_test_frame_4.winfo_children(): # чистим график вебсокетов
                         widget.forget()
                     clean_card_menu(card_trade_menu_2)
