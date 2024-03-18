@@ -937,6 +937,7 @@ sost_tg_message_real_test = 'off'
 
          
 def start_real_test_trade_btn(real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu):
+    print('111')
     try:
         
         global thread2
@@ -959,6 +960,7 @@ def start_real_test_trade_btn(real_test_frame_4,real_test_frame_3_1_1,real_test_
         thread2 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(real_test_frame_4,card_trade_menu,name_bot_real_test,sost_tg_message_real_test,real_test_frame_3_1_1,real_test_frame_3_2_1))
         thread2.start()
     except ValueError: 
+        print('222')
         messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
 def stop_real_test_trade():
     print('Нажали на кнопку - завершить торговлю, но пока поток не завершился')

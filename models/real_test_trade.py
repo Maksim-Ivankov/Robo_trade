@@ -509,21 +509,32 @@ def clean_card_menu(frame):
 
 def start_real_test_trade_model(real_test_frame_4,card_trade_menu,switch_TG_var2,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1):
     try:
+        print('ОШИБКА!')
+        print(real_test_frame_3_2_1)
         print_components_log(f'Начали торговлю',real_test_frame_3_2_1,'OS1')
         print('Стартуем')
         global coin_mas_10
         global symbol
         global trend_for_print
         global stop_real_test_trade_flag
+        global open_sl
+        global trend
+        global data_print_ad_df
         
         event = threading.Event()
         coin_mas_10 = get_top_coin()
+        stop_real_test_trade_flag = False
+        switch_TG_var2.set('on')
+        open_sl = False
         while stop_real_test_trade_flag == False or switch_TG_var2.get()=='on':
+            print('Итерация цикла')
             try:     
                 if open_sl == False:
+                    print('Итерация цикла 1')
                     clean_card_menu(card_trade_menu_2)
                     customtkinter.CTkLabel(card_trade_menu_2, text="Нет активных позиций", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=[10,160],padx=35)
                     for x,result in enumerate(coin_mas_10):
+                        print('Итерация цикла 2')
                         if stop_real_test_trade_flag: break
                         if switch_TG_var2.get()=='off': break
                         prices = get_futures_klines(result,TF,30)
@@ -538,6 +549,7 @@ def start_real_test_trade_model(real_test_frame_4,card_trade_menu,switch_TG_var2
                             print('СИГНАЛ!')
                             break
                     if trend == "нет сигнала":
+                        print('Итерация цикла 4')
                         if stop_real_test_trade_flag: break
                         if switch_TG_var2.get()=='off': break
                         print_components_log(f'Нет сигналов. Ждём {wait_time} минут',real_test_frame_3_2_1,'OS1')
@@ -550,6 +562,7 @@ def start_real_test_trade_model(real_test_frame_4,card_trade_menu,switch_TG_var2
                         print(vol_trade)
                         open_position(trend,vol_trade,price__now,real_test_frame_3_2_1) # если есть сигнал и мы не стоим в позиции, то открываем позицию
                 if open_sl == True:  
+                    print('Итерация цикла 6')
                     if stop_real_test_trade_flag: break
                     if switch_TG_var2.get()=='off': break
                     loop22 = asyncio.new_event_loop()
@@ -568,13 +581,17 @@ def start_real_test_trade_model(real_test_frame_4,card_trade_menu,switch_TG_var2
                 print_components_log(f'Завершили торговлю',real_test_frame_3_2_1,'OS1')
                 print("СЛОМАЛИ!!!!!!!!!!")
                 break
-        if stop_real_test_trade_flag: 
-            switch_TG_var2.set('off')
+        # if stop_real_test_trade_flag: 
+        #     switch_TG_var2.set('off')
+        print('Итерация цикла 7')
         print('Нажали на кнопку - завершить торговлю, поток завершился')
         time.sleep(3)
         for widget in card_trade_menu.winfo_children(): # чистим табличку
             widget.forget()
         print_components_log(f'Завершили торговлю',real_test_frame_3_2_1,'OS1')
+        data_print_ad_df = []
+        open_sl = False # флаг на открытые позиции
+        trend = ""
     except Exception as e:
         messagebox.showinfo('Внимание',f'Ошибка работы основного цикла торговли - {e}')
         print(e)
