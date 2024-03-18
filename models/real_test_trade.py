@@ -511,7 +511,6 @@ def start_real_test_trade_model(real_test_frame_4,card_trade_menu,switch_TG_var2
                         time.sleep(2) # Интервал в 2 секунд, чтобы бинанс не долбить
                         print_components_log(f'Монета - {result}, {trend}',real_test_frame_3_2_1,'OS1')
                         trend_for_print = trend
-                        trend = 'long'
                         if trend != 'нет сигнала':
                             symbol = result
                             print('СИГНАЛ!')
@@ -522,7 +521,6 @@ def start_real_test_trade_model(real_test_frame_4,card_trade_menu,switch_TG_var2
                         print_components_log(f'Нет сигналов. Ждём {wait_time} минут',real_test_frame_3_2_1,'OS1')
                         time.sleep(wait_time*60)
                     else:
-                        trend = 'long'
                         print('Сделка!')
                         price__now = get_price_now_coin(symbol)
                         print(price__now)

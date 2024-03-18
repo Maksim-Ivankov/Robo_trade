@@ -936,23 +936,10 @@ sost_tg_message_real_test = 'off'
 
 
          
-def start_real_test_trade_btn(input_3_1,real_test_frame_4,input_2_1,switch_TG_var,real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4):
+def start_real_test_trade_btn(real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu):
     try:
         
         global thread2
-        
-        real.COMMISSION_MAKER = float(float(real_test_trade_frame_2_set4_2_set_1.get())/100)
-        real.COMMISSION_TAKER = float(float(real_test_trade_frame_2_set4_2_set_2.get())/100)
-        real.TP = float(float(real_test_trade_frame_2_set4_2_set_3.get())/100)
-        real.SL = float(float(real_test_trade_frame_2_set4_2_set_4.get())/100)
-        real.DEPOSIT = int(real_test_trade_frame_2_set4_3_set_1.get())
-        real.LEVERAGE = int(real_test_trade_frame_2_set4_3_set_2.get())
-        real.CANAL_MAX = float(float(real_test_trade_frame_2_set4_3_set_3.get())/100)
-        real.CANAL_MIN = float(float(real_test_trade_frame_2_set4_3_set_4.get())/100)
-        real.CORNER_LONG = int(real_test_trade_frame_2_set4_4_set_1.get())
-        real.CORNER_SHORT = int(real_test_trade_frame_2_set4_4_set_2.get())
-        real.CANDLE_COIN_MIN = int(real_test_trade_frame_2_set4_4_set_3.get())
-        real.CANDLE_COIN_MAX = int(real_test_trade_frame_2_set4_4_set_4.get())
         
         logger('RT',f'------------------------------------------------------------------------')
         logger('RT',f'Реальная тестовая торговля | Начали торговлю')
@@ -1093,7 +1080,6 @@ def step_1_real_test_trade(frame):
     switch_tg.pack(pady=[10,0])
     button32.pack(pady=10,anchor='n')
 
-
 def step_2_real_test_trade(frame):
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
@@ -1166,7 +1152,6 @@ def step_2_real_test_trade(frame):
     frame_2_set412.pack(pady=20, anchor='n')
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
-
 
 def step_3_real_test_trade(frame):
     global strat_mas_real_test
@@ -1241,14 +1226,20 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
     label_title2_1_4 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Оповещения в ТГ - {'да' if sost_tg_message_real_test=='on' else 'нет'}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
     label_title2_1_5 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Выбраны стратегии:", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
     
-    
-    
-    
-    
-    
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:step_3_real_test_trade(frame))
-    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю")
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_real_test_trade_btn(real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu))
+    stop_trade_real_test = customtkinter.CTkButton(frame_2_set412, text="Остановить торговлю", command=stop_real_test_trade)
+    
+    real_test_frame_3 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="#2B2B2B")
+    real_test_frame_3_1 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
+    real_test_frame_3_2 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
+    real_test_label_3_1 = customtkinter.CTkLabel(real_test_frame_3_1, text="Данные по монете в сделке", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_frame_3_1_1 = customtkinter.CTkScrollableFrame(real_test_frame_3_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=160, height=260)
+    real_test_label_3_2 = customtkinter.CTkLabel(real_test_frame_3_2, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_frame_3_2_1 = customtkinter.CTkScrollableFrame(real_test_frame_3_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=460, height=260)
+    
+    real_test_frame_4 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="transparent") # графики
     
     label_title112.pack(pady=0, anchor='n')
     frame_2_strat_1.pack(pady=10, anchor='n')
@@ -1280,6 +1271,19 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
     frame_2_set412.pack(pady=20, anchor='n')
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
+    stop_trade_real_test.grid(row=0, column=2, sticky="ew",padx=10)
+    
+    #---
+    real_test_frame_3.pack(pady=20)
+    real_test_frame_3_1.grid(row=0, column=0, sticky="ew",padx=10)
+    real_test_frame_3_2.grid(row=0, column=1, sticky="ew",padx=10)
+    real_test_label_3_1.pack(pady=0)
+    real_test_frame_3_1_1.pack(pady=0)
+    real_test_label_3_2.pack(pady=0)
+    real_test_frame_3_2_1.pack(pady=0)
+    #---
+    
+    real_test_frame_4.pack(pady=20)
 
 def real_test_trade():
     for widget in third_frame.winfo_children(): # чистим табличку
