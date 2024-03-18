@@ -403,19 +403,6 @@ async def websocket_trade(real_test_frame_4,card_trade_menu_2,real_test_frame_3_
         card_trade_menu_2_balance = customtkinter.CTkLabel(card_trade_menu_2, text=f"Баланс: ", fg_color="transparent",anchor='w',font=('Arial',12,'bold'))
         card_trade_menu_2_balance.pack(pady=0,anchor="w",padx=10)
         
-        part_our = float(TP)/float(SL) + 1
-        h_center = height_canvas*(1-1/part_our)
-        
-        canvas_trade = Canvas(real_test_frame_4, width = width_canvas, height = height_canvas, bg = "#2B2B2B", cursor = "pencil",border=0,bd=0,highlightthickness=0)
-        if signal_trade == 'long':
-            canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#5dff3e")
-            canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#ff4040")
-        if signal_trade == 'short':
-            canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#ff4040")
-            canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#5dff3e")
-        canvas_trade.create_line(10,h_center,width_canvas-10,h_center,width=2,fill="black")
-        canvas_trade.pack(pady=10)
-        
         price_max = float(take_profit_price)
         price_min = float(stop_loss_price)
         OldRange = (price_max - price_min) 
@@ -423,8 +410,25 @@ async def websocket_trade(real_test_frame_4,card_trade_menu_2,real_test_frame_3_
         OldRange1 = 170  
         NewRange1 = int((width_canvas-20)/170)
         index = 1
-        x_old = int((index * NewRange1))+10
-        y_old = int(round(height_canvas-(((float(price_trade) - price_min) * NewRange) / OldRange),0))-10
+
+        canvas_trade = Canvas(real_test_frame_4, width = width_canvas, height = height_canvas, bg = "#2B2B2B", cursor = "pencil",border=0,bd=0,highlightthickness=0)
+        if signal_trade == 'long':
+            h_center = height_canvas*(1-1/(float(TP)/float(SL) + 1))
+            canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#5dff3e")
+            canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#ff4040")
+            x_old = int((index * NewRange1))+10
+            y_old = int(round(height_canvas-(((float(price_trade) - price_min) * NewRange) / OldRange),0))-10
+        if signal_trade == 'short':
+            h_center = height_canvas - height_canvas*(1-1/(float(TP)/float(SL) + 1))
+            canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#ff4040")
+            canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#5dff3e")
+            x_old = int((index * NewRange1))+10
+            y_old = int(round((((float(price_trade) - price_min) * NewRange) / OldRange),0))-10
+        canvas_trade.create_line(10,h_center,width_canvas-10,h_center,width=2,fill="black")
+        canvas_trade.pack(pady=10)
+        
+        
+        
         url = 'wss://fstream.binance.com/stream?streams='+symbol.lower()+'@miniTicker'
         async with websockets.connect(url) as ws:
             while True:        
@@ -438,35 +442,52 @@ async def websocket_trade(real_test_frame_4,card_trade_menu_2,real_test_frame_3_
                             canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#5dff3e")
                             canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#ff4040")
                         if signal_trade == 'short':
-                            canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#ff4040")
-                            canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#5dff3e")
-                        canvas_trade.create_line(10,h_center,width_canvas-10,h_center,width=2,fill="black")
-                    index = index+1
-                    data = json.loads(await ws.recv())['data']
-                    pnl_proc = round((float(data['c'])/float(price_trade)-1)*100,4)
-                    pnl_dol = round(float(value_trade)*float(price_trade)*float(pnl_proc)/100,4)
-                    print_components_log(data['c'],real_test_frame_3_1_1,'WS')
-                    price_now_ws.configure(text=f"Текущая цена: {data['c']}")
-                    x = int((index * NewRange1))+10
-                    y = int(round(height_canvas-(((float(data['c']) - price_min) * NewRange) / OldRange),0))-10
-                    canvas_trade.create_line(x_old,y_old,x,y,width=1,fill="white") 
-                    x_old = x
-                    y_old = y
+                            canvas_trade.create_line(10,10,width_canvas-10,10,width=2,fill="#ff4040") # красный
+                            canvas_trade.create_line(10,height_canvas-10,width_canvas-10,height_canvas-10,width=2,fill="#5dff3e") # зеленый
+                        canvas_trade.create_line(10,h_center,width_canvas-10,h_center,width=2,fill="black") # точка входа
+                    
                     if signal_trade == 'long':
-                        if pnl_proc>=0:
+                        
+                        index = index+1
+                        data = json.loads(await ws.recv())['data']
+                        pnl_proc = round((float(data['c'])/float(price_trade)-1)*100,4)
+                        pnl_dol = round(float(value_trade)*float(price_trade)*float(pnl_proc)/100,4)
+                        print_components_log(data['c'],real_test_frame_3_1_1,'WS')
+                        price_now_ws.configure(text=f"Текущая цена: {data['c']}")
+                        x = int((index * NewRange1))+10
+                        y = int(round(height_canvas - (((float(data['c']) - price_min) * NewRange) / OldRange),0))-10
+                        canvas_trade.create_line(x_old,y_old,x,y,width=1,fill="white") 
+                        x_old = x
+                        y_old = y
+                        
+                        if pnl_proc>=0:  # в плюс
                             card_trade_menu_2_pnl.configure(text=f"P&L: {pnl_proc} | {pnl_dol}$",text_color='#0AFF89')
                             card_trade_menu_2_pnl.configure(text_color='#0AFF89')
-                        if pnl_proc<0:
+                        if pnl_proc<0:  # в минус
                             card_trade_menu_2_pnl.configure(text=f"P&L: {pnl_proc}% | {pnl_dol}$",text_color='#DA1010')
                             card_trade_menu_2_pnl.configure(text_color='#DA1010')
+                        card_trade_menu_2_balance.configure(text=f"Баланс: {round(DEPOSIT+pnl_dol-comission,4)}$")
                     if signal_trade == 'short':
-                        if pnl_proc<=0:
+                        
+                        index = index+1
+                        data = json.loads(await ws.recv())['data']
+                        pnl_proc = round((float(data['c'])/float(price_trade)-1)*100,4)
+                        pnl_dol = round(float(value_trade)*float(price_trade)*float(pnl_proc)/100,4)
+                        print_components_log(data['c'],real_test_frame_3_1_1,'WS')
+                        price_now_ws.configure(text=f"Текущая цена: {data['c']}")
+                        x = int((index * NewRange1))+10
+                        y = int(round((((float(data['c']) - price_min) * NewRange) / OldRange),0))-10
+                        canvas_trade.create_line(x_old,y_old,x,y,width=1,fill="white") 
+                        x_old = x
+                        y_old = y
+                        
+                        if pnl_proc<=0: # в минус
                             card_trade_menu_2_pnl.configure(text=f"P&L: {-pnl_proc} | {-pnl_dol}$",text_color='#0AFF89')
                             card_trade_menu_2_pnl.configure(text_color='#0AFF89')
-                        if pnl_proc>0:
+                        if pnl_proc>0: # в плюс
                             card_trade_menu_2_pnl.configure(text=f"P&L: {-pnl_proc}% | {-pnl_dol}$",text_color='#DA1010')
                             card_trade_menu_2_pnl.configure(text_color='#DA1010')
-                    card_trade_menu_2_balance.configure(text=f"Баланс: {round(DEPOSIT+pnl_dol-comission,4)}$")
+                        card_trade_menu_2_balance.configure(text=f"Баланс: {round(DEPOSIT-pnl_dol-comission,4)}$") 
                     print(data['c'])
                     if check_trade(data['c'],real_test_frame_3_2_1): # следим за монетой, отрабатываем тп и сл
                         print('ВЫХОДИМ ИЗ ПОЗИЦИИ!!!!!!!!!!!')
@@ -511,6 +532,7 @@ def start_real_test_trade_model(real_test_frame_4,card_trade_menu,switch_TG_var2
                         time.sleep(2) # Интервал в 2 секунд, чтобы бинанс не долбить
                         print_components_log(f'Монета - {result}, {trend}',real_test_frame_3_2_1,'OS1')
                         trend_for_print = trend
+                        trend = 'long'
                         if trend != 'нет сигнала':
                             symbol = result
                             print('СИГНАЛ!')
