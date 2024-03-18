@@ -5,7 +5,7 @@ import strategy.print_settings.strat1 as strat
 import strategy.print_settings.strat_real_test as strat_real_test
 import models.real_test_trade as real
 import models.treayd_historical_2_bollindger as bin_2
-
+import strategy.strategys.strat_1 as str_1
 
 
 
@@ -30,6 +30,7 @@ win.geometry('%dx%d+%d+%d' % (w, h, x, y))
 # выстраиваем сетку гридов
 win.grid_rowconfigure(0, weight=1)
 win.grid_columnconfigure(1, weight=1)
+name_bot_real_test = "Версия 1_1"
 
 coin_mas_10 = []
         
@@ -487,18 +488,18 @@ def start_historical_trade_strat_1(frame_2_set2_graph,frame_3_set4_1_2,frame_3_s
         bin.SL = float(float(frame_2_set4_2_set_4.get())/100)
         bin.DEPOSIT = int(frame_2_set4_3_set_1.get())
         bin.LEVERAGE = int(frame_2_set4_3_set_2.get())
-        bin.CANAL_MAX = float(float(frame_2_set4_3_set_3.get())/100)
-        bin.CANAL_MIN = float(float(frame_2_set4_3_set_4.get())/100)
-        bin.CORNER_LONG = int(frame_2_set4_4_set_1.get())
-        bin.CORNER_SHORT = int(frame_2_set4_4_set_2.get())
+        str_1.CANAL_MAX = float(float(frame_2_set4_3_set_3.get())/100)
+        str_1.CANAL_MIN = float(float(frame_2_set4_3_set_4.get())/100)
+        str_1.CORNER_LONG = int(frame_2_set4_4_set_1.get())
+        str_1.CORNER_SHORT = int(frame_2_set4_4_set_2.get())
         bin.CANDLE_COIN_MIN = int(frame_2_set4_4_set_3.get())
         bin.CANDLE_COIN_MAX = int(frame_2_set4_4_set_4.get())
         logger('H','Начинаем историческую торговлю')
         logger('H',f'Настройки ИТ: Комиссия мейкер {bin.COMMISSION_MAKER} | Комиссия тейкер {bin.COMMISSION_TAKER}')
         logger('H',f'Настройки ИТ: Тейк профит {bin.TP} | Стоп лосс {bin.SL}')
         logger('H',f'Настройки ИТ: Депозит {bin.DEPOSIT} | Плечо {bin.LEVERAGE}')
-        logger('H',f'Настройки ИТ: Верх канала {bin.CANAL_MAX} | Низ канала {bin.CANAL_MIN}')
-        logger('H',f'Настройки ИТ: Угол лонг {bin.CORNER_LONG} | Угол шорт {bin.CORNER_SHORT}')
+        logger('H',f'Настройки ИТ: Верх канала {str_1.CANAL_MAX} | Низ канала {str_1.CANAL_MIN}')
+        logger('H',f'Настройки ИТ: Угол лонг {str_1.CORNER_LONG} | Угол шорт {str_1.CORNER_SHORT}')
         logger('H',f'Настройки ИТ: Объём мин {bin.CANDLE_COIN_MIN} | Объём макс {bin.CANDLE_COIN_MAX}')
         for widget in frame_3_set4_1_1_1.winfo_children(): # чистим логи тоговли
             widget.forget()
@@ -575,9 +576,6 @@ def checkbox_event_strat():
         case 'strat23': strat_mas.append('strat23')
         case 'strat24': strat_mas.append('strat24')
     print(strat_mas)
-
-
-
 
 def start_historical_trade_strat_2_bollindger(frame_2_set2_graph_2):
     try:
@@ -927,15 +925,9 @@ def get_setting_timeframe_real_test_trad(data):
     real.TF = data
     real.wait_time = timeframe
     logger('RT',f'Реальная тестовая торговля | Таймфрейм- {real.TF}')
-#how_mach_coin
-# запускаем реальную тестовую торговлю   
-
 
 sost_tg_message_real_test = 'off'
 
-
-
-         
 def start_real_test_trade_btn(real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu):
     print('111')
     try:
@@ -948,8 +940,8 @@ def start_real_test_trade_btn(real_test_frame_4,real_test_frame_3_1_1,real_test_
         logger('RT',f'Реальная тестовая торговля | Комисия мейкер - {real.COMMISSION_MAKER}, тейкер - {real.COMMISSION_TAKER}')
         logger('RT',f'Реальная тестовая торговля | Тейк - {real.TP}, стоп - {real.SL}')
         logger('RT',f'Реальная тестовая торговля | Депозит - {real.DEPOSIT}, плечо - {real.LEVERAGE}')
-        logger('RT',f'Реальная тестовая торговля | Канал макс - {real.CANAL_MAX}, канал мин - {real.CANAL_MIN}')
-        logger('RT',f'Реальная тестовая торговля | Угол лонг - {real.CORNER_LONG}, угол шорт - {real.CORNER_SHORT}')
+        logger('RT',f'Реальная тестовая торговля | Канал макс - {str_1.CANAL_MAX}, канал мин - {str_1.CANAL_MIN}')
+        logger('RT',f'Реальная тестовая торговля | Угол лонг - {str_1.CORNER_LONG}, угол шорт - {str_1.CORNER_SHORT}')
         logger('RT',f'Реальная тестовая торговля | Объём мин - {real.CANDLE_COIN_MIN}, макс - {real.CANDLE_COIN_MAX}')
         logger('RT',f'Реальная тестовая торговля | Название бота - {name_bot_real_test}')
         logger('RT',f'Реальная тестовая торговля | Галка тг- {sost_tg_message_real_test}')
@@ -1023,17 +1015,41 @@ def checkbox_event_strat_real_test():
         case 'strat24': strat_mas_real_test.append('strat24')
     print(strat_mas_real_test)
 
-def step_2_real_test_trade_prom(frame,switch_TG_var,input_2_1,input_3_1):
+def step_2_real_test_trade_prom(frame,switch_TG_var,input_2_1,input_3_1,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4):
     global name_bot_real_test
     global sost_tg_message_real_test
-    sost_tg_message_real_test = switch_TG_var.get()
-    name_bot_real_test = input_2_1.get()
-    real.how_mach_coin = input_3_1.get()
     if name_bot_real_test=='': 
         messagebox.showinfo('Внимание','Введите имя бота')
     elif real.how_mach_coin=='': 
         messagebox.showinfo('Внимание','Введите количество монет для торговли')
+    elif frame_2_set4_2_set_1.get()=='': 
+        messagebox.showinfo('Внимание','Введите комиссию мейкер')
+    elif frame_2_set4_2_set_2.get()=='': 
+        messagebox.showinfo('Внимание','Введите комиссию тейкер')
+    elif frame_2_set4_2_set_3.get()=='': 
+        messagebox.showinfo('Внимание','Введите тейк профит')
+    elif frame_2_set4_2_set_4.get()=='': 
+        messagebox.showinfo('Внимание','Введите cтоп лосс')
+    elif frame_2_set4_3_set_1.get()=='': 
+        messagebox.showinfo('Внимание','Введите депозит')
+    elif frame_2_set4_3_set_2.get()=='': 
+        messagebox.showinfo('Внимание','Введите плечо')
+    elif frame_2_set4_4_set_3.get()=='': 
+        messagebox.showinfo('Внимание','Введите объём торгов мин')
+    elif frame_2_set4_4_set_4.get()=='': 
+        messagebox.showinfo('Внимание','Введите объём торгов макс')
     else:
+        real.COMMISSION_MAKER = float(float(frame_2_set4_2_set_1.get())/100)
+        real.COMMISSION_TAKER = float(float(frame_2_set4_2_set_2.get())/100)
+        real.TP = float(float(frame_2_set4_2_set_3.get())/100)
+        real.SL = float(float(frame_2_set4_2_set_4.get())/100)
+        real.DEPOSIT = int(frame_2_set4_3_set_1.get())
+        real.LEVERAGE = int(frame_2_set4_3_set_2.get())
+        real.CANDLE_COIN_MIN = int(frame_2_set4_4_set_3.get())
+        real.CANDLE_COIN_MAX = int(frame_2_set4_4_set_4.get())
+        sost_tg_message_real_test = switch_TG_var.get()
+        name_bot_real_test = input_2_1.get()
+        real.how_mach_coin = input_3_1.get()
         step_2_real_test_trade(frame)
 
 def step_3_real_test_trade_prom(frame):
@@ -1043,7 +1059,7 @@ def step_3_real_test_trade_prom(frame):
     else:
         step_3_real_test_trade(frame)
 
-name_bot_real_test = "Версия 1_1"
+
 
 def step_1_real_test_trade(frame):
     
@@ -1061,11 +1077,36 @@ def step_1_real_test_trade(frame):
     input_3_1 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="10",justify="center")
     switch_TG_var = customtkinter.StringVar(value=sost_tg_message_real_test)
     switch_tg = customtkinter.CTkSwitch(frame_2_set4_3, text="Оповещения в ТГ",variable=switch_TG_var, onvalue="on", offvalue="off")
-    button32 = customtkinter.CTkButton(frame, text="Выбрать стратегию торговли",command=lambda:step_2_real_test_trade_prom(frame,switch_TG_var,input_2_1,input_3_1))
+    frame_2_set4_2_set_1 = customtkinter.CTkEntry(frame_2_set4_1, placeholder_text="0.2",justify="center")
+    frame_2_set4_2_set_2 = customtkinter.CTkEntry(frame_2_set4_1, placeholder_text="0.1",justify="center")
+    frame_2_set4_2_set_3 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="1.2",justify="center")
+    frame_2_set4_2_set_4 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="0.4",justify="center")
+    label__2_set4_2_set_1 = customtkinter.CTkLabel(frame_2_set4_1, text="Комиссия мейкер, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_2_set_2 = customtkinter.CTkLabel(frame_2_set4_1, text="Комиссия тейкер, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_2_set_3 = customtkinter.CTkLabel(frame_2_set4_2, text="Тейк профит, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_2_set_4 = customtkinter.CTkLabel(frame_2_set4_2, text="Стоп лосс, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_2_set4_3_set_1 = customtkinter.CTkEntry(frame_2_set4_25, placeholder_text="100",justify="center")
+    frame_2_set4_3_set_2 = customtkinter.CTkEntry(frame_2_set4_25, placeholder_text="20",justify="center")
+    label__2_set4_3_set_1 = customtkinter.CTkLabel(frame_2_set4_25, text="Деозит, $", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_3_set_2 = customtkinter.CTkLabel(frame_2_set4_25, text="Плечо", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_2_set4_4_set_3 = customtkinter.CTkEntry(frame_2_set4_3, placeholder_text="200000",justify="center")
+    frame_2_set4_4_set_4 = customtkinter.CTkEntry(frame_2_set4_3, placeholder_text="500000",justify="center")
+    label__2_set4_4_set_3 = customtkinter.CTkLabel(frame_2_set4_3, text="Объём торгов мин", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label__2_set4_4_set_4 = customtkinter.CTkLabel(frame_2_set4_3, text="Объм торгов макс", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    button32 = customtkinter.CTkButton(frame, text="Выбрать стратегию торговли",command=lambda:step_2_real_test_trade_prom(frame,switch_TG_var,input_2_1,input_3_1,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4))
     
     input_2_1.insert(0, name_bot_real_test)
     input_3_1.insert(0, real.how_mach_coin)
     real_test_trade_frame_1_appearance_mode_menu1.set(real.TF)
+    frame_2_set4_2_set_1.insert(0, round(real.COMMISSION_MAKER*100,3))
+    frame_2_set4_2_set_2.insert(0, round(real.COMMISSION_TAKER*100,3))
+    frame_2_set4_2_set_3.insert(0, round(real.TP*100,3))
+    frame_2_set4_2_set_4.insert(0, round(real.SL*100,3))
+    frame_2_set4_3_set_1.insert(0, real.DEPOSIT)
+    frame_2_set4_3_set_2.insert(0, real.LEVERAGE)
+    frame_2_set4_4_set_3.insert(0, real.CANDLE_COIN_MIN)
+    frame_2_set4_4_set_4.insert(0, real.CANDLE_COIN_MAX)
+
 
     label_title112.pack(pady=10,anchor='n')
     frame_2_set4_0.pack(pady=10,ipady = 10,ipadx=5)
@@ -1074,12 +1115,28 @@ def step_1_real_test_trade(frame):
     frame_2_set4_25.grid(row=0, column=3, sticky="ew",padx=[5,15])
     frame_2_set4_3.grid(row=0, column=4, sticky="ew",padx=5)
     real_test_trade_frame_1_label_title1_1_1.pack(pady=[10,0])
-    real_test_trade_frame_1_appearance_mode_menu1.pack(pady=0)
+    real_test_trade_frame_1_appearance_mode_menu1.pack(pady=[0,15])
     label_title2_1.pack(pady=[10,0])
-    input_2_1.pack(pady=0)
+    input_2_1.pack(pady=[0,15])
     label_title3_1.pack(pady=[10,0])
-    input_3_1.pack(pady=0)
-    switch_tg.pack(pady=[10,0])
+    input_3_1.pack(pady=[0,15])
+    switch_tg.pack(pady=[20,30],ipady=12)
+    label__2_set4_2_set_1.pack(pady=1)
+    frame_2_set4_2_set_1.pack(pady=1)
+    label__2_set4_2_set_2.pack(pady=[0,15])
+    frame_2_set4_2_set_2.pack(pady=1)
+    label__2_set4_2_set_3.pack(pady=1)
+    frame_2_set4_2_set_3.pack(pady=1)
+    label__2_set4_2_set_4.pack(pady=[0,15])
+    frame_2_set4_2_set_4.pack(pady=1)
+    label__2_set4_3_set_1.pack(pady=1)
+    frame_2_set4_3_set_1.pack(pady=1)
+    label__2_set4_3_set_2.pack(pady=[0,15])
+    frame_2_set4_3_set_2.pack(pady=1)
+    label__2_set4_4_set_3.pack(pady=1)
+    frame_2_set4_4_set_3.pack(pady=1)
+    label__2_set4_4_set_4.pack(pady=[0,15])
+    frame_2_set4_4_set_4.pack(pady=[1,20])
     button32.pack(pady=10,anchor='n')
 
 def step_2_real_test_trade(frame):
@@ -1308,123 +1365,6 @@ def real_test_trade():
     step_1_real_test_trade(frame_2_set1_step1)
 
     
-    # ----------
-    
-    # ----------    
-    # frame_2_set4 = customtkinter.CTkFrame(third_frame, corner_radius=10, fg_color="#2B2B2B")
-    # label__2_set4 = customtkinter.CTkLabel(frame_2_set4, text="Настройка торговли", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
-    # frame_2_set4_01 = customtkinter.CTkFrame(frame_2_set4, corner_radius=0, fg_color="#2B2B2B")
-    # frame_2_set4_11 = customtkinter.CTkFrame(frame_2_set4_01, corner_radius=0, fg_color="#2B2B2B")
-    # frame_2_set4_21 = customtkinter.CTkFrame(frame_2_set4_01, corner_radius=0, fg_color="#2B2B2B")
-    # frame_2_set4_31 = customtkinter.CTkFrame(frame_2_set4_01, corner_radius=0, fg_color="#2B2B2B")
-    # frame_2_set4_41 = customtkinter.CTkFrame(frame_2_set4_01, corner_radius=0, fg_color="#2B2B2B")
-    # label__2_set4_1_1 = customtkinter.CTkLabel(frame_2_set4_11, text="Выбор стратегии", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # frame_2_set4_1_1 = customtkinter.CTkScrollableFrame(frame_2_set4_11, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=200, height=50)
-    # radio_var = tkinter.IntVar(value=1)
-    # radiobutton_1 = customtkinter.CTkRadioButton(frame_2_set4_1_1, text="Канал, тренд, локаль, \nобъём", variable= radio_var, value=1,text_color='#242424',state="disabled")
-    # radiobutton_2 = customtkinter.CTkRadioButton(frame_2_set4_1_1, text="Скользящие средние", variable= radio_var, value=2,text_color='#242424',state="disabled")
-    # real_test_trade_frame_2_set4_2_set_1 = customtkinter.CTkEntry(frame_2_set4_21, placeholder_text="0.2",justify="center")
-    # real_test_trade_frame_2_set4_2_set_2 = customtkinter.CTkEntry(frame_2_set4_21, placeholder_text="0.1",justify="center")
-    # real_test_trade_frame_2_set4_2_set_3 = customtkinter.CTkEntry(frame_2_set4_21, placeholder_text="1.2",justify="center")
-    # real_test_trade_frame_2_set4_2_set_4 = customtkinter.CTkEntry(frame_2_set4_21, placeholder_text="0.4",justify="center")
-    # real_test_trade_label__2_set4_2_set_1 = customtkinter.CTkLabel(frame_2_set4_21, text="Комиссия мейкер, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_label__2_set4_2_set_2 = customtkinter.CTkLabel(frame_2_set4_21, text="Комиссия тейкер, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_label__2_set4_2_set_3 = customtkinter.CTkLabel(frame_2_set4_21, text="Тейк профит, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_label__2_set4_2_set_4 = customtkinter.CTkLabel(frame_2_set4_21, text="Стоп лосс, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_frame_2_set4_3_set_1 = customtkinter.CTkEntry(frame_2_set4_31, placeholder_text="100",justify="center")
-    # real_test_trade_frame_2_set4_3_set_2 = customtkinter.CTkEntry(frame_2_set4_31, placeholder_text="20",justify="center")
-    # real_test_trade_frame_2_set4_3_set_3 = customtkinter.CTkEntry(frame_2_set4_31, placeholder_text="85",justify="center")
-    # real_test_trade_frame_2_set4_3_set_4 = customtkinter.CTkEntry(frame_2_set4_31, placeholder_text="15",justify="center")
-    # real_test_trade_label__2_set4_3_set_1 = customtkinter.CTkLabel(frame_2_set4_31, text="Деозит, $", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_label__2_set4_3_set_2 = customtkinter.CTkLabel(frame_2_set4_31, text="Плечо", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_label__2_set4_3_set_3 = customtkinter.CTkLabel(frame_2_set4_31, text="Верх канала, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_label__2_set4_3_set_4 = customtkinter.CTkLabel(frame_2_set4_31, text="Низ канала, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_frame_2_set4_4_set_1 = customtkinter.CTkEntry(frame_2_set4_41, placeholder_text="10",justify="center")
-    # real_test_trade_frame_2_set4_4_set_2 = customtkinter.CTkEntry(frame_2_set4_41, placeholder_text="10",justify="center")
-    # real_test_trade_frame_2_set4_4_set_3 = customtkinter.CTkEntry(frame_2_set4_41, placeholder_text="200000",justify="center")
-    # real_test_trade_frame_2_set4_4_set_4 = customtkinter.CTkEntry(frame_2_set4_41, placeholder_text="500000",justify="center")
-    # real_test_trade_label__2_set4_4_set_1 = customtkinter.CTkLabel(frame_2_set4_41, text="Угол тренда лонг", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_label__2_set4_4_set_2 = customtkinter.CTkLabel(frame_2_set4_41, text="Угол тренда шорт", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_label__2_set4_4_set_3 = customtkinter.CTkLabel(frame_2_set4_41, text="Объём торгов мин", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_label__2_set4_4_set_4 = customtkinter.CTkLabel(frame_2_set4_41, text="Объм торгов макс", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_trade_frame_2_set4_2_set_1.insert(0, "0.2")
-    # real_test_trade_frame_2_set4_2_set_2.insert(0, "0.1")
-    # real_test_trade_frame_2_set4_2_set_3.insert(0, "1.2")
-    # real_test_trade_frame_2_set4_2_set_4.insert(0, "0.4")
-    # real_test_trade_frame_2_set4_3_set_1.insert(0, "100")
-    # real_test_trade_frame_2_set4_3_set_2.insert(0, "20")
-    # real_test_trade_frame_2_set4_3_set_3.insert(0, "85")
-    # real_test_trade_frame_2_set4_3_set_4.insert(0, "15")
-    # real_test_trade_frame_2_set4_4_set_1.insert(0, "10")
-    # real_test_trade_frame_2_set4_4_set_2.insert(0, "10")
-    # real_test_trade_frame_2_set4_4_set_3.insert(0, "200000")
-    # real_test_trade_frame_2_set4_4_set_4.insert(0, "500000")
-    #  # --------------------------------
-    # real_test_frame_2_buttons = customtkinter.CTkFrame(master=third_frame, corner_radius=10, fg_color="transparent")
-    # start_trade_real_test = customtkinter.CTkButton(real_test_frame_2_buttons, text="Запустить торговлю",command=lambda:start_real_test_trade_btn(input_3_1,real_test_frame_4,input_2_1,switch_TG_var,real_test_frame_3_1_1,real_test_frame_3_2_1,real_test_trade_frame_2_set4_2_set_1,real_test_trade_frame_2_set4_2_set_2,real_test_trade_frame_2_set4_2_set_3,real_test_trade_frame_2_set4_2_set_4,real_test_trade_frame_2_set4_3_set_1,real_test_trade_frame_2_set4_3_set_2,real_test_trade_frame_2_set4_3_set_3,real_test_trade_frame_2_set4_3_set_4,real_test_trade_frame_2_set4_4_set_1,real_test_trade_frame_2_set4_4_set_2,real_test_trade_frame_2_set4_4_set_3,real_test_trade_frame_2_set4_4_set_4))
-    # stop_trade_real_test = customtkinter.CTkButton(real_test_frame_2_buttons, text="Остановить торговлю", command=stop_real_test_trade)
-    # # --------------------------------
-    # real_test_frame_3 = customtkinter.CTkFrame(master=third_frame, corner_radius=10, fg_color="#2B2B2B")
-    # real_test_frame_3_1 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
-    # real_test_frame_3_2 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
-    # real_test_label_3_1 = customtkinter.CTkLabel(real_test_frame_3_1, text="Данные по монете в сделке", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_frame_3_1_1 = customtkinter.CTkScrollableFrame(real_test_frame_3_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=160, height=260)
-    # real_test_label_3_2 = customtkinter.CTkLabel(real_test_frame_3_2, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    # real_test_frame_3_2_1 = customtkinter.CTkScrollableFrame(real_test_frame_3_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=460, height=260)
-    # #----------------------------------
-    # real_test_frame_4 = customtkinter.CTkFrame(master=third_frame, corner_radius=10, fg_color="transparent")
-    
-    
-    
-    # frame_2_set4.pack(pady=10, padx=20)
-    # label__2_set4.pack(pady=5)
-    # frame_2_set4_01.pack(pady=10)
-    # frame_2_set4_11.grid(row=0, column=1, sticky="ew",padx=10)
-    # frame_2_set4_21.grid(row=0, column=2, sticky="ew",padx=10)
-    # frame_2_set4_31.grid(row=0, column=3, sticky="ew",padx=10)
-    # frame_2_set4_41.grid(row=0, column=4, sticky="ew",padx=10)
-    # label__2_set4_1_1.pack(pady=4)
-    # frame_2_set4_1_1.pack(pady=4)
-    # radiobutton_1.pack(pady=4, anchor='w')
-    # radiobutton_2.pack(pady=4, anchor='w')
-    # real_test_trade_label__2_set4_2_set_1.pack(pady=1)
-    # #!!!
-    # real_test_trade_frame_2_set4_2_set_1.pack(pady=1)
-    # real_test_trade_label__2_set4_2_set_2.pack(pady=1)
-    # real_test_trade_frame_2_set4_2_set_2.pack(pady=1)
-    # real_test_trade_label__2_set4_2_set_3.pack(pady=1)
-    # real_test_trade_frame_2_set4_2_set_3.pack(pady=1)
-    # real_test_trade_label__2_set4_2_set_4.pack(pady=1)
-    # real_test_trade_frame_2_set4_2_set_4.pack(pady=1)
-    # real_test_trade_label__2_set4_3_set_1.pack(pady=1)
-    # real_test_trade_frame_2_set4_3_set_1.pack(pady=1)
-    # real_test_trade_label__2_set4_3_set_2.pack(pady=1)
-    # real_test_trade_frame_2_set4_3_set_2.pack(pady=1)
-    # real_test_trade_label__2_set4_3_set_3.pack(pady=1)
-    # real_test_trade_frame_2_set4_3_set_3.pack(pady=1)
-    # real_test_trade_label__2_set4_3_set_4.pack(pady=1)
-    # real_test_trade_frame_2_set4_3_set_4.pack(pady=1)
-    # real_test_trade_label__2_set4_4_set_1.pack(pady=1)
-    # real_test_trade_frame_2_set4_4_set_1.pack(pady=1)
-    # real_test_trade_label__2_set4_4_set_2.pack(pady=1)
-    # real_test_trade_frame_2_set4_4_set_2.pack(pady=1)
-    # real_test_trade_label__2_set4_4_set_3.pack(pady=1)
-    # real_test_trade_frame_2_set4_4_set_3.pack(pady=1)
-    # real_test_trade_label__2_set4_4_set_4.pack(pady=1)
-    # real_test_trade_frame_2_set4_4_set_4.pack(pady=1)
-    # real_test_frame_2_buttons.pack(pady=[10,0],padx=20)
-    # start_trade_real_test.grid(row=0, column=0, sticky="ew",padx=10)
-    # stop_trade_real_test.grid(row=0, column=1, sticky="ew",padx=10)
-    # #---
-    # real_test_frame_3.pack(pady=20)
-    # real_test_frame_3_1.grid(row=0, column=0, sticky="ew",padx=10)
-    # real_test_frame_3_2.grid(row=0, column=1, sticky="ew",padx=10)
-    # real_test_label_3_1.pack(pady=0)
-    # real_test_frame_3_1_1.pack(pady=0)
-    # real_test_label_3_2.pack(pady=0)
-    # real_test_frame_3_2_1.pack(pady=0)
-    # #---
-    # real_test_frame_4.pack(pady=20)
 
 
 
