@@ -21,12 +21,11 @@ def strat1_param(frame,step_4_real_test_trade,frame_2_set4_3_set_3,frame_2_set4_
         str_1.CANAL_MIN = float(float(frame_2_set4_3_set_4.get())/100)
         str_1.CORNER_LONG = int(frame_2_set4_4_set_1.get())
         str_1.CORNER_SHORT = int(frame_2_set4_4_set_2.get())
-        
         data_settings_1 = [real.COMMISSION_MAKER,real.COMMISSION_TAKER,real.TP,real.SL,real.DEPOSIT,real.LEVERAGE,str_1.CANAL_MAX,str_1.CANAL_MIN,str_1.CORNER_LONG,str_1.CORNER_SHORT,real.CANDLE_COIN_MIN,real.CANDLE_COIN_MAX]
-        
         step_4_real_test_trade(frame,data_settings_1)
-
-
+        
+def strat2_param(frame,step_4_real_test_trade):
+    step_4_real_test_trade(frame)
 
 def strat1(frame,step_2_real_test_trade,step_4_real_test_trade):
     label_title112 = customtkinter.CTkLabel(frame, text="Настройте стратегии и запустите реальную тестовую торговлю", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
@@ -67,3 +66,14 @@ def strat1(frame,step_2_real_test_trade,step_4_real_test_trade):
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
     
+    
+def strat2(frame,step_2_real_test_trade,step_4_real_test_trade):
+    label_title112 = customtkinter.CTkLabel(frame, text="Индикатор настроек не требует", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+    frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
+    button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:step_2_real_test_trade(frame))
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command=lambda:strat2_param(frame,step_4_real_test_trade))
+    
+    label_title112.pack(pady=0, anchor='n')
+    frame_2_set412.pack(pady=20, anchor='n')
+    button3212.grid(row=0, column=0, sticky="ew",padx=10)
+    button3213.grid(row=0, column=1, sticky="ew",padx=10)

@@ -324,7 +324,7 @@ def settings_prog():
     button_settings_prog_3_1.grid(row=4, column=0,padx=20,pady=[0,20],columnspan=2)
     
 # --------------------------------- ГЛАВНАЯ ---------------------------------
-# рсиуем окно реальной тестовой торговли
+# рсиуем окно 
 def main_page():
     data = TV.get_top_coin() # получили активные монеты слварем
     range_i = math.ceil(len(data)/5) # посчитали, сколько в столбце должно быть штук
@@ -357,7 +357,6 @@ def main_page():
 
     label_title1.pack(anchor='n',pady=[20,0],fill='x')
     frame_2_set1.pack(anchor='n',pady=20)
-
 
 # --------------------------------- ПРОФИЛЬ ---------------------------------
 
@@ -928,7 +927,7 @@ def get_setting_timeframe_real_test_trad(data):
 
 sost_tg_message_real_test = 'off'
 
-def start_real_test_trade_btn(real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu):
+def start_real_test_trade_btn(strat_now_rt,real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu,strat_mas_real_test):
     print('111')
     try:
         
@@ -949,7 +948,7 @@ def start_real_test_trade_btn(real_test_frame_4,real_test_frame_3_1_1,real_test_
             widget.forget()
         for widget in real_test_frame_3_2_1.winfo_children():
             widget.forget()
-        thread2 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(real_test_frame_4,card_trade_menu,name_bot_real_test,sost_tg_message_real_test,real_test_frame_3_1_1,real_test_frame_3_2_1))
+        thread2 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(strat_now_rt,strat_mas_real_test,real_test_frame_4,card_trade_menu,name_bot_real_test,sost_tg_message_real_test,real_test_frame_3_1_1,real_test_frame_3_2_1))
         thread2.start()
     except ValueError: 
         print('222')
@@ -989,6 +988,7 @@ def checkbox_event_strat_real_test():
         case '21': strat_mas_real_test.remove('strat22')
         case '22': strat_mas_real_test.remove('strat23')
         case '23': strat_mas_real_test.remove('strat24')
+        case '24': strat_mas_real_test.remove('strat25')
         case 'strat1' : strat_mas_real_test.append('strat1')
         case 'strat2' : strat_mas_real_test.append('strat2')
         case 'strat3' : strat_mas_real_test.append('strat3')
@@ -1013,6 +1013,7 @@ def checkbox_event_strat_real_test():
         case 'strat22': strat_mas_real_test.append('strat22')
         case 'strat23': strat_mas_real_test.append('strat23')
         case 'strat24': strat_mas_real_test.append('strat24')
+        case 'strat25': strat_mas_real_test.append('strat25')
     print(strat_mas_real_test)
 
 def step_2_real_test_trade_prom(frame,switch_TG_var,input_2_1,input_3_1,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4):
@@ -1058,8 +1059,6 @@ def step_3_real_test_trade_prom(frame):
         messagebox.showinfo('Внимание','Выберете хотя бы одну стратегию')
     else:
         step_3_real_test_trade(frame)
-
-
 
 def step_1_real_test_trade(frame):
     
@@ -1150,7 +1149,7 @@ def step_2_real_test_trade(frame):
     frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
     frame_2_set4_1_1 = customtkinter.CTkScrollableFrame(frame_2_set4_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=500, height=450)
     radiobutton_1 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat1", offvalue="0",text="Канал, тренд, локаль, объём",text_color='#242424')
-    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat2", offvalue="1",text="Линии Боллинджера",text_color='#242424')
+    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat2", offvalue="1",text="Суммарный тех индикатор TreadingView",text_color='#242424')
     radiobutton_3 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat3", offvalue="2",text="BarUpDn",text_color='#242424')
     radiobutton_4 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat4", offvalue="3",text="Полосы Боллинджера направленные",text_color='#242424')
     radiobutton_5 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat5", offvalue="4",text="Channel BreakOut",text_color='#242424')
@@ -1173,6 +1172,7 @@ def step_2_real_test_trade(frame):
     radiobutton_22 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat22", offvalue="21",text="Супертренд",text_color='#242424')
     radiobutton_23 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat23", offvalue="22",text="Технический индикатор рынка",text_color='#242424')
     radiobutton_24 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat24", offvalue="23",text="Volty Expan Close",text_color='#242424')
+    radiobutton_25 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat25", offvalue="24",text="Линии Боллинджера",text_color='#242424')
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:real_test_trade())
     button3213 = customtkinter.CTkButton(frame_2_set412, text="Настроить стратегию торговли",command=lambda:step_3_real_test_trade_prom(frame))
@@ -1208,6 +1208,7 @@ def step_2_real_test_trade(frame):
     radiobutton_22.pack(pady=4, anchor='w')
     radiobutton_23.pack(pady=4, anchor='w')
     radiobutton_24.pack(pady=4, anchor='w')
+    radiobutton_25.pack(pady=4, anchor='w')
     frame_2_set412.pack(pady=20, anchor='n')
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
@@ -1219,7 +1220,7 @@ def step_3_real_test_trade(frame):
     for i in strat_mas_real_test:
         match i:
             case 'strat1' : strat_real_test.strat1(frame,step_2_real_test_trade,step_4_real_test_trade)
-            case 'strat2' : strat_real_test.strat2()
+            case 'strat2' : strat_real_test.strat2(frame,step_2_real_test_trade,step_4_real_test_trade)
             case 'strat3' : strat_real_test.strat3()
             case 'strat4' : strat_real_test.strat4()
             case 'strat5' : strat_real_test.strat5()
@@ -1251,9 +1252,9 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
     global strat_mas_real_test
     strat_now_rt = []
     for i in strat_mas_real_test:
-        match check_var_real_test.get():
+        match i:
             case 'strat1' : strat_now_rt.append('Канал, тренд, локаль, объём')
-            case 'strat2' : strat_now_rt.append('Линии Боллинджера')
+            case 'strat2' : strat_now_rt.append('Суммарный тех индикатор TreadingView')
             case 'strat3' : strat_now_rt.append('BarUpDn')
             case 'strat4' : strat_now_rt.append('Полосы Боллинджера направленные')
             case 'strat5' : strat_now_rt.append('Channel BreakOut')
@@ -1276,18 +1277,30 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
             case 'strat22': strat_now_rt.append('Супертренд')
             case 'strat23': strat_now_rt.append('Технический индикатор рынка')
             case 'strat24': strat_now_rt.append('Volty Expan Close')
+            case 'strat25' : strat_now_rt.append('Линии Боллинджера')
     label_title112 = customtkinter.CTkLabel(frame, text="Проверьте настройки и запустите торговлю", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
     frame_2_strat_1= customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B",width=800)
     label_title2_1_0 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Общие настройки робота", fg_color="transparent",text_color='white',anchor='center',font=('Arial',14,'bold'),width=200)
     label_title2_1_1 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Имя робота для логов - {name_bot_real_test}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
-    label_title2_1_2 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Таймфрейм - {real.TF}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    label_title2_1_2 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Таймфрейм - {real.TF}", fg_color="transparent",font=('Arial',12,'bold'),width=200)
     label_title2_1_3 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Сколько топ монет торговать - {real.how_mach_coin}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
-    label_title2_1_4 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Оповещения в ТГ - {'да' if sost_tg_message_real_test=='on' else 'нет'}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    label_title2_1_4 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Оповещения в ТГ - {'да' if sost_tg_message_real_test=='on' else 'нет'}", fg_color="transparent",font=('Arial',12,'bold'),width=200)
+    label_title2_1_41 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Комиссия мейкер, {round(real.COMMISSION_MAKER*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_42 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Комиссия тейкер, {round(real.COMMISSION_TAKER*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_43 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Тейк профит, {round(real.TP*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_44 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Стоп лосс, {round(real.SL*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_45 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Деозит, {real.DEPOSIT}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_46 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Плечо {real.LEVERAGE}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_47 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Объём торгов мин {real.CANDLE_COIN_MIN}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_48 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Объм торгов макс {real.CANDLE_COIN_MAX}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    
+    
     label_title2_1_5 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Выбраны стратегии:", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    
     
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:step_3_real_test_trade(frame))
-    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_real_test_trade_btn(real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu))
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_real_test_trade_btn(strat_now_rt,real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu,strat_mas_real_test))
     stop_trade_real_test = customtkinter.CTkButton(frame_2_set412, text="Остановить торговлю", command=stop_real_test_trade)
     
     real_test_frame_3 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="#2B2B2B")
@@ -1307,25 +1320,27 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
     label_title2_1_2.grid(row=1, column=1, sticky="w",padx=10)
     label_title2_1_3.grid(row=2, column=0, sticky="w",padx=10)
     label_title2_1_4.grid(row=2, column=1, sticky="w",padx=10)
-    label_title2_1_5.grid(row=3, column=0,columnspan=2, sticky="ew",padx=10)
-    for i in strat_now_rt:
-        customtkinter.CTkLabel(frame_2_strat_1, text=i, fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200).grid(row=4, column=0,columnspan=2, sticky="ew",padx=10)
+    label_title2_1_41.grid(row=3, column=0, sticky="w",padx=10)
+    label_title2_1_42.grid(row=3, column=1, sticky="w",padx=10)
+    label_title2_1_43.grid(row=4, column=0, sticky="w",padx=10)
+    label_title2_1_44.grid(row=4, column=1, sticky="w",padx=10)
+    label_title2_1_45.grid(row=5, column=0, sticky="w",padx=10)
+    label_title2_1_46.grid(row=5, column=1, sticky="w",padx=10)
+    label_title2_1_47.grid(row=6, column=0, sticky="w",padx=10)
+    label_title2_1_48.grid(row=6, column=1, sticky="w",padx=10)
+    label_title2_1_5.grid(row=7, column=0,columnspan=2, sticky="ew",padx=10)
+    for ind, i in enumerate(strat_now_rt):
+        customtkinter.CTkLabel(frame_2_strat_1, text=i, fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200).grid(row=8+ind, column=0,columnspan=2, sticky="ew",padx=10)
+    
     if len(data_settings_1)!=0:
         frame_2_strat_122= customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B",width=800)
         frame_2_strat_122.pack(pady=10, anchor='n')
         customtkinter.CTkLabel(frame_2_strat_122, text='Настройки стратегии - Канал, тренд, локаль, объём', fg_color="transparent",text_color='white',anchor='center',font=('Arial',14,'bold'),width=200).grid(row=0, column=0,columnspan=2, sticky="ew",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Комиссия мейкер, {round(float(data_settings_1[0])*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=1, column=0, sticky="w",padx=[10,130])
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Комиссия тейкер, {round(float(data_settings_1[1])*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=2, column=0, sticky="w",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Тейк профит, {round(float(data_settings_1[2])*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=3, column=0, sticky="w",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Стоп лосс, {round(float(data_settings_1[3])*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=4, column=0, sticky="w",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Деозит, {data_settings_1[4]}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=5, column=0, sticky="w",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Плечо {data_settings_1[5]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=6, column=0, sticky="w",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Верх канала, {round(float(data_settings_1[6])*100,3)} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=1, column=1, sticky="w",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Низ канала, {round(float(data_settings_1[7])*100,3)} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=2, column=1, sticky="w",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Угол тренда лонг {data_settings_1[8]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=3, column=1, sticky="w",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Угол тренда шорт {data_settings_1[9]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=4, column=1, sticky="w",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Объём торгов мин {data_settings_1[10]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=5, column=1, sticky="w",padx=10)
-        customtkinter.CTkLabel(frame_2_strat_122, text=f"Объм торгов макс {data_settings_1[11]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=6, column=1, sticky="w",padx=10)
+        customtkinter.CTkLabel(frame_2_strat_122, text=f"Верх канала, {round(float(data_settings_1[6])*100,3)} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=1, column=0, sticky="w",padx=10)
+        customtkinter.CTkLabel(frame_2_strat_122, text=f"Низ канала, {round(float(data_settings_1[7])*100,3)} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=2, column=0, sticky="w",padx=10)
+        customtkinter.CTkLabel(frame_2_strat_122, text=f"Угол тренда лонг {data_settings_1[8]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=3, column=0, sticky="w",padx=10)
+        customtkinter.CTkLabel(frame_2_strat_122, text=f"Угол тренда шорт {data_settings_1[9]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=4, column=0, sticky="w",padx=10)
+    
 
     frame_2_set412.pack(pady=20, anchor='n')
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
@@ -1363,9 +1378,6 @@ def real_test_trade():
     frame_2_set1_step1.pack()
     
     step_1_real_test_trade(frame_2_set1_step1)
-
-    
-
 
 
 speed_test()
