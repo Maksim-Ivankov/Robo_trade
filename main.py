@@ -961,6 +961,7 @@ def stop_real_test_trade():
 strat_mas_real_test = ['strat1'] # выбор по умолчанию - 1 вариант
 # сохраняет в массив выше выбранные стратегии и удаляет невыбранные
 check_var_real_test = customtkinter.StringVar(value=strat_mas_real_test[0])
+
 def checkbox_event_strat_real_test(): 
     global strat_mas_real_test
     match check_var_real_test.get():
@@ -1171,9 +1172,11 @@ def step_1_real_test_trade(frame):
     button32.pack(pady=10,anchor='n')
 
 def step_2_real_test_trade(frame):
+    global strat_mas_real_test
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
     print('1')
+    
     label_title112 = customtkinter.CTkLabel(frame, text="Выберете одну или несколько стратегий реальной тестовой торговли", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
     frame_2_set4 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B")
     label__2_set4 = customtkinter.CTkLabel(frame_2_set4, text="Выбор стратегии", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
@@ -1208,6 +1211,35 @@ def step_2_real_test_trade(frame):
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:real_test_trade())
     button3213 = customtkinter.CTkButton(frame_2_set412, text="Настроить стратегию торговли",command=lambda:step_3_real_test_trade_prom(frame))
+    
+    
+    for strat in strat_mas_real_test:
+        match strat:
+            case 'strat1' : radiobutton_1.select()
+            case 'strat2' : radiobutton_2.select()
+            case 'strat3' : radiobutton_3.select()
+            case 'strat4' : radiobutton_4.select()
+            case 'strat5' : radiobutton_5.select()
+            case 'strat6' : radiobutton_6.select()
+            case 'strat7' : radiobutton_7.select()
+            case 'strat8' : radiobutton_8.select()
+            case 'strat9' : radiobutton_9.select()
+            case 'strat10': radiobutton_10.select()
+            case 'strat11': radiobutton_11.select()
+            case 'strat12': radiobutton_12.select()
+            case 'strat13': radiobutton_13.select()
+            case 'strat14': radiobutton_14.select()
+            case 'strat15': radiobutton_15.select()
+            case 'strat16': radiobutton_16.select()
+            case 'strat17': radiobutton_17.select()
+            case 'strat18': radiobutton_18.select()
+            case 'strat19': radiobutton_19.select()
+            case 'strat20': radiobutton_20.select()
+            case 'strat21': radiobutton_21.select()
+            case 'strat22': radiobutton_22.select()
+            case 'strat23': radiobutton_23.select()
+            case 'strat24': radiobutton_24.select()
+            case 'strat25': radiobutton_25.select()
     # ----
 
     label_title112.pack(pady=5)
