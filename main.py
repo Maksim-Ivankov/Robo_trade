@@ -1060,6 +1060,38 @@ def step_3_real_test_trade_prom(frame):
     else:
         step_3_real_test_trade(frame)
 
+def step_4_real_test_trade_prom(frame):
+    global strat_mas_real_test
+    for i in strat_mas_real_test:
+        match i:
+            case 'strat1' : data_settings_1 = strat_real_test.strat1_param()
+            case 'strat2' : strat_real_test.strat2_param()
+            case 'strat3' : strat_real_test.strat3()
+            case 'strat4' : strat_real_test.strat4()
+            case 'strat5' : strat_real_test.strat5()
+            case 'strat6' : strat_real_test.strat6()
+            case 'strat7' : strat_real_test.strat7()
+            case 'strat8' : strat_real_test.strat8()
+            case 'strat9' : strat_real_test.strat9()
+            case 'strat10': strat_real_test.strat10()
+            case 'strat11': strat_real_test.strat11()
+            case 'strat12': strat_real_test.strat12()
+            case 'strat13': strat_real_test.strat13()
+            case 'strat14': strat_real_test.strat14()
+            case 'strat15': strat_real_test.strat15()
+            case 'strat16': strat_real_test.strat16()
+            case 'strat17': strat_real_test.strat17()
+            case 'strat18': strat_real_test.strat18()
+            case 'strat19': strat_real_test.strat19()
+            case 'strat20': strat_real_test.strat20()
+            case 'strat21': strat_real_test.strat21()
+            case 'strat22': strat_real_test.strat22()
+            case 'strat23': strat_real_test.strat23()
+            case 'strat24': strat_real_test.strat24()
+    print(data_settings_1)
+    if data_settings_1 != None:
+        step_4_real_test_trade(frame,data_settings_1)
+
 def step_1_real_test_trade(frame):
     
     label_title112 = customtkinter.CTkLabel(frame, text="Настройте робота для дальнейшей реальной тестовой торговли", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
@@ -1219,8 +1251,8 @@ def step_3_real_test_trade(frame):
         widget.destroy()
     for i in strat_mas_real_test:
         match i:
-            case 'strat1' : strat_real_test.strat1(frame,step_2_real_test_trade,step_4_real_test_trade)
-            case 'strat2' : strat_real_test.strat2(frame,step_2_real_test_trade,step_4_real_test_trade)
+            case 'strat1' : strat_real_test.strat1(frame)
+            case 'strat2' : strat_real_test.strat2(frame)
             case 'strat3' : strat_real_test.strat3()
             case 'strat4' : strat_real_test.strat4()
             case 'strat5' : strat_real_test.strat5()
@@ -1243,6 +1275,14 @@ def step_3_real_test_trade(frame):
             case 'strat22': strat_real_test.strat22()
             case 'strat23': strat_real_test.strat23()
             case 'strat24': strat_real_test.strat24()
+    
+    frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
+    button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:step_2_real_test_trade(frame))
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command=lambda:step_4_real_test_trade_prom(frame))
+    
+    frame_2_set412.pack(pady=20, anchor='n')
+    button3212.grid(row=0, column=0, sticky="ew",padx=10)
+    button3213.grid(row=0, column=1, sticky="ew",padx=10)
 
 def step_4_real_test_trade(frame,data_settings_1=[]):
     for widget in frame.winfo_children(): # чистим табличку
@@ -1293,16 +1333,11 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
     label_title2_1_46 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Плечо {real.LEVERAGE}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     label_title2_1_47 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Объём торгов мин {real.CANDLE_COIN_MIN}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     label_title2_1_48 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Объм торгов макс {real.CANDLE_COIN_MAX}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    
-    
     label_title2_1_5 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Выбраны стратегии:", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
-    
-    
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:step_3_real_test_trade(frame))
     button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_real_test_trade_btn(strat_now_rt,real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu,strat_mas_real_test))
     stop_trade_real_test = customtkinter.CTkButton(frame_2_set412, text="Остановить торговлю", command=stop_real_test_trade)
-    
     real_test_frame_3 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="#2B2B2B")
     real_test_frame_3_1 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
     real_test_frame_3_2 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
@@ -1310,7 +1345,6 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
     real_test_frame_3_1_1 = customtkinter.CTkScrollableFrame(real_test_frame_3_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=160, height=260)
     real_test_label_3_2 = customtkinter.CTkLabel(real_test_frame_3_2, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     real_test_frame_3_2_1 = customtkinter.CTkScrollableFrame(real_test_frame_3_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=460, height=260)
-    
     real_test_frame_4 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="transparent") # графики
     
     label_title112.pack(pady=0, anchor='n')
@@ -1331,7 +1365,6 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
     label_title2_1_5.grid(row=7, column=0,columnspan=2, sticky="ew",padx=10)
     for ind, i in enumerate(strat_now_rt):
         customtkinter.CTkLabel(frame_2_strat_1, text=i, fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200).grid(row=8+ind, column=0,columnspan=2, sticky="ew",padx=10)
-    
     if len(data_settings_1)!=0:
         frame_2_strat_122= customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B",width=800)
         frame_2_strat_122.pack(pady=10, anchor='n')
@@ -1340,13 +1373,10 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
         customtkinter.CTkLabel(frame_2_strat_122, text=f"Низ канала, {round(float(data_settings_1[7])*100,3)} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=2, column=0, sticky="w",padx=10)
         customtkinter.CTkLabel(frame_2_strat_122, text=f"Угол тренда лонг {data_settings_1[8]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=3, column=0, sticky="w",padx=10)
         customtkinter.CTkLabel(frame_2_strat_122, text=f"Угол тренда шорт {data_settings_1[9]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=4, column=0, sticky="w",padx=10)
-    
-
     frame_2_set412.pack(pady=20, anchor='n')
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
     stop_trade_real_test.grid(row=0, column=2, sticky="ew",padx=10)
-    
     #---
     real_test_frame_3.pack(pady=20)
     real_test_frame_3_1.grid(row=0, column=0, sticky="ew",padx=10)
