@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 from tkinter import *
 import tkinter as tk
+from datetime import datetime
 
 # первичные настройки окна
 def settings_window():
@@ -75,6 +76,7 @@ def paint_bar(canv,prices,prices_old):
     global NewRange
     global price_min
     global price_max
+    global mass_date_interval_graph
     # определяем границы для масштабирования графика
     price_max = (prices_old.loc[prices_old['close'] == prices_old['close'].max()].iloc[0]['close'])
     price_min = (prices_old.loc[prices_old['close'] == prices_old['close'].min()].iloc[0]['close'])
@@ -84,8 +86,10 @@ def paint_bar(canv,prices,prices_old):
     NewRange1 = (width_canvas/(144/VOLUME))  
     # print(price_max)
     # print(price_min)
+    mass_date_interval_graph = {}
     for index, row in prices.iterrows():
         x0 = ((index * NewRange1) / OldRange1)
+        mass_date_interval_graph[(x0-2,x0+2)] = datetime.fromtimestamp(int(row['open_time']/1000)).strftime('%d.%m.%Y %H:%M')
         y0 = (((row['open'] - price_min) * NewRange) / OldRange)
         y1 = (((row['close'] - price_min) * NewRange) / OldRange)
         high = (((row['high'] - price_min) * NewRange) / OldRange)
@@ -106,14 +110,12 @@ def paint_candle(canv,x0,y0,y1,high,low):
 
 # перемещение канваса мышкой старт
 def move_start(event):
-    # mmove(event)
     canvas.scan_mark(event.x, event.y)
     canvas_price.scan_mark(0, event.y)
     canvas_date.scan_mark(event.x, 0)
 
 # перемещение канваса мышкой отпускание 
 def move_move(event):
-    # mmove(event)
     canvas.scan_dragto(event.x, event.y, gain=1)
     canvas_price.scan_dragto(0, event.y, gain=1)
     canvas_date.scan_dragto(event.x, 0, gain=1)
@@ -130,9 +132,9 @@ def zoomer(event):
         canvas.scale("all", true_x, true_y, 0.9, 0.9)
         canvas_price.scale("all", 20, true_y, 0.9, 0.9)
         canvas_date.scale("all", true_x, 14, 0.9, 0.9)
-    # canvas.configure(scrollregion = canvas.bbox("all"))
+    #canvas_date.configure(scrollregion = canvas_date.bbox("all"))
 
-# отображает перекрестье на графике
+# отображает перекрестье на графике, изменяет цену и время
 def mmove(event):
     global flag_pricel
     global canvas_id
@@ -142,14 +144,17 @@ def mmove(event):
     x = canvas.canvasx(event.x)
     y = canvas.canvasy(event.y)  
     if flag_pricel!=0:
+        # прицел
         canvas.coords(canvas_id,x, -1000, x, 10000)
         canvas.coords(canvas_id2,0, y, 10000, y)
+        # цена
         canvas_price.coords(price_rectangle,0, y-7,46, y+7)
         canvas_price.coords(price_rectangle_text,22, y)
-        canvas_date.coords(date_rectangle_text,x, 14)
         text_price = round(float((((height_canvas-y)*OldRange)/NewRange)+price_min),1)
         canvas_price.itemconfigure(price_rectangle_text, text=text_price)
-        canvas_date.itemconfigure(date_rectangle_text, text=x)
+        # дата
+        canvas_date.coords(date_rectangle_text,x, 14)
+        canvas_date.itemconfigure(date_rectangle_text, text=get_all_values(x))
         # canvas.coords(price_rectangle_polosa,x0+width_canvas-46, y0, x0+width_canvas, y0+height_canvas)
         
         return
@@ -157,8 +162,14 @@ def mmove(event):
     canvas_id2 = canvas.create_line(0, y, 10000, y, width=1, fill='#424747')
     print_real_price_x(x,y)
     flag_pricel = 1
-        
-# рисует прямоугольник с ценой справа графика
+
+# находим дату по интервалу
+def get_all_values(age):
+   for key, value in mass_date_interval_graph.items():
+      if (age >= key[0] and age <= key[1]):
+        return value
+
+# рисует прямоугольник с ценой справа графика и временем внизу
 def print_real_price_x(x,y):
     global price_rectangle
     global price_rectangle_text
@@ -223,7 +234,6 @@ def draw_graph(df,frame=frame,width=width_canvas,height=height_canvas,bg="#161A1
     
 df = get_df_from_file() # получили датафрейм в переменную
 draw_graph(df)
-
 
 
 win.mainloop()
