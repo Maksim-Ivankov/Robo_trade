@@ -32,6 +32,10 @@ width_telo = 3 # Ширина тела свечи
 width_spile = 1 # Ширина хвоста, шпиля
 flag_pricel = 0 # флаг для логики прицела
 
+
+frame = customtkinter.CTkFrame(win, corner_radius=0, fg_color="")
+frame.pack(pady=[100,0])
+
 # генерируем датафрейм в файл
 def generate_dataframe(TF,VOLUME):
     open(MYDIR, "w").close()
@@ -105,22 +109,27 @@ def move_start(event):
     # mmove(event)
     canvas.scan_mark(event.x, event.y)
     canvas_price.scan_mark(0, event.y)
+    canvas_date.scan_mark(event.x, 0)
 
 # перемещение канваса мышкой отпускание 
 def move_move(event):
     # mmove(event)
     canvas.scan_dragto(event.x, event.y, gain=1)
     canvas_price.scan_dragto(0, event.y, gain=1)
+    canvas_date.scan_dragto(event.x, 0, gain=1)
 
 # зум колесиком мыши
 def zoomer(event):
-    # mmove(event)
     true_x = canvas.canvasx(event.x)
     true_y = canvas.canvasy(event.y)  
     if (event.delta > 0):
         canvas.scale("all", true_x, true_y, 1.1, 1.1)
+        canvas_price.scale("all", 20, true_y, 1.1, 1.1)
+        canvas_date.scale("all", true_x, 14, 1.1, 1.1)
     elif (event.delta < 0):
         canvas.scale("all", true_x, true_y, 0.9, 0.9)
+        canvas_price.scale("all", 20, true_y, 0.9, 0.9)
+        canvas_date.scale("all", true_x, 14, 0.9, 0.9)
     # canvas.configure(scrollregion = canvas.bbox("all"))
 
 # отображает перекрестье на графике
@@ -137,8 +146,10 @@ def mmove(event):
         canvas.coords(canvas_id2,0, y, 10000, y)
         canvas_price.coords(price_rectangle,0, y-7,46, y+7)
         canvas_price.coords(price_rectangle_text,22, y)
+        canvas_date.coords(date_rectangle_text,x, 14)
         text_price = round(float((((height_canvas-y)*OldRange)/NewRange)+price_min),1)
         canvas_price.itemconfigure(price_rectangle_text, text=text_price)
+        canvas_date.itemconfigure(date_rectangle_text, text=x)
         # canvas.coords(price_rectangle_polosa,x0+width_canvas-46, y0, x0+width_canvas, y0+height_canvas)
         
         return
@@ -151,43 +162,64 @@ def mmove(event):
 def print_real_price_x(x,y):
     global price_rectangle
     global price_rectangle_text
+    global date_rectangle_text
     price_rectangle = canvas_price.create_rectangle(x+0, y+0, x+60, y+30, fill="#363A45",outline='#363A45')
     price_rectangle_text = canvas_price.create_text(100,10,fill="#DADBDD",font=('Purisa',8),text='124112')
+    date_rectangle_text = canvas_date.create_text(100,10,fill="#DADBDD",font=('Purisa',8),text='124112')
     pass
+
+# фугкция округления - принимает цену, которую хоим округлить и разряд
+def price_round(price,digit):
+    x = price
+    n = digit
+    return n * round(x/n)
 
 # рисуем сетку
 def print_setka_from_graph():
-    price_min
-    price_max
-    x = price_min
-    n = 1000
-    print(n * round(x/n))
+    mass_setka_price = []
+    digit = 1000
+    prise_mas_min = price_round(price_min,digit)
+    prise_mas_max = price_round(price_max,digit)
+    for i in range(prise_mas_min,prise_mas_min-30*digit,-1000):
+        mass_setka_price.append(i)
+    for i in range(prise_mas_max,prise_mas_max+30*digit,1000):
+        mass_setka_price.append(i)
+    for i in range(prise_mas_min,prise_mas_max,1000):
+        mass_setka_price.append(i)
+    for i in mass_setka_price:
+        y = (((i - price_min) * NewRange) / OldRange)   
+        canvas.tag_lower(canvas.create_line(-1000,height_canvas- y, 5000, height_canvas-y, width=1, fill='#1B1F24'))
+        canvas_price.create_text(20,height_canvas-y,fill="#707985",font=('Purisa',8),text=i)
+
 
 
 
 # рисовать график по историческим данным - главное, точка входа
-def draw_graph(df,frame=win,width=width_canvas,height=height_canvas,bg="#161A1E", title_gr=symbol):
+def draw_graph(df,frame=frame,width=width_canvas,height=height_canvas,bg="#161A1E", title_gr=symbol):
     global canvas
     global canvas_price
+    global canvas_date
     canvas = Canvas(frame, width = width, height = height, bg = bg,border=0,bd=0,highlightthickness=0)
     canvas_price = Canvas(frame, width = 46, height = height, bg = '#121619',border=0,bd=0,highlightthickness=0)
+    canvas_date = Canvas(frame, width = width_canvas, height = 30, bg = '#121619',border=0,bd=0,highlightthickness=0)
+    canvas_settings = Canvas(frame, width = 46, height = 30, bg = '#121619',border=0,bd=0,highlightthickness=0)
     xsb = tk.Scrollbar(frame, orient="horizontal", command=canvas.xview)
     ysb = tk.Scrollbar(frame, orient="vertical", command=canvas.yview)
     canvas.configure(yscrollcommand=ysb.set, xscrollcommand=xsb.set)
     canvas.configure(scrollregion=(-5000,-5000,5000,5000))
     
-    canvas.grid(row=0, column=0,padx=[100,0])
+    canvas.grid(row=0, column=0)
     canvas_price.grid(row=0, column=1,padx=0,sticky='w')
+    canvas_date.grid(row=1, column=0,padx=0,sticky='w')
+    canvas_settings.grid(row=1, column=1,columnspan=2,padx=0,sticky='w')
     # Это то, что позволяет использовать мышь
     canvas.bind("<ButtonPress-1>", lambda event: move_start(event))
     canvas.bind("<B1-Motion>", lambda event:move_move(event))
     canvas.bind("<MouseWheel>",lambda event:zoomer(event))
     canvas.bind('<Motion>', lambda event:mmove(event))
     
-    
-    
     paint_bar(canvas,df,df)
-    
+    print_setka_from_graph()
     
 df = get_df_from_file() # получили датафрейм в переменную
 draw_graph(df)
