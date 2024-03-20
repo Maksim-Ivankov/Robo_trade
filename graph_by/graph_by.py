@@ -125,27 +125,30 @@ def draw_graph(df,frame=win,width=width_canvas,height=height_canvas,bg="#2B2B2B"
     canvas.bind("<ButtonPress-1>", lambda event: move_start(event))
     canvas.bind("<B1-Motion>", lambda event:move_move(event))
     canvas.bind("<MouseWheel>",lambda event:zoomer(event))
-    
+    canvas.bind('<Motion>', mmove)
     paint_bar(canvas,df,df)
 
-x_mouse = 0
-y_mouse = 0    
+ 
+flag_pricel = 0
 
 def mmove(event):
+    global flag_pricel
     global canvas_id
     global canvas_id2
-    x = event.x
-    y = event.y
-    canvas_id = canvas.create_line(x, 0, x, 1000, width=1, fill='red')
-    canvas_id2 = canvas.create_line(0, y, 1000, y, width=1, fill='red')
-    # time.sleep(0.1)
-    # b2()
-    
-def b2():
-	canvas.delete(canvas_id)
-	canvas.delete(canvas_id2)    
+    # x = event.x
+    # y = event.y
+    x = canvas.canvasx(event.x)
+    y = canvas.canvasy(event.y)  
+    if flag_pricel!=0:
+        canvas.coords(canvas_id,x, 0, x, 10000)
+        canvas.coords(canvas_id2,0, y, 10000, y)
+        return
+    canvas_id = canvas.create_line(x, 0, x, 10000, width=1, fill='#424747')
+    canvas_id2 = canvas.create_line(0, y, 10000, y, width=1, fill='#424747')
+    flag_pricel = 1
+        
 
-win.bind('<Motion>', mmove)
+
 
 
 
