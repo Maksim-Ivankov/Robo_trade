@@ -66,16 +66,6 @@ def get_trade_VOLUME(get_symbol_price):
     vol = round(DEPOSIT*LEVERAGE/get_symbol_price)
     return vol
 
-
-
-
-
-
-
-
-
-
-
 # обменные операции:
 def short_open():
     print('Шорт открыли')

@@ -24,8 +24,6 @@ def strat_1(ohlc,index):
                 signal='long'
     return signal
 
-
-
 # сгенерируйте фрейм данных со всеми необходимыми данными
 def PrepareDF(DF):
     ohlc = DF.iloc[:,[0,1,2,3,4,5]]
@@ -40,7 +38,6 @@ def PrepareDF(DF):
     df = df.reset_index()
     return(df)
 
-
 # найти локальный максимум
 def isHCC(DF,i):
     df=DF.copy()
@@ -49,7 +46,6 @@ def isHCC(DF,i):
         #найдена вершина
         HCC = i
     return HCC
-
 
 # найти локальный минимум
 def isLCC(DF,i):

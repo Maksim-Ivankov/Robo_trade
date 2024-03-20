@@ -31,6 +31,9 @@ win.geometry('%dx%d+%d+%d' % (w, h, x, y))
 win.grid_rowconfigure(0, weight=1)
 win.grid_columnconfigure(1, weight=1)
 name_bot_real_test = "Версия 1_1"
+strat_mas_real_test = ['strat1'] # выбор по умолчанию - 1 вариант
+check_var_real_test = customtkinter.StringVar(value=strat_mas_real_test[0]) # первичный выбор настройки ртт шаг 2
+sost_tg_message_real_test = 'off' # первичное состояние кнопки ТГ в РТТ
 
 coin_mas_10 = []
         
@@ -886,6 +889,7 @@ def get_strategy_HT(frame_2_set4_0,radio_var):
         frame_3_set4_1_1_1.pack(pady=[5,2])
         frame_2_set2_graph_2 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="transparent") 
         frame_2_set2_graph_2.pack(pady=[0,20],padx=20)   
+
 # отрисовка страницы - историческая торговля
 def historical_trade():
     
@@ -918,21 +922,19 @@ real.wait_time = int(set1_timveframe.get(bin.TF))
 def open_real_test_trade_log():
     print('Открыли логи реальная тестовая торговля')
     os.system("notepad RT_log.txt")
-# получаем таймфрейм
+
+# получаем таймфрейм 1 шаг
 def get_setting_timeframe_real_test_trad(data):
     timeframe = set1_timveframe.get(data)
     real.TF = data
     real.wait_time = timeframe
     logger('RT',f'Реальная тестовая торговля | Таймфрейм- {real.TF}')
 
-sost_tg_message_real_test = 'off'
-
+# стартуем реальную тестовую торговлю
 def start_real_test_trade_btn(strat_now_rt,real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu,strat_mas_real_test):
     print('111')
     try:
-        
         global thread2
-        
         logger('RT',f'------------------------------------------------------------------------')
         logger('RT',f'Реальная тестовая торговля | Начали торговлю')
         logger('RT',f'Реальная тестовая торговля | Настройки:')
@@ -952,16 +954,14 @@ def start_real_test_trade_btn(strat_now_rt,real_test_frame_4,real_test_frame_3_1
         thread2.start()
     except ValueError: 
         print('222')
-        messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
+        messagebox.showinfo('Внимание','Ошибка запуска торговли')
+
+# состояние кнопки остановить торговлю
 def stop_real_test_trade():
     print('Нажали на кнопку - завершить торговлю, но пока поток не завершился')
     real.stop_real_test_trade_flag = True
-# рсиуем окно реальной тестовой торговли
 
-strat_mas_real_test = ['strat1'] # выбор по умолчанию - 1 вариант
-# сохраняет в массив выше выбранные стратегии и удаляет невыбранные
-check_var_real_test = customtkinter.StringVar(value=strat_mas_real_test[0])
-
+# функция отработки нажатия чекбоксов в шаге 2
 def checkbox_event_strat_real_test(): 
     global strat_mas_real_test
     match check_var_real_test.get():
@@ -1017,6 +1017,7 @@ def checkbox_event_strat_real_test():
         case 'strat25': strat_mas_real_test.append('strat25')
     print(strat_mas_real_test)
 
+# валидация на данные с шага 1
 def step_2_real_test_trade_prom(frame,switch_TG_var,input_2_1,input_3_1,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4):
     global name_bot_real_test
     global sost_tg_message_real_test
@@ -1054,6 +1055,7 @@ def step_2_real_test_trade_prom(frame,switch_TG_var,input_2_1,input_3_1,frame_2_
         real.how_mach_coin = input_3_1.get()
         step_2_real_test_trade(frame)
 
+# валидация на данные с шага 2
 def step_3_real_test_trade_prom(frame):
     global strat_mas_real_test
     if len(strat_mas_real_test)==0: 
@@ -1061,6 +1063,7 @@ def step_3_real_test_trade_prom(frame):
     else:
         step_3_real_test_trade(frame)
 
+# валидация на данные с шага 3
 def step_4_real_test_trade_prom(frame):
     global strat_mas_real_test
     for i in strat_mas_real_test:
@@ -1093,6 +1096,7 @@ def step_4_real_test_trade_prom(frame):
     if data_settings_1 != None:
         step_4_real_test_trade(frame,data_settings_1)
 
+# первичные настройки робота в ртт
 def step_1_real_test_trade(frame):
     
     label_title112 = customtkinter.CTkLabel(frame, text="Настройте робота для дальнейшей реальной тестовой торговли", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
@@ -1171,6 +1175,7 @@ def step_1_real_test_trade(frame):
     frame_2_set4_4_set_4.pack(pady=[1,20])
     button32.pack(pady=10,anchor='n')
 
+# выбор стратегий для торговли
 def step_2_real_test_trade(frame):
     global strat_mas_real_test
     for widget in frame.winfo_children(): # чистим табличку
@@ -1212,7 +1217,7 @@ def step_2_real_test_trade(frame):
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:real_test_trade())
     button3213 = customtkinter.CTkButton(frame_2_set412, text="Настроить стратегию торговли",command=lambda:step_3_real_test_trade_prom(frame))
     
-    
+    # выбор ранее отмеченных чекбоксов
     for strat in strat_mas_real_test:
         match strat:
             case 'strat1' : radiobutton_1.select()
@@ -1241,7 +1246,6 @@ def step_2_real_test_trade(frame):
             case 'strat24': radiobutton_24.select()
             case 'strat25': radiobutton_25.select()
     # ----
-
     label_title112.pack(pady=5)
     frame_2_set4.pack(pady=10, padx=20)
     label__2_set4.pack(pady=5)
@@ -1277,6 +1281,7 @@ def step_2_real_test_trade(frame):
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
 
+# шаг 3 - настройки выбранных стратегий
 def step_3_real_test_trade(frame):
     global strat_mas_real_test
     for widget in frame.winfo_children(): # чистим табличку
@@ -1316,6 +1321,7 @@ def step_3_real_test_trade(frame):
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
 
+# шаг 4 - проверка настроек и запуск торговли
 def step_4_real_test_trade(frame,data_settings_1=[]):
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
@@ -1421,6 +1427,7 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
     
     real_test_frame_4.pack(pady=20)
 
+# показывается при нажатии на вкладку меню
 def real_test_trade():
     for widget in third_frame.winfo_children(): # чистим табличку
         widget.destroy()    

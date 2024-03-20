@@ -182,8 +182,6 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_H
     print_components_log(f'Датафреймы добавлены!',frame_2_set2_3,'DF')
     return coin_mas_10
 
-
-
 def print_log_his(frame,msg):
     global i1
     i1=i1+1

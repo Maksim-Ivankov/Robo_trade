@@ -69,7 +69,7 @@ flag_trade_real_test = True
 summ_strat = {}
 
 
-
+# точка входа с main
 def start_real_test_trade_model_thread_1(strat_now_rt,strat_mas_real_test,real_test_frame_4,card_trade_menu,name_bot_real_test,sost_tg_message,real_test_frame_3_1_1,real_test_frame_3_2_1):
     global tg_message
     global name_bot
@@ -187,8 +187,6 @@ def print_components_log(msg,frame,type):
         data_print_ad_ht.insert(0,customtkinter.CTkLabel(frame, text=str(time.strftime("%H:%M:%S", time.localtime()))+'. '+ msg, fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')))
         for component in data_print_ad_ht:
             component.pack(anchor="w")
-        
-# -------------------------------------- ТОРГОВЛЯ --------------------------------------
 
 # открывает лонг или шорт
 def open_position(trend,value,price,real_test_frame_3_2_1):
@@ -205,17 +203,18 @@ def open_position(trend,value,price,real_test_frame_3_2_1):
     value_trade = value
     open_sl = True
     print_components_log(f'Открыл {signal_trade}, монета {coin_trade}, цена {price_trade}',real_test_frame_3_2_1,'OS1')
-    print(f'Открыл {signal_trade}, монета {coin_trade}, цена {price_trade}')
     take_profit_price = get_take_profit(trend,price_trade) # получаем цену тэйк профита
     stop_loss_price = get_stop_loss(trend,price_trade) # получаем цену стоп лосса
     print_components_log(f'Тейк - {take_profit_price} | Стоп - {stop_loss_price}',real_test_frame_3_2_1,'OS1')
-    print(f'Тейк - {take_profit_price} | Стоп - {stop_loss_price}')
 
+# получить тейк профит
 def get_take_profit(trend,price_trade): # получаем цену тейк профита в зависимости от направления
     if trend == 'long':
         return float(float(price_trade)*(1+float(TP)))
     if trend == 'short':
         return float(float(price_trade)*(1-float(TP)))
+
+# получить стоп лосс
 def get_stop_loss(trend,price_trade): # получаем цену стоп лосса в зависимости от направления
     if trend == 'long':
         return float(float(price_trade)*(1-float(SL)))
@@ -235,7 +234,6 @@ def close_trade(status,procent,real_test_frame_3_2_1):
         DEPOSIT = DEPOSIT + LEVERAGE*DEPOSIT*procent - LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
         open_sl = False
         print_components_log(f'Сработал ТЕЙК|Депо={round(DEPOSIT,1)}, профит={round(profit,1)},ком={round(commission,1)}',real_test_frame_3_2_1,'OS1')
-        print(f'Сработал ТЕЙК|Депо={round(DEPOSIT,1)}, профит={round(profit,1)},ком={round(commission,1)}')
     if status == '-': # если закрыли в минус
         loss = loss + LEVERAGE*DEPOSIT*procent
         commission = commission + LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER)
@@ -243,6 +241,7 @@ def close_trade(status,procent,real_test_frame_3_2_1):
         open_sl = False
         print_components_log(f'Сработал СТОП|Депо={round(DEPOSIT,1)}, убыток={round(loss,1)},ком={round(commission,1)}',real_test_frame_3_2_1,'OS1')
 
+# следим за монетой в сделке из вебсокетов - сработал тейк или стоп
 def check_trade(price,real_test_frame_3_2_1):
     now_price_trade = price #получаем текущую цену монеты
     global count_long_take
@@ -269,17 +268,16 @@ def check_trade(price,real_test_frame_3_2_1):
             count_short_loss = count_short_loss + 1
             close_trade('-',SL,real_test_frame_3_2_1)
             return 1
-# -------------------------------------- ТОРГОВЛЯ --------------------------------------
-# -------------------------------------- СТРАТЕГИЯ --------------------------------------
 
+# проверяем, есть ли сигнал на монету - точка входа работы стратегий
 def check_if_signal(strat_mas_real_test,symbol,real_test_frame_3_2_1):
     global TF
     global how_mach_candle_get_api
     global summ_strat
     for strat in strat_mas_real_test:
         match strat:
-            case 'strat1' : summ_strat['Канал, тренд, локаль, объём'] = get_strat_1(symbol,TF,how_mach_candle_get_api)
-            case 'strat2' : summ_strat['Суммарный тех индикатор TreadingView'] = get_strat_2(symbol,TF)
+            case 'strat1' : summ_strat['Канал, тренд, локаль, объём'] = get_strat_1(symbol,TF,how_mach_candle_get_api,real_test_frame_3_2_1)
+            case 'strat2' : summ_strat['Суммарный тех индикатор TreadingView'] = get_strat_2(symbol,TF,real_test_frame_3_2_1)
             case 'strat3' : pass
             case 'strat4' : pass
             case 'strat5' : pass
@@ -319,35 +317,33 @@ def check_if_signal(strat_mas_real_test,symbol,real_test_frame_3_2_1):
     elif strat_short == len(summ_strat): return 'short'
     else : return 'нет сигнала'
         
-def get_strat_1(symbol,TF,how_mach_candle_get_api): # 1 стратегия
+def get_strat_1(symbol,TF,how_mach_candle_get_api,real_test_frame_3_2_1): # 1 стратегия
     try:
         prices = get_futures_klines(symbol,TF,how_mach_candle_get_api)
         return str_1.strat_1(prices,how_mach_candle_get_api) 
     except Exception as e:
-        print(f'Ошибка работы стратегии Канал, тренд, локаль, объём! - {e}')
+        print_components_log(f'Ошибка работы стратегии Канал, тренд, локаль, объём! - {e}',real_test_frame_3_2_1,'OS1')
         return 'нет сигнала'
 
-def get_strat_2(symbol,TF): # 2 стратегия
+def get_strat_2(symbol,TF,real_test_frame_3_2_1): # 2 стратегия
     try:
       return str_2.strat_2(symbol,TF) 
     except Exception as e:
-      print(f'Ошибка работы стратегии сум индикаторов TV! - {e}')
+      print_components_log(f'Ошибка работы стратегии сум индикаторов TV! - {e}',real_test_frame_3_2_1,'OS1')
       return 'нет сигнала'
     
-# -------------------------------------- СТРАТЕГИЯ --------------------------------------
-
+# получаем цену монеты сейчас
 def get_price_now_coin(symbol):
     try:
         key = "https://fapi.binance.com/fapi/v1/ticker/price?symbol="+symbol
         data = requests.get(key)   
         data = data.json() 
         price = data['price']
-        print(f'{symbol} - {price}')
         return price
     except Exception as e:
-        print('Ошибка запроса цены для открытия сделки')
-        print(e)
-         
+        print(f'Ошибка запроса цены для открытия сделки - {e}')
+     
+# запускаем вебсокеты, когда вошли в сделку, следим за монетой, рисуем график и данные в реальном времени    
 async def websocket_trade(switch_TG_var2,real_test_frame_4,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1):
     try:
         global price_trade #цена входа
@@ -463,11 +459,9 @@ async def websocket_trade(switch_TG_var2,real_test_frame_4,card_trade_menu_2,rea
                             card_trade_menu_2_pnl.configure(text=f"P&L: {-pnl_proc}% | {-pnl_dol}$",text_color='#DA1010')
                             card_trade_menu_2_pnl.configure(text_color='#DA1010')
                         card_trade_menu_2_balance.configure(text=f"Баланс: {round(DEPOSIT-pnl_dol-comission,4)}$") 
-                    print(data['c'])
                     if stop_real_test_trade_flag: break
                     if switch_TG_var2.get()=='off': break
                     if check_trade(data['c'],real_test_frame_3_2_1): # следим за монетой, отрабатываем тп и сл
-                        print('ВЫХОДИМ ИЗ ПОЗИЦИИ!!!!!!!!!!!')
                         print_components_log('----------------',real_test_frame_3_1_1,'WS')
                         break
                 except websockets.exceptions.ConnectionClosed:
@@ -476,17 +470,15 @@ async def websocket_trade(switch_TG_var2,real_test_frame_4,card_trade_menu_2,rea
         messagebox.showinfo('Внимание','Ошибка работы вебсокетов')
         print(e)
         
-# -------------------------------------- Перебор по датафрейму --------------------------------------
-
+# отчистка ферйма для отрисовки        
 def clean_card_menu(frame):
     for widget in frame.winfo_children():
         widget.forget()
 
-
+# главный цикл работы программы
 def start_real_test_trade_model(strat_mas_real_test,real_test_frame_4,card_trade_menu,switch_TG_var2,card_trade_menu_2,real_test_frame_3_1_1,real_test_frame_3_2_1):
     try:
         print_components_log(f'Начали торговлю',real_test_frame_3_2_1,'OS1')
-        print('Стартуем')
         global coin_mas_10
         global symbol
         global trend_for_print
@@ -514,10 +506,9 @@ def start_real_test_trade_model(strat_mas_real_test,real_test_frame_4,card_trade
                         time.sleep(2) # Интервал в 2 секунд, чтобы бинанс не долбить
                         print_components_log(f'{int(x)+1}({how_mach_coin}) Монета - {result}, {trend}',real_test_frame_3_2_1,'OS1')
                         trend_for_print = trend
-                        if int(x)-1 == how_mach_coin: break
+                        if int(x) == int(how_mach_coin): break
                         if trend != 'нет сигнала':
                             symbol = result
-                            print('СИГНАЛ!')
                             break
                     if trend == "нет сигнала":
                         if stop_real_test_trade_flag: break
@@ -525,11 +516,8 @@ def start_real_test_trade_model(strat_mas_real_test,real_test_frame_4,card_trade
                         print_components_log(f'Нет сигналов. Ждём {wait_time} минут',real_test_frame_3_2_1,'OS1')
                         time.sleep(wait_time*60)
                     else:
-                        print('Сделка!')
                         price__now = get_price_now_coin(symbol)
-                        print(price__now)
                         vol_trade = get_trade_VOLUME(price__now)
-                        print(vol_trade)
                         open_position(trend,vol_trade,price__now,real_test_frame_3_2_1) # если есть сигнал и мы не стоим в позиции, то открываем позицию
                 if open_sl == True:  
                     if stop_real_test_trade_flag: break
