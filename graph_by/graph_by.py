@@ -77,16 +77,24 @@ def paint_bar(canv,prices,prices_old):
     global price_min
     global price_max
     global mass_date_interval_graph
-    # определяем границы для масштабирования графика
+    global mass_date_line
+    # определяем границы для масштабирования графика цены
     price_max = (prices_old.loc[prices_old['close'] == prices_old['close'].max()].iloc[0]['close'])
     price_min = (prices_old.loc[prices_old['close'] == prices_old['close'].min()].iloc[0]['close'])
     OldRange = (price_max - price_min) 
     NewRange = height_canvas 
     OldRange1 = (VOLUME)  
     NewRange1 = (width_canvas/(144/VOLUME))  
-    # print(price_max)
-    # print(price_min)
+    # определяем границы для масштабирования графика объёмов
+    price_max_volume = (prices_old.loc[prices_old['VOLUME'] == prices_old['VOLUME'].max()].iloc[0]['VOLUME'])
+    price_min_volume = (prices_old.loc[prices_old['VOLUME'] == prices_old['VOLUME'].min()].iloc[0]['VOLUME'])
+    OldRange_volume = (price_max_volume - price_min_volume) 
+    NewRange_volume = 110     
+    
     mass_date_interval_graph = {}
+    mass_date_line = []
+    for i in range(0,3000,20):
+        mass_date_line.append(((i * NewRange1) / OldRange1))
     for index, row in prices.iterrows():
         x0 = ((index * NewRange1) / OldRange1)
         mass_date_interval_graph[(x0-2,x0+2)] = datetime.fromtimestamp(int(row['open_time']/1000)).strftime('%d.%m.%Y %H:%M')
@@ -95,6 +103,9 @@ def paint_bar(canv,prices,prices_old):
         high = (((row['high'] - price_min) * NewRange) / OldRange)
         low = (((row['low'] - price_min) * NewRange) / OldRange)
         paint_candle(canv,x0,y0,y1,high,low)
+        
+        VOLUME_y = (((row['VOLUME'] - price_min_volume) * NewRange_volume) / OldRange_volume)
+        paint_one_volume(canvas_volume,x0,y0,y1,VOLUME_y)
 
 # рисуем одну свечу    
 def paint_candle(canv,x0,y0,y1,high,low):
@@ -108,17 +119,26 @@ def paint_candle(canv,x0,y0,y1,high,low):
         canv.tag_lower(canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#0ECB81", fill="#0ECB81"))
         canv.tag_lower(canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#0ECB81"))
 
+# рисуем один объём
+def paint_one_volume(canv,x0,y0,y1,VOLUME_y):
+    if y0>=y1: # красный
+        canv.tag_lower(canv.create_rectangle(x0, 80-VOLUME_y, x0+width_telo, 80,outline="#F6465D", fill="#F6465D"))
+    if y0<y1: # зеленый
+        canv.tag_lower(canv.create_rectangle(x0, 80-VOLUME_y, x0+width_telo, 80,outline="#0ECB81", fill="#0ECB81"))
+        
 # перемещение канваса мышкой старт
 def move_start(event):
     canvas.scan_mark(event.x, event.y)
     canvas_price.scan_mark(0, event.y)
     canvas_date.scan_mark(event.x, 0)
-
+    canvas_volume.scan_mark(event.x, 60)
+    
 # перемещение канваса мышкой отпускание 
 def move_move(event):
     canvas.scan_dragto(event.x, event.y, gain=1)
     canvas_price.scan_dragto(0, event.y, gain=1)
     canvas_date.scan_dragto(event.x, 0, gain=1)
+    canvas_volume.scan_dragto(event.x, 60, gain=1)
 
 # зум колесиком мыши
 def zoomer(event):
@@ -128,10 +148,12 @@ def zoomer(event):
         canvas.scale("all", true_x, true_y, 1.1, 1.1)
         canvas_price.scale("all", 20, true_y, 1.1, 1.1)
         canvas_date.scale("all", true_x, 14, 1.1, 1.1)
+        canvas_volume.scale("all", true_x, 80, 1.1, 1.1)
     elif (event.delta < 0):
         canvas.scale("all", true_x, true_y, 0.9, 0.9)
         canvas_price.scale("all", 20, true_y, 0.9, 0.9)
         canvas_date.scale("all", true_x, 14, 0.9, 0.9)
+        canvas_volume.scale("all", true_x, 80, 0.9, 0.9)
     #canvas_date.configure(scrollregion = canvas_date.bbox("all"))
 
 # отображает перекрестье на графике, изменяет цену и время
@@ -139,6 +161,7 @@ def mmove(event):
     global flag_pricel
     global canvas_id
     global canvas_id2
+    global canvas_id3
     x0 = canvas.canvasx(0)
     y0 = canvas.canvasy(0)
     x = canvas.canvasx(event.x)
@@ -146,6 +169,7 @@ def mmove(event):
     if flag_pricel!=0:
         # прицел
         canvas.coords(canvas_id,x, -1000, x, 10000)
+        canvas_volume.coords(canvas_id3,x, -1000, x, 10000)
         canvas.coords(canvas_id2,0, y, 10000, y)
         # цена
         canvas_price.coords(price_rectangle,0, y-7,46, y+7)
@@ -159,7 +183,9 @@ def mmove(event):
         
         return
     canvas_id = canvas.create_line(x, 0, x, 10000, width=1, fill='#424747')
+    canvas_id3 = canvas_volume.create_line(x, 0, x, 10000, width=1, fill='#424747')
     canvas_id2 = canvas.create_line(0, y, 10000, y, width=1, fill='#424747')
+    
     print_real_price_x(x,y)
     flag_pricel = 1
 
@@ -201,8 +227,9 @@ def print_setka_from_graph():
         y = (((i - price_min) * NewRange) / OldRange)   
         canvas.tag_lower(canvas.create_line(-1000,height_canvas- y, 5000, height_canvas-y, width=1, fill='#1B1F24'))
         canvas_price.create_text(20,height_canvas-y,fill="#707985",font=('Purisa',8),text=i)
-
-
+    for i in mass_date_line:
+        canvas.tag_lower(canvas.create_line(i,-1000, i, 5000, width=1, fill='#1B1F24'))
+        canvas_volume.tag_lower(canvas_volume.create_line(i,-1000, i, 5000, width=1, fill='#1B1F24'))
 
 
 # рисовать график по историческим данным - главное, точка входа
@@ -210,10 +237,12 @@ def draw_graph(df,frame=frame,width=width_canvas,height=height_canvas,bg="#161A1
     global canvas
     global canvas_price
     global canvas_date
+    global canvas_volume
     canvas = Canvas(frame, width = width, height = height, bg = bg,border=0,bd=0,highlightthickness=0)
     canvas_price = Canvas(frame, width = 46, height = height, bg = '#121619',border=0,bd=0,highlightthickness=0)
     canvas_date = Canvas(frame, width = width_canvas, height = 30, bg = '#121619',border=0,bd=0,highlightthickness=0)
-    canvas_settings = Canvas(frame, width = 46, height = 30, bg = '#121619',border=0,bd=0,highlightthickness=0)
+    canvas_volume = Canvas(frame, width = width_canvas, height = 80, bg = bg,border=0,bd=0,highlightthickness=0)
+    canvas_settings = Canvas(frame, width = 46, height = 110, bg = '#121619',border=0,bd=0,highlightthickness=0)
     xsb = tk.Scrollbar(frame, orient="horizontal", command=canvas.xview)
     ysb = tk.Scrollbar(frame, orient="vertical", command=canvas.yview)
     canvas.configure(yscrollcommand=ysb.set, xscrollcommand=xsb.set)
@@ -221,8 +250,9 @@ def draw_graph(df,frame=frame,width=width_canvas,height=height_canvas,bg="#161A1
     
     canvas.grid(row=0, column=0)
     canvas_price.grid(row=0, column=1,padx=0,sticky='w')
-    canvas_date.grid(row=1, column=0,padx=0,sticky='w')
-    canvas_settings.grid(row=1, column=1,columnspan=2,padx=0,sticky='w')
+    canvas_volume.grid(row=1, column=0,padx=0,sticky='w')
+    canvas_date.grid(row=2, column=0,padx=0,sticky='w')
+    canvas_settings.grid(row=1, column=1,padx=0,sticky='ns',rowspan=2)
     # Это то, что позволяет использовать мышь
     canvas.bind("<ButtonPress-1>", lambda event: move_start(event))
     canvas.bind("<B1-Motion>", lambda event:move_move(event))
