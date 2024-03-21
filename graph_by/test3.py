@@ -2,57 +2,79 @@ from tkinter import *
 
 current = None
 
-def DrawGrid(drawing_area, line_distance):
+width_line = 6
+color_line = 'blue'
+active_color_line='red'
 
-   for x in range(line_distance,600,line_distance):
-       drawing_area.create_line(x, 0, x, 600, fill="#d3d3d3")
 
-   for y in range(line_distance,600,line_distance):
-       drawing_area.create_line(0, y, 600, y, fill="#d3d3d3")
 
 def main():
+    global canvas
     root = Tk()
-    drawing_area = Canvas(root, width=600, height=600, bg='white')
-    drawing_area.pack()
-    DrawGrid(drawing_area, 10)
-    drawing_area.bind("<Escape>", reset)
-    drawing_area.bind("<Motion>", motion)
-    drawing_area.bind("<ButtonPress-1>", Mousedown)
+    canvas = Canvas(root, width=600, height=600, bg='white')
+    canvas.pack()
+    
+    main_crate_line(canvas)
 
     root.mainloop()
+    
+    
+# точка входа в рисунок линией
+def main_crate_line(canvas):
+    canvas.tag_click = False # чтобы при нажатии на линию не начинать рисовать новую
+    canvas.bind("<Motion>", motion) # благодаря этому линия тянется от точки нажатия, без - просто тепается
+    canvas.bind("<ButtonPress-1>", Mousedown)
 
-def reset(event):
-    global current
-    current = None
+def fucus_line(event):
+    event.widget.tag_click = True
+    print('Линия в фокусе')
+def enter_line(event):
+    print('Нажали на линию')
+    x0 = event.x
+    y0 = event.y
+    canvas.coords(current,0, y-7,46, y+7)
 
 def Mousedown(event):
     global current
-
-    event.widget.focus_set()  # so escape key will work
-
+    global flag
+    event.widget.focus_set()  # таким образом, клавиша escape будет работать
     if current is None:
-        # the new line starts where the user clicked
+        if event.widget.tag_click:
+            event.widget.tag_click = False
+            return
+        # новая строка начинается с того места, где пользователь нажал
         x0 = event.x
         y0 = event.y
-
-    else:
-        # the new line starts at the end of the previously
-        # drawn line
+        print('1 нажатие')
+        flag = 1
+        current = event.widget.create_line(x0, y0, event.x, event.y,width=width_line,fill=color_line)
+        return
+    if flag == 1:
+        print('2 нажатие')
         coords = event.widget.coords(current)
         x0 = coords[2]
         y0 = coords[3]
-
-    # create the new line
-    current = event.widget.create_line(x0, y0, event.x, event.y)
+        current = event.widget.create_line(x0, y0, event.x, event.y,width=width_line,fill=color_line)
+        flag = 0
+        current = None
+        
 
 def motion(event):
     if current:
-        # modify the current line by changing the end coordinates
-        # to be the current mouse position
+        # измените текущую строку, изменив конечные координаты
+        # на текущее положение мыши
         coords = event.widget.coords(current)
         coords[2] = event.x
         coords[3] = event.y
-
         event.widget.coords(current, *coords)
+        event.widget.itemconfigure(current,activefill='red')
+        canvas.tag_bind(current, '<Enter>', fucus_line) # - фокус
+        canvas.tag_bind(current, '<Button-1>', enter_line) # - нажатие мыши
+        
+        
+    
+
+
+        
 
 main()

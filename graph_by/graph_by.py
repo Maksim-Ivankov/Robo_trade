@@ -6,6 +6,10 @@ from tkinter import *
 import tkinter as tk
 from datetime import datetime
 
+import os   
+import sys
+sys.path.insert(1,os.path.join(sys.path[0],'../../../'))
+
 # первичные настройки окна
 def settings_window():
     global win
@@ -34,7 +38,7 @@ width_spile = 1 # Ширина хвоста, шпиля
 flag_pricel = 0 # флаг для логики прицела
 
 
-frame = customtkinter.CTkFrame(win, corner_radius=0, fg_color="")
+frame = customtkinter.CTkFrame(win, corner_radius=0)
 frame.pack(pady=[100,0])
 
 # генерируем датафрейм в файл
@@ -231,28 +235,172 @@ def print_setka_from_graph():
         canvas.tag_lower(canvas.create_line(i,-1000, i, 5000, width=1, fill='#1B1F24'))
         canvas_volume.tag_lower(canvas_volume.create_line(i,-1000, i, 5000, width=1, fill='#1B1F24'))
 
+# рисуем панель инструментов
+def print_tools(frame):
+    global img_cursor_canvas,img_line_trend_canvas,img_horiz_line_canvas,img_kanal_canvas,img_kist_canvas,img_korzina_canvas 
+    global img_cursor,img_line_trend,img_horiz_line,img_kanal,img_kist,img_korzina 
 
+    img_cursor = PhotoImage(file=sys.path[0] + "\image\png\cursor.png") 
+    img_line_trend = PhotoImage(file=sys.path[0] + "\image\png\line_trend.png") 
+    img_horiz_line = PhotoImage(file=sys.path[0] + "\image\png\horiz_line.png") 
+    img_kanal = PhotoImage(file=sys.path[0] + "\image\png\kanal.png") 
+    img_kist = PhotoImage(file=sys.path[0] + "\image\png\kist.png") 
+    img_korzina = PhotoImage(file=sys.path[0] + "\image\png\korzina.png") 
+    
+    img_cursor_canvas = Button(frame, command=img_cursor_enter,image=img_cursor,relief = 'flat',background ='#121619',border=0,width=25,height=25)
+    img_line_trend_canvas = Button(frame, command=img_line_trend_enter,image=img_line_trend,relief = 'flat',background ='#121619',border=0,width=25,height=25)
+    img_horiz_line_canvas = Button(frame, command=img_horiz_line_enter,image=img_horiz_line,relief = 'flat',background ='#121619',border=0,width=25,height=25)
+    img_kanal_canvas = Button(frame, command=img_kanal_enter,image=img_kanal,relief = 'flat',background ='#121619',border=0,width=25,height=25)
+    img_kist_canvas = Button(frame, command=img_kist_enter,image=img_kist,relief = 'flat',background ='#121619',border=0,width=25,height=25)
+    img_korzina_canvas = Button(frame, command=img_korzina_enter,image=img_korzina,relief = 'flat',background ='#121619',border=0,width=25,height=25)
+    
+    
+   
+    img_cursor_canvas.pack(padx=5,pady=5)
+    img_line_trend_canvas.pack(padx=5,pady=5)
+    img_horiz_line_canvas.pack(padx=5,pady=5)
+    img_kanal_canvas.pack(padx=5,pady=5)
+    img_kist_canvas.pack(padx=5,pady=5)
+    img_korzina_canvas.pack(padx=5,pady=5)
+    
+    # 0 кнопка
+    img_cursor_canvas.bind("<Enter>", img_cursor_canvas_on_focus)
+    img_cursor_canvas.bind("<Leave>", img_cursor_canvas_off_focus)
+    # 1 кнопка
+    img_line_trend_canvas.bind("<Enter>", img_line_trend_on_focus)
+    img_line_trend_canvas.bind("<Leave>", img_line_trend_off_focus)
+    # 2 кнопка
+    img_horiz_line_canvas.bind("<Enter>", img_horiz_line_on_focus)
+    img_horiz_line_canvas.bind("<Leave>", img_horiz_line_off_focus)
+    # 3 кнопка
+    img_kanal_canvas.bind("<Enter>", img_kanal_on_focus)
+    img_kanal_canvas.bind("<Leave>", img_kanal_off_focus)
+    # 4 кнопка
+    img_kist_canvas.bind("<Enter>", img_kist_on_focus)
+    img_kist_canvas.bind("<Leave>", img_kist_off_focus)
+    # 5 кнопка
+    img_korzina_canvas.bind("<Enter>", img_korzina_on_focus)
+    img_korzina_canvas.bind("<Leave>", img_korzina_off_focus)
+    
+
+# 0 кнопка фокус
+def img_cursor_canvas_on_focus(e):
+    img_cursor_canvas['background'] = '#2A2E39'
+# 0 кнопка дизфокус
+def img_cursor_canvas_off_focus(e):
+    img_cursor_canvas['background'] = '#121619'
+#----------------------
+# 1 кнопка фокус
+def img_line_trend_on_focus(e):
+    img_line_trend_canvas['background'] = '#2A2E39'
+# 1 кнопка дизфокус
+def img_line_trend_off_focus(e):
+    img_line_trend_canvas['background'] = '#121619'
+#----------------------
+# 2 кнопка фокус
+def img_horiz_line_on_focus(e):
+    img_horiz_line_canvas['background'] = '#2A2E39'
+# 2 кнопка дизфокус
+def img_horiz_line_off_focus(e):
+    img_horiz_line_canvas['background'] = '#121619'
+#----------------------
+# 3 кнопка фокус
+def img_kanal_on_focus(e):
+    img_kanal_canvas['background'] = '#2A2E39'
+# 3 кнопка дизфокус
+def img_kanal_off_focus(e):
+    img_kanal_canvas['background'] = '#121619'
+#----------------------
+# 4 кнопка фокус
+def img_kist_on_focus(e):
+    img_kist_canvas['background'] = '#2A2E39'
+# 4 кнопка дизфокус
+def img_kist_off_focus(e):
+    img_kist_canvas['background'] = '#121619'
+#----------------------
+# 5 кнопка фокус
+def img_korzina_on_focus(e):
+    img_korzina_canvas['background'] = '#2A2E39'
+# 5 кнопка дизфокус
+def img_korzina_off_focus(e):
+    img_korzina_canvas['background'] = '#121619'
+    
+    
+    
+    
+    
+# 0 кнопка нажата
+def img_cursor_enter():
+    print("1")
+# 1 кнопка нажата
+def img_line_trend_enter():
+    print("1")
+# 2 кнопка нажата
+def img_horiz_line_enter():
+    print("2")
+# 3 кнопка нажата
+def img_kanal_enter():
+    print("3")
+# 4 кнопка нажата
+def img_kist_enter():
+    print("4")
+# 5 кнопка нажата
+def img_korzina_enter():
+    print("5")
+
+
+
+
+# # # кнопка 1 фокус   
+# # def img_line_trend_canvas_on_focus(event):
+    
+# #     canvas_tools.itemconfigure(img_line_trend_canvas, image=img_line_trend_f)
+# # # кнопка 1 снятие фокуса
+# # def img_line_trend_canvas_off_focus(event):
+# #     canvas_tools.itemconfigure(img_line_trend_canvas, image=img_line_trend)
+# # # кнопка 1 нажатие
+# # def img_line_trend_canvas_enter(event):
+# #     print('2')
+    
+# # # кнопка 2 фокус   
+# # def img_horiz_line_canvas_on_focus(event):
+# #     canvas_tools.coords(img_horiz_line_canvas,7,45)
+# #     canvas_tools.itemconfigure(img_horiz_line_canvas, image=img_horiz_line_f)
+# # # кнопка 2 снятие фокуса
+# # def img_horiz_line_canvas_off_focus(event):
+# #     canvas_tools.coords(img_horiz_line_canvas,7,56)
+# #     canvas_tools.itemconfigure(img_horiz_line_canvas, image=img_horiz_line)
+# # # кнопка 2 нажатие
+# # def img_horiz_line_canvas_enter(event):
+#     print('2')
+    
+    
 # рисовать график по историческим данным - главное, точка входа
-def draw_graph(df,frame=frame,width=width_canvas,height=height_canvas,bg="#161A1E", title_gr=symbol):
+def draw_graph(df,frame,width=width_canvas,height=height_canvas,bg="#161A1E", title_gr=symbol):
     global canvas
     global canvas_price
     global canvas_date
     global canvas_volume
+    global canvas_tools
+    
     canvas = Canvas(frame, width = width, height = height, bg = bg,border=0,bd=0,highlightthickness=0)
     canvas_price = Canvas(frame, width = 46, height = height, bg = '#121619',border=0,bd=0,highlightthickness=0)
     canvas_date = Canvas(frame, width = width_canvas, height = 30, bg = '#121619',border=0,bd=0,highlightthickness=0)
     canvas_volume = Canvas(frame, width = width_canvas, height = 80, bg = bg,border=0,bd=0,highlightthickness=0)
     canvas_settings = Canvas(frame, width = 46, height = 110, bg = '#121619',border=0,bd=0,highlightthickness=0)
+    canvas_tools = customtkinter.CTkFrame(frame, corner_radius=0,fg_color='#121619',width=40)
     xsb = tk.Scrollbar(frame, orient="horizontal", command=canvas.xview)
     ysb = tk.Scrollbar(frame, orient="vertical", command=canvas.yview)
     canvas.configure(yscrollcommand=ysb.set, xscrollcommand=xsb.set)
     canvas.configure(scrollregion=(-5000,-5000,5000,5000))
     
-    canvas.grid(row=0, column=0)
-    canvas_price.grid(row=0, column=1,padx=0,sticky='w')
-    canvas_volume.grid(row=1, column=0,padx=0,sticky='w')
-    canvas_date.grid(row=2, column=0,padx=0,sticky='w')
-    canvas_settings.grid(row=1, column=1,padx=0,sticky='ns',rowspan=2)
+    canvas.grid(row=0, column=1)
+    canvas_price.grid(row=0, column=2,padx=0,sticky='w')
+    canvas_volume.grid(row=1, column=1,padx=0,sticky='w')
+    canvas_date.grid(row=2, column=1,padx=0,sticky='w')
+    canvas_settings.grid(row=1, column=2,padx=0,sticky='ns',rowspan=2)
+    canvas_tools.grid(row=0, column=0,rowspan=3,sticky='ns')  
+    
     # Это то, что позволяет использовать мышь
     canvas.bind("<ButtonPress-1>", lambda event: move_start(event))
     canvas.bind("<B1-Motion>", lambda event:move_move(event))
@@ -261,9 +409,27 @@ def draw_graph(df,frame=frame,width=width_canvas,height=height_canvas,bg="#161A1
     
     paint_bar(canvas,df,df)
     print_setka_from_graph()
+    print_tools(canvas_tools)
+    
     
 df = get_df_from_file() # получили датафрейм в переменную
-draw_graph(df)
+draw_graph(df,frame)
+ 
+ 
+
+
+
+# 
+
+#     # кнопка 1
+# canvas_tools.tag_bind(img_line_trend_canvas, '<Enter>', img_line_trend_canvas_on_focus) # - фокус
+# canvas_tools.tag_bind(img_line_trend_canvas, '<Button-1>', img_line_trend_canvas_enter) # - нажатие мыши
+# canvas_tools.tag_bind(img_line_trend_canvas, '<Leave>', img_line_trend_canvas_off_focus) # - пропал из фокуса
+# # кнопка 2
+# canvas_tools.tag_bind(img_horiz_line_canvas, '<Enter>', img_horiz_line_canvas_on_focus) # - фокус
+# canvas_tools.tag_bind(img_horiz_line_canvas, '<Button-1>', img_horiz_line_canvas_enter) # - нажатие мыши
+# canvas_tools.tag_bind(img_horiz_line_canvas, '<Leave>', img_horiz_line_canvas_off_focus) # - пропал из фокуса
+
 
 
 win.mainloop()
