@@ -89,14 +89,15 @@ def paint_bar(canv,prices,prices_old):
     NewRange = height_canvas 
     OldRange1 = (VOLUME)  
     NewRange1 = (width_canvas/(144/VOLUME))  
+    canvas.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
     # определяем границы для масштабирования графика объёмов
     price_max_volume = (prices_old.loc[prices_old['VOLUME'] == prices_old['VOLUME'].max()].iloc[0]['VOLUME'])
     price_min_volume = (prices_old.loc[prices_old['VOLUME'] == prices_old['VOLUME'].min()].iloc[0]['VOLUME'])
     OldRange_volume = (price_max_volume - price_min_volume) 
     NewRange_volume = 110     
-    
     mass_date_interval_graph = {}
     mass_date_line = []
+    
     for i in range(0,3000,20):
         mass_date_line.append(((i * NewRange1) / OldRange1))
     for index, row in prices.iterrows():
@@ -170,6 +171,7 @@ def mmove(event):
     y0 = canvas.canvasy(0)
     x = canvas.canvasx(event.x)
     y = canvas.canvasy(event.y)  
+    print(f'{x} - {y} | {event.x} - {event.y}')
     if flag_pricel!=0:
         # прицел
         canvas.coords(canvas_id,x, -1000, x, 10000)
