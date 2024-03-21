@@ -5,10 +5,13 @@ import pandas as pd
 from tkinter import *
 import tkinter as tk
 from datetime import datetime
-
 import os   
 import sys
 sys.path.insert(1,os.path.join(sys.path[0],'../../../'))
+import asyncio
+import websockets
+import json
+
 
 # первичные настройки окна
 def settings_window():
@@ -82,6 +85,7 @@ def paint_bar(canv,prices,prices_old):
     global price_max
     global mass_date_interval_graph
     global mass_date_line
+    global NewRange1
     # определяем границы для масштабирования графика цены
     price_max = (prices_old.loc[prices_old['close'] == prices_old['close'].max()].iloc[0]['close'])
     price_min = (prices_old.loc[prices_old['close'] == prices_old['close'].min()].iloc[0]['close'])
@@ -89,15 +93,16 @@ def paint_bar(canv,prices,prices_old):
     NewRange = height_canvas 
     OldRange1 = (VOLUME)  
     NewRange1 = (width_canvas/(144/VOLUME))  
-    canvas.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
     # определяем границы для масштабирования графика объёмов
     price_max_volume = (prices_old.loc[prices_old['VOLUME'] == prices_old['VOLUME'].max()].iloc[0]['VOLUME'])
     price_min_volume = (prices_old.loc[prices_old['VOLUME'] == prices_old['VOLUME'].min()].iloc[0]['VOLUME'])
     OldRange_volume = (price_max_volume - price_min_volume) 
     NewRange_volume = 110     
+    
+    
+    
     mass_date_interval_graph = {}
     mass_date_line = []
-    
     for i in range(0,3000,20):
         mass_date_line.append(((i * NewRange1) / OldRange1))
     for index, row in prices.iterrows():
@@ -171,7 +176,6 @@ def mmove(event):
     y0 = canvas.canvasy(0)
     x = canvas.canvasx(event.x)
     y = canvas.canvasy(event.y)  
-    print(f'{x} - {y} | {event.x} - {event.y}')
     if flag_pricel!=0:
         # прицел
         canvas.coords(canvas_id,x, -1000, x, 10000)
@@ -347,9 +351,23 @@ def img_korzina_enter():
     print("5")
 
 
+def start_websoket_main():
+    loop221 = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop221)
+    loop221 = asyncio.get_event_loop()
+    loop221.run_until_complete(websocket_trade()) 
 
-
-
+async def websocket_trade():
+    print('123123123')
+    url = 'wss://fstream.binance.com/stream?streams='+symbol.lower()+'@miniTicker'
+    async with websockets.connect(url) as ws:
+        while True:        
+            try:
+                data = json.loads(await ws.recv())['data']
+                print(data)
+            except websockets.exceptions.ConnectionClosed:
+                break
+    
 
     
 # рисовать график по историческим данным - главное, точка входа
@@ -370,6 +388,10 @@ def draw_graph(df,frame,width=width_canvas,height=height_canvas,bg="#161A1E", ti
     ysb = tk.Scrollbar(frame, orient="vertical", command=canvas.yview)
     canvas.configure(yscrollcommand=ysb.set, xscrollcommand=xsb.set)
     canvas.configure(scrollregion=(-5000,-5000,5000,5000))
+    canvas_volume.configure(yscrollcommand=ysb.set, xscrollcommand=xsb.set)
+    canvas_volume.configure(scrollregion=(-5000,-5000,5000,5000))
+    canvas_date.configure(yscrollcommand=ysb.set, xscrollcommand=xsb.set)
+    canvas_date.configure(scrollregion=(-5000,-5000,5000,5000))
     
     canvas.grid(row=0, column=1)
     canvas_price.grid(row=0, column=2,padx=0,sticky='w')
@@ -387,6 +409,12 @@ def draw_graph(df,frame,width=width_canvas,height=height_canvas,bg="#161A1E", ti
     paint_bar(canvas,df,df)
     print_setka_from_graph()
     print_tools(canvas_tools)
+    
+    canvas.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
+    canvas_volume.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
+    canvas_date.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
+    
+    start_websoket_main()
     
     
 df = get_df_from_file() # получили датафрейм в переменную

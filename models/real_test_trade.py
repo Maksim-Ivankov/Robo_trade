@@ -503,6 +503,7 @@ def start_real_test_trade_model(strat_mas_real_test,real_test_frame_4,card_trade
                         if switch_TG_var2.get()=='off': break
                         time.sleep(2)
                         trend = check_if_signal(strat_mas_real_test,result,real_test_frame_3_2_1)
+                        trend = 'long'
                         time.sleep(2) # Интервал в 2 секунд, чтобы бинанс не долбить
                         print_components_log(f'{int(x)+1}({how_mach_coin}) Монета - {result}, {trend}',real_test_frame_3_2_1,'OS1')
                         trend_for_print = trend
