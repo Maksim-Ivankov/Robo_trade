@@ -11,6 +11,7 @@ sys.path.insert(1,os.path.join(sys.path[0],'../../../'))
 import asyncio
 import websockets
 import json
+import threading
 
 
 # первичные настройки окна
@@ -48,7 +49,7 @@ frame.pack(pady=[100,0])
 def generate_dataframe(TF,VOLUME):
     open(MYDIR, "w").close()
     df = get_futures_klines(symbol,TF,VOLUME)
-    df.to_csv(f'{MYDIR}.csv')
+    df.to_csv(f'{MYDIR}')
 
 # Получите последние n свечей по n минут для торговой пары, обрабатываем и записывае данные в датафрейм
 def get_futures_klines(symbol,TF,VOLUME):
@@ -86,6 +87,7 @@ def paint_bar(canv,prices,prices_old):
     global mass_date_interval_graph
     global mass_date_line
     global NewRange1
+    global data_old_candle
     # определяем границы для масштабирования графика цены
     price_max = (prices_old.loc[prices_old['close'] == prices_old['close'].max()].iloc[0]['close'])
     price_min = (prices_old.loc[prices_old['close'] == prices_old['close'].min()].iloc[0]['close'])
@@ -99,23 +101,86 @@ def paint_bar(canv,prices,prices_old):
     OldRange_volume = (price_max_volume - price_min_volume) 
     NewRange_volume = 110     
     
-    
+    data_old_candle = {}
+    data_old_candle['high'] = prices_old.iloc[VOLUME-1]['high']
+    data_old_candle['low'] = prices_old.iloc[VOLUME-1]['low']
+    data_old_candle['open'] = prices_old.iloc[VOLUME-1]['open']
+    data_old_candle['close'] = prices_old.iloc[VOLUME-1]['close']
+    data_old_candle['close_time'] = prices_old.iloc[VOLUME-1]['close_time']
     
     mass_date_interval_graph = {}
     mass_date_line = []
     for i in range(0,3000,20):
         mass_date_line.append(((i * NewRange1) / OldRange1))
     for index, row in prices.iterrows():
-        x0 = ((index * NewRange1) / OldRange1)
-        mass_date_interval_graph[(x0-2,x0+2)] = datetime.fromtimestamp(int(row['open_time']/1000)).strftime('%d.%m.%Y %H:%M')
-        y0 = (((row['open'] - price_min) * NewRange) / OldRange)
-        y1 = (((row['close'] - price_min) * NewRange) / OldRange)
-        high = (((row['high'] - price_min) * NewRange) / OldRange)
-        low = (((row['low'] - price_min) * NewRange) / OldRange)
-        paint_candle(canv,x0,y0,y1,high,low)
+        if index < VOLUME-1:
+            x0 = ((index * NewRange1) / OldRange1)
+            mass_date_interval_graph[(x0-2,x0+2)] = datetime.fromtimestamp(int(row['open_time']/1000)).strftime('%d.%m.%Y %H:%M')
+            y0 = (((row['open'] - price_min) * NewRange) / OldRange)
+            y1 = (((row['close'] - price_min) * NewRange) / OldRange)
+            high = (((row['high'] - price_min) * NewRange) / OldRange)
+            low = (((row['low'] - price_min) * NewRange) / OldRange)
+            paint_candle(canv,x0,y0,y1,high,low)
+
+            VOLUME_y = (((row['VOLUME'] - price_min_volume) * NewRange_volume) / OldRange_volume)
+            paint_one_volume(canvas_volume,x0,y0,y1,VOLUME_y)
+
+flag_websocket_price = 0
+y_websocket_old = 0
+
+def print_candle_for_websocket(canv,close,open,high,low,index):
+    global canvas_id_candle_1
+    global canvas_id_candle_2
+    global canvas_id_candle_3
+    global flag_websocket_price
+    global canvas_line_price_websocket
+    global y_websocket_old
+    # print(f'{open} | {price_min}')
+    x0 = ((index * NewRange1) / VOLUME)
+    y0 = (((float(open) - float(price_min)) * height_canvas) / (price_max - price_min) )
+    y1 = (((float(close) - float(price_min)) * height_canvas) / (price_max - price_min) )
+    high_coord = (((float(high) - float(price_min)) * NewRange) / OldRange)
+    low_coord = (((float(low) - float(price_min)) * NewRange) / OldRange)
+    print(f'{x0} | {y0} | {y1} | {high_coord} | {low_coord}')
+    if y0>=y1:
+        canvas_id_candle_1 = canv.tag_lower(canv.create_line(x0+2,height_canvas-high_coord,x0+2,height_canvas-y0,width=1,fill="#F6465D"))
+        canvas_id_candle_2 = canv.tag_lower(canv.create_rectangle(x0, height_canvas-y0, x0+width_telo, height_canvas-y1,outline="#F6465D", fill="#F6465D"))
+        canvas_id_candle_3 = canv.tag_lower(canv.create_line(x0+2,height_canvas-low_coord,x0+2,height_canvas-y1,width=1,fill="#F6465D"))
+    if y0<y1:
+        canvas_id_candle_1 = canv.tag_lower(canv.create_line(x0+2,height_canvas-high_coord,x0+2,height_canvas-y0,width=1,fill="#0ECB81"))
+        canvas_id_candle_2 = canv.tag_lower(canv.create_rectangle(x0, height_canvas-y0, x0+width_telo, height_canvas-y1,outline="#0ECB81", fill="#0ECB81"))
+        canvas_id_candle_3 = canv.tag_lower(canv.create_line(x0+2,height_canvas-low_coord,x0+2,height_canvas-y1,width=1,fill="#0ECB81"))
+    
+    
+    print_real_price_x_websocket(0,y1)
+    
+    canvas_price.coords(price_rectangle_websocket,0, height_canvas-y1-7,46, height_canvas-y1+7)
+    canvas_price.coords(price_rectangle_text_websocket,22, height_canvas-y1)
+    canvas_price.itemconfigure(price_rectangle_text_websocket, text=close)
+    
+    if flag_websocket_price!=0:
+        if y1>y_websocket_old:
+            canvas.itemconfigure(canvas_line_price_websocket, fill="#0ECB81")
+            canvas_price.itemconfigure(price_rectangle_websocket, fill="#0ECB81")
+            canvas_price.itemconfigure(price_rectangle_websocket, outline='#0ECB81')
+        else:
+            canvas.itemconfigure(canvas_line_price_websocket, fill="#F6465D")
+            canvas_price.itemconfigure(price_rectangle_websocket, fill="#F6465D")
+            canvas_price.itemconfigure(price_rectangle_websocket, outline='#F6465D')
+        canvas.coords(canvas_line_price_websocket,0, height_canvas-y1, 10000, height_canvas-y1)
         
-        VOLUME_y = (((row['VOLUME'] - price_min_volume) * NewRange_volume) / OldRange_volume)
-        paint_one_volume(canvas_volume,x0,y0,y1,VOLUME_y)
+        y_websocket_old = y1
+        return
+    canvas_line_price_websocket = canvas.create_line(0, height_canvas-y1, 10000,height_canvas- y1, width=1, fill="#0ECB81",dash=2)
+    flag_websocket_price = 1
+
+# рисует прямоугольник с ценой справа по вебсокетам
+def print_real_price_x_websocket(x,y):
+    global price_rectangle_websocket
+    global price_rectangle_text_websocket
+    price_rectangle_websocket = canvas_price.create_rectangle(x+0, y+0, x+60, y+30, fill="#0ECB81",outline='#0ECB81')
+    price_rectangle_text_websocket = canvas_price.create_text(100,10,fill="#121619",font=('Purisa',8),text='124112')
+    
 
 # рисуем одну свечу    
 def paint_candle(canv,x0,y0,y1,high,low):
@@ -128,6 +193,7 @@ def paint_candle(canv,x0,y0,y1,high,low):
         canv.tag_lower(canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#0ECB81"))
         canv.tag_lower(canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#0ECB81", fill="#0ECB81"))
         canv.tag_lower(canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#0ECB81"))
+
 
 # рисуем один объём
 def paint_one_volume(canv,x0,y0,y1,VOLUME_y):
@@ -172,8 +238,8 @@ def mmove(event):
     global canvas_id
     global canvas_id2
     global canvas_id3
-    x0 = canvas.canvasx(0)
-    y0 = canvas.canvasy(0)
+    # x0 = canvas.canvasx(0)
+    # y0 = canvas.canvasy(0)
     x = canvas.canvasx(event.x)
     y = canvas.canvasy(event.y)  
     if flag_pricel!=0:
@@ -213,7 +279,7 @@ def print_real_price_x(x,y):
     price_rectangle = canvas_price.create_rectangle(x+0, y+0, x+60, y+30, fill="#363A45",outline='#363A45')
     price_rectangle_text = canvas_price.create_text(100,10,fill="#DADBDD",font=('Purisa',8),text='124112')
     date_rectangle_text = canvas_date.create_text(100,10,fill="#DADBDD",font=('Purisa',8),text='124112')
-    pass
+    
 
 # фугкция округления - принимает цену, которую хоим округлить и разряд
 def price_round(price,digit):
@@ -351,23 +417,43 @@ def img_korzina_enter():
     print("5")
 
 
-def start_websoket_main():
+def start_websoket_main(canvas):
     loop221 = asyncio.new_event_loop()
     asyncio.set_event_loop(loop221)
     loop221 = asyncio.get_event_loop()
-    loop221.run_until_complete(websocket_trade()) 
+    loop221.run_until_complete(websocket_trade(canvas)) 
 
-async def websocket_trade():
-    print('123123123')
+
+
+async def websocket_trade(canvas):
+    flag_delete_candle_websocket = 0
+    print('Вебсокеты')
     url = 'wss://fstream.binance.com/stream?streams='+symbol.lower()+'@miniTicker'
     async with websockets.connect(url) as ws:
         while True:        
             try:
+                if flag_delete_candle_websocket != 0:
+                    delete_candle_for_websocket()
                 data = json.loads(await ws.recv())['data']
-                print(data)
+                
+                # print(data)
+                # print(f"{data['E']} - {data_old_candle['close_time']}")
+                if data['E'] < data_old_candle['close_time']:
+                    # print(data)
+                    index = VOLUME-1
+                    if float(data['c'])>float(data_old_candle['high']):
+                        data_old_candle['high'] = data['c']
+                    if float(data['c'])<float(data_old_candle['low']):
+                        data_old_candle['low'] = data['c']
+                    print_candle_for_websocket(canvas,data['c'],data_old_candle['open'],data_old_candle['high'],data_old_candle['low'],index)
+                    flag_delete_candle_websocket = 1
             except websockets.exceptions.ConnectionClosed:
                 break
     
+def delete_candle_for_websocket():
+    canvas.delete(canvas_id_candle_1)
+    canvas.delete(canvas_id_candle_2)
+    canvas.delete(canvas_id_candle_3)
 
     
 # рисовать график по историческим данным - главное, точка входа
@@ -413,12 +499,14 @@ def draw_graph(df,frame,width=width_canvas,height=height_canvas,bg="#161A1E", ti
     canvas.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
     canvas_volume.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
     canvas_date.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
-    
-    start_websoket_main()
-    
+    print('отрисовка')
+    start_websoket_main(canvas)
+
     
 df = get_df_from_file() # получили датафрейм в переменную
-draw_graph(df,frame)
+
+thread22 = threading.Thread(target=lambda:draw_graph(df,frame))
+thread22.start()
  
 
 
