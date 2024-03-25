@@ -67,7 +67,7 @@ def pump_graph(frame):
     frame_pump_today = customtkinter.CTkFrame(frame_pump_our, corner_radius=0)
     label_title1_1_today = customtkinter.CTkLabel(frame_pump_today, text="Пампы за 24 часа", fg_color="transparent",anchor='center',font=('Arial',16,'normal'), width = 600)
     frame_table_pump_today = customtkinter.CTkFrame(frame_pump_today, corner_radius=0)
-    value_pump_today = [['Монета','% роста','Время начала','Длительность']]
+    value_pump_today = [['№','Монета','% роста','Время начала','Длительность']]
     table_pump_today = CTkTable(master=frame_table_pump_today, row=1, column=4, values=value_pump_today)
     table_pump_today.pack(expand=True, padx=20, pady=20)
     frame_pump_today.pack(pady=20)
@@ -93,11 +93,12 @@ def pump_graph(frame):
     thread226.start()
 
 dop_data_row_30_daya = {}
+dop_data_row_today = {}
 
 # здесь ищем и отрисовываем все пампы, что находим
 def search_pump():
-    global dop_data_row_30_daya
-    global table_pump_30_day
+    global dop_data_row_30_daya,dop_data_row_today
+    global table_pump_30_day, table_pump_today
     top_coin = get_top_coin()
     count_coin = 0
     print(len(top_coin))
@@ -123,7 +124,7 @@ def search_pump():
                 if index == (value_get_data-1): break
                 if index != 0 and row['VOLUME'] != 0:
                     # если вторая свеча больше первой больше чем в 2 раза
-                    if float(row['VOLUME'])/float(df['VOLUME'][index-1]) > 2:
+                    if float(row['VOLUME'])/float(df['VOLUME'][index-1]) > 2 and float(row['open'])<float(row['close']) and float(df['open'][index-1])<float(df['close'][index-1])  and float(df['open'][index+1])<float(df['close'][index+1]):
                         # если третья свеча больше чем вторая больше чем в 2.5 раза
                         if float(df['VOLUME'][index+1])/float(row['VOLUME']) > 2.5:
                             flag_pump=1
@@ -132,30 +133,40 @@ def search_pump():
                             number_row_table_30_day = number_row_table_30_day + 1 
                             # если нашли памп в последних 6 свечах
                             if index > (value_get_data-8):
+                                dop_data_row_today[number_row_table_today] = index
+                                value_pump_today.append([number_row_table_today,key,top_coin[key],datetime.fromtimestamp(int((df['open_time'][index+1]/1000)-10800)).strftime('%H:%M'),'???'])
                                 number_row_table_today = number_row_table_today + 1
-                                value_pump_today.append([key,top_coin[key],datetime.fromtimestamp(int((df['open_time'][index+1]/1000)-10800)).strftime('%H:%M'),'???'])
             if flag_pump == 0:
                 pass 
         print('ЗАКОНЧИЛИ ОБРАБОТКУ') 
                  
         clean_card_menu(frame_table_pump_30_day)
-        table_pump_30_day = CTkTable(master=frame_table_pump_30_day, row=number_row_table_30_day, column=6, values=value_pump_30_day,command = get_data_table_onclick)
+        table_pump_30_day = CTkTable(master=frame_table_pump_30_day, row=number_row_table_30_day, column=6, values=value_pump_30_day,command = get_data_table_onclick_30_day)
         table_pump_30_day.pack(expand=True, padx=20, pady=20) 
         clean_card_menu(frame_table_pump_today)
-        table_pump_today = CTkTable(master=frame_table_pump_today, row=number_row_table_today, column=4, values=value_pump_today)
+        table_pump_today = CTkTable(master=frame_table_pump_today, row=number_row_table_today, column=5, values=value_pump_today, command = get_data_table_onclick_today)
         table_pump_today.pack(expand=True, padx=20, pady=20) 
             
     except Exception as e:
         print(f'Ошибка работы цикла пампов - {e}') 
 
 # обработка нажатия на строку в таблице 30 дней пампа
-def get_data_table_onclick(data):
+def get_data_table_onclick_30_day(data):
     global flag_pricel
     flag_pricel=0
     data_parse = table_pump_30_day.get_row(data['row'])
     df = get_save_df(data_parse[2])
     table_pump_30_day.select_row(data['row'])
     print_graph(df,dop_data_row_30_daya[data_parse[0]])
+    
+# обработка нажатия на строку в таблице пампов за 24 часа
+def get_data_table_onclick_today(data):
+    global flag_pricel
+    flag_pricel=0
+    data_parse = table_pump_today.get_row(data['row'])
+    df = get_save_df(data_parse[1])
+    table_pump_today.select_row(data['row'])
+    print_graph(df,dop_data_row_today[data_parse[0]])
 
 # Получите последние n свечей по n минут для торговой пары, обрабатываем и записывае данные в датафрейм
 def get_futures_klines(symbol,TF='4h',VOLUME=value_get_data):
@@ -595,9 +606,9 @@ def draw_graph(iterows,df,frame,width=width_canvas,height=height_canvas,bg="#161
     print_setka_from_graph()
     #print_tools(canvas_tools)
     
-    canvas.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
-    canvas_volume.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
-    canvas_date.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
+    canvas.xview_moveto(str((abs(-5000)+(width_canvas/(144/iterows))-400)/(abs(-5000)+5000)))
+    canvas_volume.xview_moveto(str((abs(-5000)+(width_canvas/(144/iterows))-400)/(abs(-5000)+5000)))
+    canvas_date.xview_moveto(str((abs(-5000)+(width_canvas/(144/iterows))-400)/(abs(-5000)+5000)))
     
  
 def print_graph(df,iterows):
