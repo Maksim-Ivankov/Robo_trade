@@ -401,8 +401,6 @@ def draw_graph(df,frame,width=width_canvas,height=height_canvas,bg="#161A1E", ti
 df = get_df_from_file() # получили датафрейм в переменную
 draw_graph(df,frame)
  
-
-
 win.mainloop()
 
 
