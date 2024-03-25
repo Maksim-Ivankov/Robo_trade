@@ -92,8 +92,11 @@ def pump_graph(frame):
     thread226 = threading.Thread(target=lambda:search_pump())
     thread226.start()
 
+dop_data_row_30_daya = {}
+
 # здесь ищем и отрисовываем все пампы, что находим
 def search_pump():
+    global dop_data_row_30_daya
     global table_pump_30_day
     top_coin = get_top_coin()
     count_coin = 0
@@ -116,8 +119,7 @@ def search_pump():
             if len(df) != 180: 
                 print('Новая монета, нет истории')
                 continue
-            for index, row in df.iterrows ():
-                if index > 10: break
+            for index, row in df.iterrows():
                 if index == (value_get_data-1): break
                 if index != 0 and row['VOLUME'] != 0:
                     # если вторая свеча больше первой больше чем в 2 раза
@@ -125,22 +127,14 @@ def search_pump():
                         # если третья свеча больше чем вторая больше чем в 2.5 раза
                         if float(df['VOLUME'][index+1])/float(row['VOLUME']) > 2.5:
                             flag_pump=1
-                            #print(f'ПАМП 30 дней - монета {key}|{index}')
                             value_pump_30_day.append([number_row_table_30_day,datetime.fromtimestamp(int(df['open_time'][index+1]/1000)).strftime('%d.%m.%Y'),key,top_coin[key],datetime.fromtimestamp(int((df['open_time'][index+1]/1000)-10800)).strftime('%H:%M'),'???'])
-                            # clean_card_menu(frame_table_pump_30_day)
-                            number_row_table_30_day = number_row_table_30_day + 1
-                            # table_pump_30_day = CTkTable(master=frame_table_pump_30_day, row=number_row_table_30_day, column=6, values=value_pump_30_day)
-                            # table_pump_30_day.pack(expand=True, padx=20, pady=20) 
+                            dop_data_row_30_daya[number_row_table_30_day] = index
+                            number_row_table_30_day = number_row_table_30_day + 1 
                             # если нашли памп в последних 6 свечах
-                            if index > (value_get_data-6):
+                            if index > (value_get_data-8):
                                 number_row_table_today = number_row_table_today + 1
-                                print(f'ПАМП 24 часа - монета {key}|{index}')
                                 value_pump_today.append([key,top_coin[key],datetime.fromtimestamp(int((df['open_time'][index+1]/1000)-10800)).strftime('%H:%M'),'???'])
-                                # clean_card_menu(frame_table_pump_today)
-                                # table_pump_today = CTkTable(master=frame_table_pump_today, row=number_row_table_today, column=4, values=value_pump_today)
-                                # table_pump_today.pack(expand=True, padx=20, pady=20) 
             if flag_pump == 0:
-                # print(f'Монета {key} - нет пампа')
                 pass 
         print('ЗАКОНЧИЛИ ОБРАБОТКУ') 
                  
@@ -160,8 +154,8 @@ def get_data_table_onclick(data):
     flag_pricel=0
     data_parse = table_pump_30_day.get_row(data['row'])
     df = get_save_df(data_parse[2])
-    print_graph(df)
-    
+    table_pump_30_day.select_row(data['row'])
+    print_graph(df,dop_data_row_30_daya[data_parse[0]])
 
 # Получите последние n свечей по n минут для торговой пары, обрабатываем и записывае данные в датафрейм
 def get_futures_klines(symbol,TF='4h',VOLUME=value_get_data):
@@ -241,6 +235,18 @@ pump_graph(win)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 # -------------------------------- РАБОТА С ГРАФИКАМИ -----------------------------------
 
 
@@ -250,7 +256,7 @@ def settings_window_graph():
     win_graph = customtkinter.CTk()
     win_graph.title("Robo_trade")
     w = 690
-    h = 700
+    h = 600
     ws = win_graph.winfo_screenwidth()
     hs = win_graph.winfo_screenheight()
     x = (ws/2) - (w/2)
@@ -270,7 +276,7 @@ flag_pricel = 0 # флаг для логики прицела
 
 
 # рисуем все свечи по историческим
-def paint_bar(canv,prices,prices_old):
+def paint_bar(iterows,canv,prices,prices_old):
     global OldRange
     global NewRange
     global price_min
@@ -304,14 +310,21 @@ def paint_bar(canv,prices,prices_old):
         y1 = (((row['close'] - price_min) * NewRange) / OldRange)
         high = (((row['high'] - price_min) * NewRange) / OldRange)
         low = (((row['low'] - price_min) * NewRange) / OldRange)
-        paint_candle(canv,x0,y0,y1,high,low)
+        if index == iterows:
+            paint_candle(canv,x0,y0,y1,high,low,1)
+        else:
+            paint_candle(canv,x0,y0,y1,high,low)
         
         VOLUME_y = (((row['VOLUME'] - price_min_volume) * NewRange_volume) / OldRange_volume)
         paint_one_volume(canvas_volume,x0,y0,y1,VOLUME_y)
 
 # рисуем одну свечу    
-def paint_candle(canv,x0,y0,y1,high,low):
+def paint_candle(canv,x0,y0,y1,high,low,pump=0):
     height = height_canvas
+    if pump == 1:
+        canv.tag_lower(canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#F68B44"))
+        canv.tag_lower(canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#F68B44", fill="#F68B44"))
+        canv.tag_lower(canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#F68B44"))
     if y0>=y1:
         canv.tag_lower(canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#F6465D"))
         canv.tag_lower(canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#F6465D", fill="#F6465D"))
@@ -543,7 +556,7 @@ def img_korzina_enter():
     print("5")
     
 # рисовать график по историческим данным - главное, точка входа
-def draw_graph(df,frame,width=width_canvas,height=height_canvas,bg="#161A1E"):
+def draw_graph(iterows,df,frame,width=width_canvas,height=height_canvas,bg="#161A1E"):
     global canvas
     global canvas_price
     global canvas_date
@@ -578,7 +591,7 @@ def draw_graph(df,frame,width=width_canvas,height=height_canvas,bg="#161A1E"):
     canvas.bind("<MouseWheel>",lambda event:zoomer(event))
     canvas.bind('<Motion>', lambda event:mmove(event))
     
-    paint_bar(canvas,df,df)
+    paint_bar(iterows,canvas,df,df)
     print_setka_from_graph()
     #print_tools(canvas_tools)
     
@@ -587,11 +600,11 @@ def draw_graph(df,frame,width=width_canvas,height=height_canvas,bg="#161A1E"):
     canvas_date.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
     
  
-def print_graph(df):
+def print_graph(df,iterows):
     settings_window_graph()
     frame = customtkinter.CTkFrame(win_graph, corner_radius=0)
     frame.pack(pady=[0,0])
-    draw_graph(df,frame)
+    draw_graph(iterows,df,frame)
     win_graph.mainloop()
  
 
@@ -599,25 +612,23 @@ def print_graph(df):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 win.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
