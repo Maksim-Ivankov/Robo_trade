@@ -151,14 +151,10 @@ def print_candle_for_websocket(canv,close,open,high,low,index):
         canvas_id_candle_2 = canv.tag_lower(canv.create_rectangle(x0, height_canvas-y0, x0+width_telo, height_canvas-y1,outline="#0ECB81", fill="#0ECB81"))
         canvas_id_candle_3 = canv.tag_lower(canv.create_line(x0+2,height_canvas-low_coord,x0+2,height_canvas-y1,width=1,fill="#0ECB81"))
     
-    
-    print_real_price_x_websocket(0,y1)
-    
-    canvas_price.coords(price_rectangle_websocket,0, height_canvas-y1-7,46, height_canvas-y1+7)
-    canvas_price.coords(price_rectangle_text_websocket,22, height_canvas-y1)
-    canvas_price.itemconfigure(price_rectangle_text_websocket, text=close)
-    
     if flag_websocket_price!=0:
+        canvas_price.coords(price_rectangle_websocket,0, height_canvas-y1-7,46, height_canvas-y1+7)
+        canvas_price.coords(price_rectangle_text_websocket,22, height_canvas-y1)
+        canvas_price.itemconfigure(price_rectangle_text_websocket, text=close)
         if y1>y_websocket_old:
             canvas.itemconfigure(canvas_line_price_websocket, fill="#0ECB81")
             canvas_price.itemconfigure(price_rectangle_websocket, fill="#0ECB81")
@@ -172,13 +168,14 @@ def print_candle_for_websocket(canv,close,open,high,low,index):
         y_websocket_old = y1
         return
     canvas_line_price_websocket = canvas.create_line(0, height_canvas-y1, 10000,height_canvas- y1, width=1, fill="#0ECB81",dash=2)
+    print_real_price_x_websocket(0,y1)
     flag_websocket_price = 1
 
 # рисует прямоугольник с ценой справа по вебсокетам
 def print_real_price_x_websocket(x,y):
     global price_rectangle_websocket
     global price_rectangle_text_websocket
-    price_rectangle_websocket = canvas_price.create_rectangle(x+0, y+0, x+60, y+30, fill="#0ECB81",outline='#0ECB81')
+    price_rectangle_websocket = canvas_price.create_rectangle(x+0, height_canvas-y-7, x+60, height_canvas-y+7, fill="#0ECB81",outline='#0ECB81')
     price_rectangle_text_websocket = canvas_price.create_text(100,10,fill="#121619",font=('Purisa',8),text='124112')
     
 
@@ -447,6 +444,8 @@ async def websocket_trade(canvas):
                         data_old_candle['low'] = data['c']
                     print_candle_for_websocket(canvas,data['c'],data_old_candle['open'],data_old_candle['high'],data_old_candle['low'],index)
                     flag_delete_candle_websocket = 1
+                else:
+                    print('обнови датафрейм!')
             except websockets.exceptions.ConnectionClosed:
                 break
     
