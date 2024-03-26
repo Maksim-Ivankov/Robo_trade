@@ -4,6 +4,7 @@ import os
 import sys
 sys.path.insert(1,os.path.join(sys.path[0],'../'))
 from imports import *
+import strategy.strategys.strat_1 as str_1
 
 
 TF = '5m' # таймфрейм
@@ -17,6 +18,7 @@ COMMISSION_MAKER = 0.002 # комиссия а вход
 COMMISSION_TAKER = 0.001 # комиссия на выхд
 VOLUME = 144 # сколько свечей получить при запросе к бирже
 VOLUME_5MIN = 720 # сколько свечей получить в режиме слежения за ценой
+STEP_5_min_VALUE = 3
 CANAL_MAX = 0.85 # Верх канала
 CANAL_MIN = 0.15 # Низ канала
 CORNER_SHORT = 10 # Угол наклона шорт
@@ -62,6 +64,8 @@ width_canvas = 700
 height_canvas = 300
 width_telo = 3 # Ширина тела свечи
 width_spile = 1 # Ширина хвоста, шпиля
+
+summ_strat = {}
 
 client = UMFutures(key=key, secret=secret)
 
@@ -126,6 +130,7 @@ def remove_csv(dir):
     for f in filelist:
         os.remove(os.path.join(dir, f))
 
+# принтуем логи в фрейм в гуи
 def print_components_log(msg,frame,type):
     global data_print_ad_df
     global number_print_df
@@ -150,6 +155,7 @@ def print_components_log(msg,frame,type):
         for component in data_print_ad_ht:
             component.pack(anchor="w")          
 
+# генерируем фремы в файлы по кнопке с первого этапа
 def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM,frame_2_set2_2_1):
     global coin_mas_10
     for widget in frame_2_set2_2_1.winfo_children(): # чистим табличку
@@ -194,76 +200,17 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_H
     print_components_log(f'Датафреймы добавлены!',frame_2_set2_3,'DF')
     return coin_mas_10
 
+# не используется ни где
 def print_log_his(frame,msg):
     global i1
     i1=i1+1
     customtkinter.CTkLabel(frame, text=msg, fg_color="#DAE2EC",text_color='#242424',anchor='w',justify="left",font=('Arial',12,'normal')).grid(row=i1, column=0, sticky="w",pady=0,padx=5)
 
-# -------------------------------------- ИНДИКАТОРЫ --------------------------------------
 
-# Индикатор истинного диапазона и среднего значения истинного диапазона
-def indATR(source_DF,n):
-    df = source_DF.copy()
-    df['H-L']=abs(df['high']-df['low'])
-    df['H-PC']=abs(df['high']-df['close'].shift(1))
-    df['L-PC']=abs(df['low']-df['close'].shift(1))
-    df['TR']=df[['H-L','H-PC','L-PC']].max(axis=1,skipna=False)
-    df['ATR'] = df['TR'].rolling(n).mean()
-    df_temp = df.drop(['H-L','H-PC','L-PC'],axis=1)
-    return df_temp
-
-# Определяем наклон ценовой линии
-def indSlope(series,n):
-    array_sl = [j*0 for j in range(n-1)]
-    for j in range(n,len(series)+1):
-        y = series[j-n:j]
-        x = np.array(range(n))
-        x_sc = (x - x.min())/(x.max() - x.min())
-        y_sc = (y - y.min())/(y.max() - y.min())
-        x_sc = sm.add_constant(x_sc)
-        model = sm.OLS(y_sc,x_sc)
-        results = model.fit()
-        array_sl.append(results.params[-1])
-    slope_angle = (np.rad2deg(np.arctan(np.array(array_sl))))
-    return np.array(slope_angle)
-
-# найти локальный минимум
-def isLCC(DF,i):
-    df=DF.copy()
-    LCC=0
-    if df['close'][i]<=df['close'][i+1] and df['close'][i]<=df['close'][i-1] and df['close'][i+1]>df['close'][i-1]:
-        #найдено Дно
-        LCC = i-1
-    return LCC
-
-# найти локальный максимум
-def isHCC(DF,i):
-    df=DF.copy()
-    HCC=0
-    if df['close'][i]>=df['close'][i+1] and df['close'][i]>=df['close'][i-1] and df['close'][i+1]<df['close'][i-1]:
-        #найдена вершина
-        HCC = i
-    return HCC
-
-# сгенерируйте фрейм данных со всеми необходимыми данными
-def PrepareDF(DF):
-    ohlc = DF.iloc[:,[0,1,2,3,4,5]]
-    ohlc.columns = ["date","open","high","low","close","VOLUME"]
-    ohlc=ohlc.set_index('date')
-    df = indATR(ohlc,14).reset_index()
-    df['slope'] = indSlope(df['close'],5)
-    df['channel_max'] = df['high'].rolling(10).max() # определяем верхний уровень канала
-    df['channel_min'] = df['low'].rolling(10).min() # определяем нижний уровень канала
-    df['position_in_channel'] = (df['close']-df['channel_min']) / (df['channel_max']-df['channel_min']) # сейчас находимся выше середины канала или ниже
-    df = df.set_index('date')
-    df = df.reset_index()
-    return(df)
-
-# -------------------------------------- ИНДИКАТОРЫ --------------------------------------
 # -------------------------------------- ТОРГОВЛЯ --------------------------------------
 
 # открывает лонг или шорт
-def open_position(trend,value,price,frame_3_set4_1_1_1):
+def open_position(trend,value,price):
     global open_sl
     global price_trade
     global signal_trade
@@ -276,23 +223,26 @@ def open_position(trend,value,price,frame_3_set4_1_1_1):
     coin_trade = symbol
     value_trade = value
     open_sl = True
-    print_components_log(f'Открыл {signal_trade}, монета {coin_trade}, цена {price_trade}',frame_3_set4_1_1_1,'HT')
+    # print_components_log(f'Открыл {signal_trade}, монета {coin_trade}, цена {price_trade}',frame_3_set4_1_1_1,'HT')
     take_profit_price = get_take_profit(trend,price_trade) # получаем цену тэйк профита
     stop_loss_price = get_stop_loss(trend,price_trade) # получаем цену стоп лосса
 
-def get_take_profit(trend,price_trade): # получаем цену тейк профита в зависимости от направления
+# получаем цену тейк профита в зависимости от направления
+def get_take_profit(trend,price_trade): 
     if trend == 'long':
         return price_trade*(1+TP)
     if trend == 'short':
         return price_trade*(1-TP)
-def get_stop_loss(trend,price_trade): # получаем цену стоп лосса в зависимости от направления
+
+# получаем цену стоп лосса в зависимости от направления
+def get_stop_loss(trend,price_trade): 
     if trend == 'long':
         return price_trade*(1-SL)
     if trend == 'short':
         return price_trade*(1+SL)
     
 # Закрываем сделку
-def close_trade(status,procent,frame_3_set4_1_1_1):
+def close_trade(status,procent):
     global DEPOSIT
     global open_sl
     global profit
@@ -304,16 +254,17 @@ def close_trade(status,procent,frame_3_set4_1_1_1):
         DEPOSIT = DEPOSIT + LEVERAGE*DEPOSIT*procent - LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
         open_sl = False
         print(f'ТЕЙК в + | {DEPOSIT}')
-        print_components_log(f'Сработал ТЕЙК|Депо={round(DEPOSIT,1)}, профит={round(profit,1)},ком={round(commission,1)}',frame_3_set4_1_1_1,'HT')
+        # print_components_log(f'Сработал ТЕЙК|Депо={round(DEPOSIT,1)}, профит={round(profit,1)},ком={round(commission,1)}',frame_3_set4_1_1_1,'HT')
     if status == '-': # если закрыли в минус
         loss = loss + LEVERAGE*DEPOSIT*procent
         commission = commission + LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER)
         DEPOSIT = DEPOSIT - LEVERAGE*DEPOSIT*procent - LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
         open_sl = False
         print(f'СТОП В - | {DEPOSIT}')
-        print_components_log(f'Сработал СТОП|Депо={round(DEPOSIT,1)}, убыток={round(loss,1)},ком={round(commission,1)}',frame_3_set4_1_1_1,'HT')
+        # print_components_log(f'Сработал СТОП|Депо={round(DEPOSIT,1)}, убыток={round(loss,1)},ком={round(commission,1)}',frame_3_set4_1_1_1,'HT')
 
-def check_trade(price,frame_3_set4_1_1_1):
+# когда в сделке - чекаем, словили тп или сл
+def check_trade(price):
     now_price_trade = price #получаем текущую цену монеты
     global count_long_take
     global count_long_loss
@@ -321,52 +272,110 @@ def check_trade(price,frame_3_set4_1_1_1):
     global count_short_loss
     global take_profit_price
     global stop_loss_price
-    print('лол - 12')
     if signal_trade == 'long':
-        print('лол - 13')
-        
-        print(f'сейчас - {now_price_trade}')
-        print(f'тейк - {take_profit_price}')
-        print(f'стоп - {stop_loss_price}')
         if float(now_price_trade)>float(take_profit_price):
-            close_trade('+',TP,frame_3_set4_1_1_1)
+            close_trade('+',TP)
             count_long_take=count_long_take+1
-            print('лол - 16')
             return 1
         if float(now_price_trade)<float(stop_loss_price):
             count_long_loss = count_long_loss + 1
-            close_trade('-',SL,frame_3_set4_1_1_1)
-            print('лол - 17')
+            close_trade('-',SL)
             return 1
     if signal_trade == 'short':
-        print('лол - 14')
         if float(now_price_trade)<float(take_profit_price):
-            close_trade('+',TP,frame_3_set4_1_1_1)
+            close_trade('+',TP)
             count_short_take = count_short_take+1
-            print('лол - 18')
             return 1
         if float(now_price_trade)>float(stop_loss_price):
             count_short_loss = count_short_loss + 1
-            close_trade('-',SL,frame_3_set4_1_1_1)
-            print('лол - 19')
+            close_trade('-',SL)
             return 1
+# # когда в сделке - чекаем, словили тп или сл
+# def check_trade(price,frame_3_set4_1_1_1):
+#     now_price_trade = price #получаем текущую цену монеты
+#     global count_long_take
+#     global count_long_loss
+#     global count_short_take
+#     global count_short_loss
+#     global take_profit_price
+#     global stop_loss_price
+#     if signal_trade == 'long':
+#         if float(now_price_trade)>float(take_profit_price):
+#             close_trade('+',TP,frame_3_set4_1_1_1)
+#             count_long_take=count_long_take+1
+#             return 1
+#         if float(now_price_trade)<float(stop_loss_price):
+#             count_long_loss = count_long_loss + 1
+#             close_trade('-',SL,frame_3_set4_1_1_1)
+#             return 1
+#     if signal_trade == 'short':
+#         if float(now_price_trade)<float(take_profit_price):
+#             close_trade('+',TP,frame_3_set4_1_1_1)
+#             count_short_take = count_short_take+1
+#             return 1
+#         if float(now_price_trade)>float(stop_loss_price):
+#             count_short_loss = count_short_loss + 1
+#             close_trade('-',SL,frame_3_set4_1_1_1)
+#             return 1
 # -------------------------------------- ТОРГОВЛЯ --------------------------------------
 # -------------------------------------- СТРАТЕГИЯ --------------------------------------
 
-def check_if_signal(ohlc,index):
-    prepared_df = PrepareDF(ohlc)
-    signal="нет сигнала" # возвращаемый сигнал, лонг или шорт
-    i=index-2 # 99 - текущая свеча, которая не закрыта, 98 - последняя закрытая свеча, нам нужно 97, чтобы проверить, нижняя она или верхняя
-    if isHCC(prepared_df,i-1)>0: # если у нас локальный минимум
-        if prepared_df['position_in_channel'][i-1]>CANAL_MAX: # проверяем, прижаты ли мы к нижней границе канала
-            if prepared_df['slope'][i-1]>CORNER_SHORT: # смотрим, какой у нас наклон графика
-                signal='short'
-    if isLCC(prepared_df,i-1)>0: # если у нас локальный максимум
-        if prepared_df['position_in_channel'][i-1]<CANAL_MIN: # проверяем, прижаты ли мы к верхней границе канала
-            if prepared_df['slope'][i-1]<CORNER_LONG: # смотрим, какой наклон графика
-                signal='long'
-    return signal
+# точка входа в стратегии
+def check_if_signal(prices,index,strat_mas_historical):
+    global TF
+    global summ_strat,DEPOSIT
+    for strat in strat_mas_historical: # перебор по id выбранных стратегий
+        match strat:
+            case 'strat1' : summ_strat['Канал, тренд, локаль, объём'] = get_strat_1(prices,index)
+            case 'strat2' : pass
+            case 'strat3' : pass
+            case 'strat4' : pass
+            case 'strat5' : pass
+            case 'strat6' : pass
+            case 'strat7' : pass
+            case 'strat8' : pass
+            case 'strat9' : pass
+            case 'strat10': pass
+            case 'strat11': pass
+            case 'strat12': pass
+            case 'strat13': pass
+            case 'strat14': pass
+            case 'strat15': pass
+            case 'strat16': pass
+            case 'strat17': pass
+            case 'strat18': pass
+            case 'strat19': pass
+            case 'strat20': pass
+            case 'strat21': pass
+            case 'strat22': pass
+            case 'strat23': pass
+            case 'strat24': pass
+            case 'strat25': pass
+    # print_components_log(f'Рекомендации стратегий - {summ_strat}',real_test_frame_3_2_1,'OS1')
+    strat_long = 0
+    strat_short = 0
+    strat_neutral = 0
+    for trend in summ_strat.values():
+        if trend == 'long': 
+            strat_long = strat_long + 1
+        if trend == 'short': 
+            strat_short = strat_short + 1
+        if trend == 'нет сигнала': 
+            strat_neutral = strat_neutral + 1
+    # print(f'Лонг - {strat_long} | Шорт - {strat_short} | Нейтрально - {strat_neutral}')
+    # print_components_log(f'Лонг - {strat_long} | Шорт - {strat_short} | Нейтрально - {strat_neutral}',real_test_frame_3_2_1,'OS1')
+    print(f'Шаг - {index} | Депозит {DEPOSIT} | Лонг - {strat_long} | Шорт - {strat_short} | Нейтрально - {strat_neutral}')
+    if strat_long == len(summ_strat): return 'long'
+    elif strat_short == len(summ_strat): return 'short'
+    else : return 'нет сигнала'
     
+    
+def get_strat_1(prices,index):
+    try:
+        return str_1.strat_1(prices,index) 
+    except Exception as e:
+        # print_components_log(f'Ошибка работы стратегии Канал, тренд, локаль, объём! - {e}',real_test_frame_3_2_1,'OS1')
+        return 'нет сигнала'
 # -------------------------------------- СТРАТЕГИЯ --------------------------------------
 
 # удаление всех файлов csv в переданной директории
@@ -375,7 +384,7 @@ def remove_csv(dir):
     for f in filelist:
         os.remove(os.path.join(dir, f))
         
-        
+# получаем датафрейм по монете из обзего массива датафреймов
 def get_df_coin(coin):
     global symbol
     for x,result in enumerate(coin_mas_10):
@@ -383,6 +392,7 @@ def get_df_coin(coin):
             symbol = coin
             return df_our_coin[x]
 
+# получаем цену закрытия из фрейма по монете в сделке по индексу фрейма
 def get_df_coin_now_price(index):
     for x,result in enumerate(coin_mas_10):
         if str(result) == str(symbol):
@@ -404,130 +414,134 @@ def get_price_5min(time):
 
 # -------------------------------------- Перебор по датафрейму --------------------------------------
 
+# точка входа
+def start_trade_hist_model(strat_mas_historical):
+    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,DEPOSIT,open_sl,data_numbers,DEPOSIT
+    open_sl = False
+    DEPOSIT = 100
+    print(f'{VOLUME} | {VOLUME_5MIN} | {STEP_5_min_VALUE} | CANDLE_COIN_MIN - {CANDLE_COIN_MIN} | CANDLE_COIN_MAX - {CANDLE_COIN_MAX}')
+    data_numbers = []
+    fi = open(MYDIR_COIN,'r') # открываем файл с монетами
+    coin_mas_10 = fi.read().split('|') # записываем омнеты массивом сюда
+    fi.close()
+    for index in range(VOLUME):
+        print(f'Шаг - {index} | Депозит {DEPOSIT}')
+        data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
+        if index>10: # начинаем не с нуля, а с 5-ой свечи
+            if open_sl == False: # если нет позиции
+                for x,result in enumerate(coin_mas_10):
+                    df = pd.read_csv(f'{MYDIR_WORKER}{result}.csv') # получили датафрейм из файла
+                    prices = df.iloc[data_numbers]
+                    # print(f"{prices['VOLUME'][index]}>{CANDLE_COIN_MIN} and {prices['VOLUME'][index]}<{CANDLE_COIN_MAX}")
+                    if prices['VOLUME'][index]>CANDLE_COIN_MIN and prices['VOLUME'][index]<CANDLE_COIN_MAX:
+                        trend = check_if_signal(prices,index,strat_mas_historical) # определяем тренд - стратегия
+                        if trend != 'нет сигнала': # если есть сигнал
+                            symbol = result # сохраняем монету с сигналом
+                            time_close_tf = prices['close_time'][index]
+                            break
+                        else:
+                            trend = "нет сигнала"  
+                    else:
+                        trend = "нет сигнала"  
+                        print('Не прошли по объёму')
+                # если получили сигнал и объём за свечку больше минимального объема (настройка) и меншье максимального объёма (настройка)  
+                if trend != "нет сигнала":
+                    # если есть сигнал, то открываем позицию - направление, объём, цена входа, 
+                    print('СДЕЛКА!!!!!')
+                    open_position(trend,get_trade_VOLUME(prices['close'][index]),prices['close'][index])   
+            else: #если есть позиция
+                df = pd.read_csv(f'{MYDIR_WORKER}{symbol}.csv') # получили датафрейм из файла
+                prices = df.iloc[data_numbers]
+                df_mal = pd.read_csv(f'{MYDIR_5MIN}{result}.csv') # получили датафрейм мини из файла
+                for index2, row in df_mal.iterrows(): # находим индекс, с которого начгнем следить за ценой
+                    if row['close_time'] == prices['close_time'][index]:
+                        if int(index2)>int(VOLUME_5MIN)-int(STEP_5_min_VALUE)-5:
+                            print('В сделке, но в конце массива, выходим из сделки')
+                            break
+                        for i in range(int(index2),int(index2)+int(STEP_5_min_VALUE),1):
+                            # print(f'{i} - {df_mal['close'][i]}|{price_trade} | {(float(df_mal['close'][i])/float(price_trade))*100}%')
+                            if check_trade(df_mal['close'][i]): break # чекаем монету по шагам итерации между большим и мальеньким фреймом
+            if float(DEPOSIT)/float(DEPOSIT_START) < 0.4:
+                print('Слили депозит! Торговля закончена')
+                break
+    print('Закончили')
+                
+                # for index_5min in get_price_5min(time_close_tf): # дальше какое-то волшебство
+                #     price_now = get_df_coin_now_price(index_5min)
+                #     if price_now != 0:
+                #         if check_trade(price_now): # следим за монетой, отрабатываем тп и сл
+                #             break
+                #     else:
+                #         break      
 
-# рисуем треугольники лонга и шорта
-def paint_trade(canv,trend,index,prices,prices_old):
-    height = height_canvas
-    price_max = (prices_old.loc[prices_old['close'] == prices_old['close'].max()].iloc[0]['close'])*1.05
-    price_min = (prices_old.loc[prices_old['close'] == prices_old['close'].min()].iloc[0]['close'])*0.95
-    OldRange = (price_max - price_min) 
-    NewRange = height_canvas 
-    OldRange1 = (VOLUME)  
-    NewRange1 = (width_canvas/(144/VOLUME))
-    if trend == 'long':
-        x0 = ((index * NewRange1) / OldRange1)+10
-        y0 = height-(((prices - price_min) * NewRange) / OldRange)
-        canv.lift(canv.create_polygon([x0+5+2,y0+10],[x0-5+2,y0+10],[x0+2,y0],fill="green", outline="black"))
-        
-    if trend == 'short':
-        x0 = ((index * NewRange1) / OldRange1)+10
-        y0 = height-(((prices - price_min) * NewRange) / OldRange)
-        canv.lift(canv.create_polygon([x0+5+2,y0-10],[x0-5+2,y0-10],[x0+2,y0],fill="red", outline="black"))
-        
-    
-def paint_candle(canv,x0,y0,y1,high,low):
-    height = height_canvas
-    if y0>=y1:
-        canv.tag_lower(canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#ff2b2b"))
-        canv.tag_lower(canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#ff2b2b", fill="#ff2b2b"))
-        canv.tag_lower(canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#ff2b2b"))
-    if y0<y1:
-        canv.tag_lower(canv.create_line(x0+2,height-high,x0+2,height-y0,width=1,fill="#45f757"))
-        canv.tag_lower(canv.create_rectangle(x0, height-y0, x0+width_telo, height-y1,outline="#45f757", fill="#45f757"))
-        canv.tag_lower(canv.create_line(x0+2,height-low,x0+2,height-y1,width=1,fill="#45f757"))
-def paint_bar(canv,prices,prices_old):
-    # определяем границы для масштабирования графика
-    price_max = (prices_old.loc[prices_old['close'] == prices_old['close'].max()].iloc[0]['close'])*1.05
-    price_min = (prices_old.loc[prices_old['close'] == prices_old['close'].min()].iloc[0]['close'])*0.95
-    OldRange = (price_max - price_min) 
-    NewRange = height_canvas 
-    OldRange1 = (VOLUME)  
-    NewRange1 = (width_canvas/(144/VOLUME))  
-    for index, row in prices.iterrows():
-        x0 = ((index * NewRange1) / OldRange1)+10
-        y0 = (((row['open'] - price_min) * NewRange) / OldRange)
-        y1 = (((row['close'] - price_min) * NewRange) / OldRange)
-        high = (((row['high'] - price_min) * NewRange) / OldRange)
-        low = (((row['low'] - price_min) * NewRange) / OldRange)
-        paint_candle(canv,x0,y0,y1,high,low)
-
-
-def start_trade_hist_model(frame_2_set2_graph,frame_3_set4_1_1_1,frame_3_set4_1_2):
+# точка входа
+def start_trade_hist_model2(strat_mas_historical):
     global coin_mas_10
     global symbol
     global coutnt_index_time_df
     global trend
     global time_close_tf
+    print('Начали торговлю')
+    # print_components_log('Начали торговлю',frame_3_set4_1_1_1,'HT')
+    # print_components_log(f'Настройки:\nДепозит:{DEPOSIT} | Плечо:{LEVERAGE} | Комиссия покупка:{COMMISSION_MAKER}\nКомиссия продажа:{COMMISSION_TAKER} | Тейк:{TP} | Стоп:{SL} | Канал верх:{CANAL_MAX}\nКанал низ:{CANAL_MIN} | Угол лонг:{CORNER_LONG} | Угол шорт:{CORNER_SHORT} | Объём мин:{CANDLE_COIN_MIN}\nОбъём макс:{CANDLE_COIN_MAX} | Объём основа:{VOLUME} | Объём 5 мин: {VOLUME_5MIN}',frame_3_set4_1_1_1,'HT')
     
-    print_components_log('Начали торговлю',frame_3_set4_1_1_1,'HT')
-    print_components_log(f'Настройки:\nДепозит:{DEPOSIT} | Плечо:{LEVERAGE} | Комиссия покупка:{COMMISSION_MAKER}\nКомиссия продажа:{COMMISSION_TAKER} | Тейк:{TP} | Стоп:{SL} | Канал верх:{CANAL_MAX}\nКанал низ:{CANAL_MIN} | Угол лонг:{CORNER_LONG} | Угол шорт:{CORNER_SHORT} | Объём мин:{CANDLE_COIN_MIN}\nОбъём макс:{CANDLE_COIN_MAX} | Объём основа:{VOLUME} | Объём 5 мин: {VOLUME_5MIN}',frame_3_set4_1_1_1,'HT')
-    
-    fi = open(MYDIR_COIN,'r')
-    coin_mas_10 = fi.read().split('|')
+    fi = open(MYDIR_COIN,'r') # открываем файл с монетами
+    coin_mas_10 = fi.read().split('|') # записываем омнеты массивом сюда
     fi.close()
-    canvas_mas = []
     count_mas = 0
-    for x,result in enumerate(coin_mas_10):
-        df = pd.read_csv(f'{MYDIR_WORKER}{result}.csv')
-        df_our_coin.append(df)
-        df_5min = pd.read_csv(f'{MYDIR_5MIN}{result}.csv')
-        df_our_coin_5min.append(df_5min)
-        canvas_mas.insert(count_mas, Canvas(frame_2_set2_graph, width = width_canvas, height = height_canvas, bg = "#2B2B2B", cursor = "pencil",border=0,bd=0,highlightthickness=0))
-        customtkinter.CTkLabel(frame_2_set2_graph, text=result, fg_color="transparent",anchor='center',font=('Arial',14,'bold')).pack(pady=1, anchor='w')
-        canvas_mas[count_mas].pack(pady=10)	
-        canvas_mas[count_mas].create_line(10,height_canvas,10,0,width=1,arrow=LAST) 
-        canvas_mas[count_mas].create_line(0,height_canvas-10,width_canvas,height_canvas-10,width=1,arrow=LAST) 
+    for x,result in enumerate(coin_mas_10): # В цикле сохраняем ДФ всех монет в обзем массиве
+        df = pd.read_csv(f'{MYDIR_WORKER}{result}.csv') # получили датафрейм из файла
+        df_our_coin.append(df) # добавили в массив всех фреймов
+        df_5min = pd.read_csv(f'{MYDIR_5MIN}{result}.csv') # получили датафрйм слежения за ценой по текущей монете
+        df_our_coin_5min.append(df_5min) # и так же сохранили его в файл
         count_mas = count_mas+1
-        
-    for index in range(VOLUME):
-        data_numbers.append(index)
+    for index in range(VOLUME):  # перебор по клдичеству свечей в фрейме
+        data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
         if index>4: # начинаем не с нуля, а с 5-ой свечи
             if open_sl == False: # если нет позиции
                 coutnt_index_time_df = 0
-                for x,result in enumerate(coin_mas_10):
-                    prices_old = get_df_coin(result)
+                for x,result in enumerate(coin_mas_10): # снова бежим по монетам
+                    prices_old = get_df_coin(result) # получеам датафрейм по текущей монете
                     prices = prices_old.iloc[data_numbers] # берем из фрема свечи по текущий шаг итерации
-                    paint_bar(canvas_mas[x],prices.iloc[-1:],prices_old)
-                    trend = check_if_signal(prices,index)
-                    if trend != 'нет сигнала':
-                        canvas_coin = canvas_mas[x]
-                        symbol = result  
-                        time_close_tf = prices.iloc[[index]]['close_time'][index]
+                    trend = check_if_signal(prices,index,strat_mas_historical) # определяем тренд - стратегия
+                    if trend != 'нет сигнала': # если есть сигнал
+                        # canvas_coin = canvas_mas[x]
+                        symbol = result # сохраняем монету с сигналом
+                        time_close_tf = prices['close_time'][index]
                         break
                     else:
-                        trend = "нет сигнала"                
-                if trend != "нет сигнала" and prices.iloc[index]['VOLUME']>CANDLE_COIN_MIN and prices.iloc[index]['VOLUME']<CANDLE_COIN_MAX:
-                    paint_trade(canvas_coin,trend,index,prices.iloc[index]['close'],prices_old)
-                    open_position(trend,get_trade_VOLUME(prices.iloc[index]['close']),prices.iloc[index]['close'],frame_3_set4_1_1_1) # если есть сигнал и мы не стоим в позиции, то открываем позицию
+                        trend = "нет сигнала"           
+                # если получили сигнал и объём за свечку больше минимального объема (настройка) и меншье максимального объёма (настройка)  
+                if trend != "нет сигнала" and prices['VOLUME'][index]>CANDLE_COIN_MIN and prices['VOLUME'][index]<CANDLE_COIN_MAX:
+                    # если есть сигнал, то открываем позицию - направление, объём, цена входа, 
+                    print('СДЕЛКА!!!!!')
+                    open_position(trend,get_trade_VOLUME(prices['close'][index]),prices['close'][index]) 
             if open_sl == True:
-                for x,result in enumerate(coin_mas_10):
+                for x,result in enumerate(coin_mas_10): # еще раз получаем фрейм по монете по текущий шаг (зачем?)
                     prices_old = get_df_coin(result)
                     prices = prices_old.iloc[data_numbers]
-                    paint_bar(canvas_mas[x],prices.iloc[-1:],prices_old)
-                for index_5min in get_price_5min(time_close_tf):
+                for index_5min in get_price_5min(time_close_tf): # дальше какое-то волшебство
                     price_now = get_df_coin_now_price(index_5min)
                     if price_now != 0:
-                        if check_trade(price_now,frame_3_set4_1_1_1): # следим за монетой, отрабатываем тп и сл
+                        if check_trade(price_now): # следим за монетой, отрабатываем тп и сл
                             break
                     else:
                         break       
-        if DEPOSIT < 40:
+        if float(DEPOSIT)/float(DEPOSIT_START) < 0.4:
             break
-    for x,result in enumerate(coin_mas_10):
-        prices_old = get_df_coin(result)
-        paint_bar(canvas_mas[x],prices_old,prices_old)
-    print_components_log('Закончил торговлю',frame_3_set4_1_1_1,'HT')
-    for widget in frame_3_set4_1_2.winfo_children():
-        widget.forget()
-    customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Начальный депозит: {DEPOSIT_START}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Конечный депозит: {round(DEPOSIT,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Процент торговли: {round(float((float(DEPOSIT/DEPOSIT_START)-1)*100),1)}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Сделок совершено: {count_long_take+count_long_loss+count_short_take+count_short_loss}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    customtkinter.CTkLabel(frame_3_set4_1_2, text=f"+ в лонг: {count_long_take} | + в шорт: {count_short_take}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    customtkinter.CTkLabel(frame_3_set4_1_2, text=f"- в лонг: {count_long_loss} | - в шорт: {count_short_loss}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Прибыль от сделок: {round(profit,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Убыток от сделок: {round(loss,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Комиссия биржи: {round(commission,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')   
+    print('Закончили торговлю')
+    # print_components_log('Закончил торговлю',frame_3_set4_1_1_1,'HT')
+    # for widget in frame_3_set4_1_2.winfo_children():
+    #     widget.forget()
+    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Начальный депозит: {DEPOSIT_START}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
+    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Конечный депозит: {round(DEPOSIT,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
+    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Процент торговли: {round(float((float(DEPOSIT/DEPOSIT_START)-1)*100),1)}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
+    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Сделок совершено: {count_long_take+count_long_loss+count_short_take+count_short_loss}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
+    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"+ в лонг: {count_long_take} | + в шорт: {count_short_take}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
+    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"- в лонг: {count_long_loss} | - в шорт: {count_short_loss}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
+    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Прибыль от сделок: {round(profit,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
+    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Убыток от сделок: {round(loss,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
+    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Комиссия биржи: {round(commission,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')   
 
 
 

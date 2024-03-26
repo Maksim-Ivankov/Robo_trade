@@ -1,6 +1,6 @@
 import customtkinter
 from tkinter import messagebox
-import models.real_test_trade as real
+import models.treayd_historical as bin
 import strategy.strategys.strat_1 as str_1
 
 
@@ -19,7 +19,7 @@ def strat1_param():
         str_1.CANAL_MIN = float(float(frame_2_set4_3_set_4.get())/100)
         str_1.CORNER_LONG = int(frame_2_set4_4_set_1.get())
         str_1.CORNER_SHORT = int(frame_2_set4_4_set_2.get())
-        return [real.COMMISSION_MAKER,real.COMMISSION_TAKER,real.TP,real.SL,real.DEPOSIT,real.LEVERAGE,str_1.CANAL_MAX,str_1.CANAL_MIN,str_1.CORNER_LONG,str_1.CORNER_SHORT,real.CANDLE_COIN_MIN,real.CANDLE_COIN_MAX]
+        return [bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,str_1.CANAL_MAX,str_1.CANAL_MIN,str_1.CORNER_LONG,str_1.CORNER_SHORT,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX]
         
 # валидация инпутов настроек стратегии 2 
 def strat2_param():
