@@ -82,6 +82,7 @@ def get_futures_klines(symbol,TF,VOLUME):
 
 # Получаем активные монеты на бирже
 def get_top_coin():
+    global how_mach_coin
     data = client.ticker_24hr_price_change()
     change={}
     coin_max={}
@@ -98,7 +99,7 @@ def get_top_coin():
         coin_mas1[key] = value
         if i==1:
             coin_max_val = value
-        if i== 10:
+        if i== int(how_mach_coin):
             break
     i=0
     for key, value in coin_min.items():
@@ -106,7 +107,7 @@ def get_top_coin():
         coin_mas2[key] = value
         if i==1:
             coin_min_val = value
-        if i== 10:
+        if i== int(how_mach_coin):
             break
     if abs(coin_max_val)>abs(coin_min_val):
         result = coin_mas1
@@ -175,11 +176,10 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_H
         print(f'{result},{TF},{VOLUME}')
         df = get_futures_klines(result,TF,VOLUME)
         df.to_csv(f'{MYDIR_WORKER}{result}.csv')
-        print_components_log(f'{result} - {TF} добавлен',frame_2_set2_3,'DF')
+        print_components_log(f'{result} - {TF}/{work_timeframe_str_HM} добавлен',frame_2_set2_3,'DF')
         time.sleep(2)
         df_5m = get_futures_klines(result,work_timeframe_str_HM,VOLUME_5MIN)
         df_5m.to_csv(f'{MYDIR_5MIN}{result}.csv')
-        print_components_log(f'{result} - {work_timeframe_str_HM} мин добавлен',frame_2_set2_3,'DF')
         time.sleep(2)
     print_components_log(f'Датафреймы добавлены!',frame_2_set2_3,'DF')
     return coin_mas_10

@@ -32,7 +32,9 @@ win.grid_rowconfigure(0, weight=1)
 win.grid_columnconfigure(1, weight=1)
 name_bot_real_test = "Версия 1_1"
 strat_mas_real_test = ['strat1'] # выбор по умолчанию - 1 вариант
+strat_mas_historical = ['strat1'] # выбор по умолчанию - 1 вариант
 check_var_real_test = customtkinter.StringVar(value=strat_mas_real_test[0]) # первичный выбор настройки ртт шаг 2
+check_var_historical = customtkinter.StringVar(value=strat_mas_historical[0]) # первичный выбор настройки ртт шаг 2
 sost_tg_message_real_test = 'off' # первичное состояние кнопки ТГ в РТТ
 
 coin_mas_10 = []
@@ -421,14 +423,14 @@ def get_setting_time(data):
     time_HM = set1_time.get(data) # сколько минут отрабатываем
     print(timeframe_HM)
 # кнопка - получить данные, формируем файлы датафреймов
-def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3):
+def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3,input_2_167):
     global work_timeframe_HM
     global timeframe_HM
     global time_HM
     global work_timeframe_str_HM
     bin.VOLUME = int(time_HM/timeframe_HM)
     bin.VOLUME_5MIN = int(time_HM/work_timeframe_HM)
-
+    bin.how_mach_coin = input_2_167.get()
     logger('H','Историческая торговля, формируем датафреймы')
     logger('H',f'Историческая торговля, настройки: рабочий таймфрейм {bin.TF} мин')
     logger('H',f'Историческая торговля, настройки: таймфрейм отслеживания цены {bin.VOLUME_5MIN} мин')
@@ -437,9 +439,9 @@ def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3):
             widget.destroy()
     for widget in frame_2_set2_3.winfo_children():
             widget.destroy()
-    thread = threading.Thread(target=lambda:bin.generate_dataframe(bin.TF,bin.VOLUME,bin.VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM))
-    thread.start()
-    time.sleep(3)
+    thread7654 = threading.Thread(target=lambda:bin.generate_dataframe(bin.TF,bin.VOLUME,bin.VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM))
+    thread7654.start()
+    time.sleep(1)
     file = open('../ROBO_TRADE/DF/coin_procent.txt', mode="r")
     bin.coin_mas_10 = file.read().split('|')
     i=-1
@@ -448,7 +450,7 @@ def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3):
         customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
         
     
-    select_frame_by_name("frame_2")
+    # select_frame_by_name("frame_2")
 # отрисовка монет из файла, если он не пустой
 def get_coin_proc_start(frame_2_set2_2_1):
     file = open('../ROBO_TRADE/DF/coin_procent.txt', mode="r")
@@ -624,6 +626,14 @@ def step_2_historical_trade_prom(frame,frame_2_set4_2_set_1,frame_2_set4_2_set_2
         bin.how_mach_coin = input_2_167.get()
         open_step_2_historical(frame)
 
+# валдиция на данные с шага 2
+def step_3_historical_trade_prom(frame):
+    global strat_mas_historical
+    if len(strat_mas_historical)==0: 
+        messagebox.showinfo('Внимание','Выберете хотя бы одну стратегию')
+    else:
+        open_step_3_historical(frame)
+
 def open_step_1_historical(frame):
     print('1')
     for widget in frame.winfo_children(): # чистим табличку
@@ -645,7 +655,7 @@ def open_step_1_historical(frame):
     label_title2_167 = customtkinter.CTkLabel(frame_2_set2_1, text="Сколько монет торговать", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     input_2_167 = customtkinter.CTkEntry(frame_2_set2_1, placeholder_text="10",justify="center")
     
-    button4 = customtkinter.CTkButton(frame_2_set2_1, text="Получить данные", command=lambda:get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3_1))
+    button4 = customtkinter.CTkButton(frame_2_set2_1, text="Получить данные", command=lambda:get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3_1,input_2_167))
     label_title1_2 = customtkinter.CTkLabel(frame_2_set2_2, text="Монеты роста/падения", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
     frame_2_set2_2_1 = customtkinter.CTkScrollableFrame(frame_2_set2_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=150, height=300)
     label_title1_3_1 = customtkinter.CTkLabel(frame_2_set2_3, text="Датасет с биржи Binance", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
@@ -739,46 +749,76 @@ def open_step_1_historical(frame):
     frame_2_set4_4_set_4.pack(pady=[1,1])
     button32.pack(pady=20)
     
-
 def open_step_2_historical(frame):
+    global strat_mas_historical
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
     print('1')
-    label_title112 = customtkinter.CTkLabel(frame, text="Выберете одну или несколько стратегий исторической торговли", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+    
+    label_title112 = customtkinter.CTkLabel(frame, text="Выберете одну или несколько стратегий реальной тестовой торговли", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
     frame_2_set4 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B")
     label__2_set4 = customtkinter.CTkLabel(frame_2_set4, text="Выбор стратегии", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
     frame_2_set4_0 = customtkinter.CTkFrame(frame_2_set4, corner_radius=0, fg_color="#2B2B2B")
     frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
     frame_2_set4_1_1 = customtkinter.CTkScrollableFrame(frame_2_set4_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=500, height=450)
-    radiobutton_1 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat1", offvalue="0",text="Канал, тренд, локаль, объём",text_color='#242424')
-    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat2", offvalue="1",text="Линии Боллинджера",text_color='#242424')
-    radiobutton_3 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat3", offvalue="2",text="BarUpDn",text_color='#242424')
-    radiobutton_4 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat4", offvalue="3",text="Полосы Боллинджера направленные",text_color='#242424')
-    radiobutton_5 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat5", offvalue="4",text="Channel BreakOut",text_color='#242424')
-    radiobutton_6 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat6", offvalue="5",text="Consecutive Up/Down",text_color='#242424')
-    radiobutton_7 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat7", offvalue="6",text="Greedy",text_color='#242424')
-    radiobutton_8 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat8", offvalue="7",text="InSide Bar",text_color='#242424')
-    radiobutton_9 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat,variable=check_var, onvalue="strat9", offvalue="8",text="Канал Кельтнера",text_color='#242424')
-    radiobutton_10 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat10", offvalue="9",text="MACD",text_color='#242424')
-    radiobutton_11 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat11", offvalue="10",text="Моментум",text_color='#242424')
-    radiobutton_12 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat12", offvalue="11",text="Пересечение двух линий скользящих средних",text_color='#242424')
-    radiobutton_13 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat13", offvalue="12",text="Пересечение скользящих средних",text_color='#242424')
-    radiobutton_14 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat14", offvalue="13",text="OutSide Bar",text_color='#242424')
-    radiobutton_15 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat15", offvalue="14",text="Параболическая остановка и разворот",text_color='#242424')
-    radiobutton_16 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat16", offvalue="15",text="Pivot Extension",text_color='#242424')
-    radiobutton_17 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat17", offvalue="16",text="Контрольная точка разворота",text_color='#242424')
-    radiobutton_18 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat18", offvalue="17",text="Ценовые каналы",text_color='#242424')
-    radiobutton_19 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat19", offvalue="18",text="Роб Букер - Прорыв ADX",text_color='#242424')
-    radiobutton_20 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat20", offvalue="19",text="RSI",text_color='#242424')
-    radiobutton_21 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat21", offvalue="20",text="Медленный стохастик",text_color='#242424')
-    radiobutton_22 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat22", offvalue="21",text="Супертренд",text_color='#242424')
-    radiobutton_23 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat23", offvalue="22",text="Технический индикатор рынка",text_color='#242424')
-    radiobutton_24 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat,variable=check_var, onvalue="strat24", offvalue="23",text="Volty Expan Close",text_color='#242424')
+    radiobutton_1 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat1", offvalue="0",text="Канал, тренд, локаль, объём",text_color='#242424')
+    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat2", offvalue="1",text="Суммарный тех индикатор TreadingView",text_color='#242424')
+    radiobutton_3 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat3", offvalue="2",text="BarUpDn",text_color='#242424')
+    radiobutton_4 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat4", offvalue="3",text="Полосы Боллинджера направленные",text_color='#242424')
+    radiobutton_5 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat5", offvalue="4",text="Channel BreakOut",text_color='#242424')
+    radiobutton_6 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat6", offvalue="5",text="Consecutive Up/Down",text_color='#242424')
+    radiobutton_7 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat7", offvalue="6",text="Greedy",text_color='#242424')
+    radiobutton_8 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat8", offvalue="7",text="InSide Bar",text_color='#242424')
+    radiobutton_9 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat9", offvalue="8",text="Канал Кельтнера",text_color='#242424')
+    radiobutton_10 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat10", offvalue="9",text="MACD",text_color='#242424')
+    radiobutton_11 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat11", offvalue="10",text="Моментум",text_color='#242424')
+    radiobutton_12 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat12", offvalue="11",text="Пересечение двух линий скользящих средних",text_color='#242424')
+    radiobutton_13 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat13", offvalue="12",text="Пересечение скользящих средних",text_color='#242424')
+    radiobutton_14 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat14", offvalue="13",text="OutSide Bar",text_color='#242424')
+    radiobutton_15 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat15", offvalue="14",text="Параболическая остановка и разворот",text_color='#242424')
+    radiobutton_16 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat16", offvalue="15",text="Pivot Extension",text_color='#242424')
+    radiobutton_17 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat17", offvalue="16",text="Контрольная точка разворота",text_color='#242424')
+    radiobutton_18 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat18", offvalue="17",text="Ценовые каналы",text_color='#242424')
+    radiobutton_19 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat19", offvalue="18",text="Роб Букер - Прорыв ADX",text_color='#242424')
+    radiobutton_20 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat20", offvalue="19",text="RSI",text_color='#242424')
+    radiobutton_21 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat21", offvalue="20",text="Медленный стохастик",text_color='#242424')
+    radiobutton_22 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat22", offvalue="21",text="Супертренд",text_color='#242424')
+    radiobutton_23 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat23", offvalue="22",text="Технический индикатор рынка",text_color='#242424')
+    radiobutton_24 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat24", offvalue="23",text="Volty Expan Close",text_color='#242424')
+    radiobutton_25 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat25", offvalue="24",text="Линии Боллинджера",text_color='#242424')
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
-    button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:open_step_1_historical(frame))
-    button3213 = customtkinter.CTkButton(frame_2_set412, text="Настроить стратегию торговли",command=lambda:open_step_3_historical(frame))
+    button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:real_test_trade())
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Настроить стратегию торговли",command=lambda:step_3_historical_trade_prom(frame))
+    
+    # выбор ранее отмеченных чекбоксов
+    for strat in strat_mas_historical:
+        match strat:
+            case 'strat1' : radiobutton_1.select()
+            case 'strat2' : radiobutton_2.select()
+            case 'strat3' : radiobutton_3.select()
+            case 'strat4' : radiobutton_4.select()
+            case 'strat5' : radiobutton_5.select()
+            case 'strat6' : radiobutton_6.select()
+            case 'strat7' : radiobutton_7.select()
+            case 'strat8' : radiobutton_8.select()
+            case 'strat9' : radiobutton_9.select()
+            case 'strat10': radiobutton_10.select()
+            case 'strat11': radiobutton_11.select()
+            case 'strat12': radiobutton_12.select()
+            case 'strat13': radiobutton_13.select()
+            case 'strat14': radiobutton_14.select()
+            case 'strat15': radiobutton_15.select()
+            case 'strat16': radiobutton_16.select()
+            case 'strat17': radiobutton_17.select()
+            case 'strat18': radiobutton_18.select()
+            case 'strat19': radiobutton_19.select()
+            case 'strat20': radiobutton_20.select()
+            case 'strat21': radiobutton_21.select()
+            case 'strat22': radiobutton_22.select()
+            case 'strat23': radiobutton_23.select()
+            case 'strat24': radiobutton_24.select()
+            case 'strat25': radiobutton_25.select()
     # ----
-
     label_title112.pack(pady=5)
     frame_2_set4.pack(pady=10, padx=20)
     label__2_set4.pack(pady=5)
@@ -809,6 +849,7 @@ def open_step_2_historical(frame):
     radiobutton_22.pack(pady=4, anchor='w')
     radiobutton_23.pack(pady=4, anchor='w')
     radiobutton_24.pack(pady=4, anchor='w')
+    radiobutton_25.pack(pady=4, anchor='w')
     frame_2_set412.pack(pady=20, anchor='n')
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
