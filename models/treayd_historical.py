@@ -28,6 +28,8 @@ MYDIR_5MIN = '../ROBO_TRADE/DF/5min/'
 MYDIR_COIN = '../ROBO_TRADE/DF/coin.txt'
 MYDIR_COIN_PROCENT = '../ROBO_TRADE/DF/coin_procent.txt'
 
+how_mach_coin = 10
+
 day_trade = round((wait_time*VOLUME)/(60*24),4)
 open_sl = False # флаг на открытые позиции
 open_position = False # флаг, стоим в позиции или нет

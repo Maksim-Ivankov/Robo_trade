@@ -64,25 +64,29 @@ def pump_graph(frame):
     frame_table_pump_now.pack()
     
     # за 24 часа
-    frame_pump_today = customtkinter.CTkFrame(frame_pump_our, corner_radius=0)
-    label_title1_1_today = customtkinter.CTkLabel(frame_pump_today, text="Пампы за 24 часа", fg_color="transparent",anchor='center',font=('Arial',16,'normal'), width = 600)
+    frame_pump_today_wrap = customtkinter.CTkFrame(frame_pump_our, corner_radius=0)
+    label_title1_1_today = customtkinter.CTkLabel(frame_pump_today_wrap, text="Пампы за 24 часа", fg_color="transparent",anchor='center',font=('Arial',16,'normal'), width = 600)
+    frame_pump_today = customtkinter.CTkScrollableFrame(frame_pump_today_wrap, corner_radius=0, width=700, height=120)
     frame_table_pump_today = customtkinter.CTkFrame(frame_pump_today, corner_radius=0)
     value_pump_today = [['№','Монета','% роста','Время начала','Длительность']]
     table_pump_today = CTkTable(master=frame_table_pump_today, row=1, column=4, values=value_pump_today)
     table_pump_today.pack(expand=True, padx=20, pady=20)
-    frame_pump_today.pack(pady=20)
+    frame_pump_today_wrap.pack(pady=20)
     label_title1_1_today.pack()
+    frame_pump_today.pack()
     frame_table_pump_today.pack()
     
     # за 30 дней
-    frame_pump_30_day = customtkinter.CTkScrollableFrame(frame_pump_our, corner_radius=0, width=700, height=300)
-    label_title1_1_30_day = customtkinter.CTkLabel(frame_pump_30_day, text="Пампы за 30 дней", fg_color="transparent",anchor='center',font=('Arial',16,'normal'), width = 600)
+    frame_pump_30_day_wrap = customtkinter.CTkFrame(frame_pump_our, corner_radius=0)
+    label_title1_1_30_day = customtkinter.CTkLabel(frame_pump_30_day_wrap, text="Пампы за 30 дней", fg_color="transparent",anchor='center',font=('Arial',16,'normal'), width = 600)
+    frame_pump_30_day = customtkinter.CTkScrollableFrame(frame_pump_30_day_wrap, corner_radius=0, width=700, height=300)
     frame_table_pump_30_day = customtkinter.CTkFrame(frame_pump_30_day, corner_radius=0)
-    value_pump_30_day = [['№','Дата','Монета','% роста','Время начала','Длительность']]
+    value_pump_30_day = [['№','Дата','Монета','% роста','Время начала','Объём']]
     table_pump_30_day = CTkTable(master=frame_table_pump_30_day, row=1, column=6, values=value_pump_30_day)
     table_pump_30_day.pack(expand=True, fill="both", padx=20, pady=20)
-    frame_pump_30_day.pack(pady=0)
+    frame_pump_30_day_wrap.pack()
     label_title1_1_30_day.pack()
+    frame_pump_30_day.pack(pady=0)
     frame_table_pump_30_day.pack()
     
     
@@ -94,6 +98,24 @@ def pump_graph(frame):
 
 dop_data_row_30_daya = {}
 dop_data_row_today = {}
+
+
+
+settings_1 = 1.1 # если вторая свеча больше первой больше чем в 2 раза
+settings_4 = 1.1 # если третья свеча больше чем вторая больше чем в n раз
+settings_2 = 1.9 # отношение шпилей к телу 3-ей свечи
+settings_3 = 0.8 # объем 3 умноженного на 0.5 больше чем прошлые 10 объёмов по отдельности
+# -----------
+# лучшее - 14/4 = 77%
+# settings_1 = 1.5 # если вторая свеча больше первой больше чем в 2 раза
+# settings_4 = 2.8 # отношение 3 свечи ко 2
+# settings_2 = 1.5 # отношение шпилей к телу 3-ей свечи
+# settings_3 = 0.5 # объем 3 умноженного на 0.5 больше чем прошлые 10 объёмов по отдельности
+# -----------
+# settings_1 = 2 # если вторая свеча больше первой больше чем в 2 раза
+# settings_2 = 2 # отношение шпилей к телу 3-ей свечи
+# settings_3 = 0.5 # объем 3 умноженного на 0.5 больше чем прошлые 10 объёмов по отдельности
+# settings_4 = 2.5 # отношение 3 свечи ко 2
 
 # здесь ищем и отрисовываем все пампы, что находим
 def search_pump():
@@ -120,15 +142,32 @@ def search_pump():
             if len(df) != 180: 
                 print('Новая монета, нет истории')
                 continue
+            index_flag_local = -1
             for index, row in df.iterrows():
                 if index == (value_get_data-1): break
-                if index != 0 and row['VOLUME'] != 0:
-                    # если вторая свеча больше первой больше чем в 2 раза
-                    if float(row['VOLUME'])/float(df['VOLUME'][index-1]) > 2 and float(row['open'])<float(row['close']) and float(df['open'][index-1])<float(df['close'][index-1])  and float(df['open'][index+1])<float(df['close'][index+1]):
-                        # если третья свеча больше чем вторая больше чем в 2.5 раза
-                        if float(df['VOLUME'][index+1])/float(row['VOLUME']) > 2.5:
+                if index_flag_local == index : continue
+                if index > 9 and row['VOLUME'] != 0:
+                    
+                    # и чистим шпили по третей свече
+                    # и предидущие 10 по объёму не схожи с 3 свечой
+                    if (float(row['VOLUME'])/float(df['VOLUME'][index-1]) > settings_1 and  # если вторая свеча больше первой больше чем в 2 раза
+                        float(row['open'])<float(row['close']) and # и свеча 2 зеленая
+                        float(df['open'][index-1])<float(df['close'][index-1])  and # и свеча 1 зеленая
+                        float(df['open'][index+1])<float(df['close'][index+1]) and # и свеча 3 зеленая
+                        ((float(df['high'][index+1])-float(df['low'][index+1]))/(float(df['close'][index+1])-float(df['open'][index+1])))<settings_2 and # и отношение шпилей к телу меньше 2
+                        float(df['VOLUME'][index+1])*settings_3>float(df['VOLUME'][index-2]) and # объем 3 умноженного на 0.5 больше чем прошлые 10 объёмов по отдельности
+                        float(df['VOLUME'][index+1])*settings_3>float(df['VOLUME'][index-3]) and 
+                        float(df['VOLUME'][index+1])*settings_3>float(df['VOLUME'][index-4]) and 
+                        float(df['VOLUME'][index+1])*settings_3>float(df['VOLUME'][index-5]) and 
+                        float(df['VOLUME'][index+1])*settings_3>float(df['VOLUME'][index-6]) and 
+                        float(df['VOLUME'][index+1])*settings_3>float(df['VOLUME'][index-7]) and 
+                        float(df['VOLUME'][index+1])*settings_3>float(df['VOLUME'][index-8]) and 
+                        float(df['VOLUME'][index+1])*settings_3>float(df['VOLUME'][index-9])):
+                        if float(df['VOLUME'][index+1])/float(row['VOLUME']) > settings_4: # если третья свеча больше чем вторая больше чем в 2.5 раза
                             flag_pump=1
-                            value_pump_30_day.append([number_row_table_30_day,datetime.fromtimestamp(int(df['open_time'][index+1]/1000)).strftime('%d.%m.%Y'),key,top_coin[key],datetime.fromtimestamp(int((df['open_time'][index+1]/1000)-10800)).strftime('%H:%M'),'???'])
+                            index_flag_local = index+1
+                            value_candle = round((float(df['VOLUME'][index-1])+float(df['VOLUME'][index])+float(df['VOLUME'][index+1]))*float(df['close'][index])/1000000,0)
+                            value_pump_30_day.append([number_row_table_30_day,datetime.fromtimestamp(int(df['open_time'][index+1]/1000)).strftime('%d.%m.%Y'),key,top_coin[key],datetime.fromtimestamp(int((df['open_time'][index+1]/1000)-10800)).strftime('%H:%M'),str(value_candle)+' M'])
                             dop_data_row_30_daya[number_row_table_30_day] = index
                             number_row_table_30_day = number_row_table_30_day + 1 
                             # если нашли памп в последних 6 свечах
@@ -136,9 +175,32 @@ def search_pump():
                                 dop_data_row_today[number_row_table_today] = index
                                 value_pump_today.append([number_row_table_today,key,top_coin[key],datetime.fromtimestamp(int((df['open_time'][index+1]/1000)-10800)).strftime('%H:%M'),'???'])
                                 number_row_table_today = number_row_table_today + 1
+                
             if flag_pump == 0:
                 pass 
         print('ЗАКОНЧИЛИ ОБРАБОТКУ') 
+        
+        count_strat_plus = 0
+        count_strat_minus = 0
+        
+        for key,value in enumerate(value_pump_30_day):
+            if key == 0:continue
+            # шаг пампа - dop_data_row_30_daya[key]+1 на этой свече по цене закрытия нужно входить в сделку
+            # value[2] - монета, имя
+            df = get_save_df(value[2])
+            price_open = df['close'][dop_data_row_30_daya[key]+1] # цена открытия сделки
+            print(f'Цена открытия = {price_open} - {dop_data_row_30_daya[key]+1} | {value[2]}')
+            for i in range(dop_data_row_30_daya[key]+2,180,1):
+                if df['close'][i]>price_open and df['low'][i]>price_open: continue
+                elif i>dop_data_row_30_daya[key]+2:
+                    value_pump_30_day[key][3] = round(((float(df['close'][i-1])/float(price_open)) - 1)*100,1)
+                    break
+                else:
+                    value_pump_30_day[key][3] = round(((float(df['close'][i])/float(price_open)) - 1)*100,1)
+                    break
+                 
+        # ВААЛИДАЦИЯ ЗНАЧЕНИЙ
+        
                  
         clean_card_menu(frame_table_pump_30_day)
         table_pump_30_day = CTkTable(master=frame_table_pump_30_day, row=number_row_table_30_day, column=6, values=value_pump_30_day,command = get_data_table_onclick_30_day)
@@ -146,6 +208,15 @@ def search_pump():
         clean_card_menu(frame_table_pump_today)
         table_pump_today = CTkTable(master=frame_table_pump_today, row=number_row_table_today, column=5, values=value_pump_today, command = get_data_table_onclick_today)
         table_pump_today.pack(expand=True, padx=20, pady=20) 
+        for i,val in enumerate(value_pump_30_day):
+            if i == 0: continue
+            if float(val[3]) < 0:
+                count_strat_minus = count_strat_minus+1
+                table_pump_30_day.edit_row(i, fg_color='#EB6D5C')
+            else: count_strat_plus= count_strat_plus+1
+        print(f'Сигналов в плюс {count_strat_plus} | в минус {count_strat_minus}')
+            
+        
             
     except Exception as e:
         print(f'Ошибка работы цикла пампов - {e}') 
@@ -156,8 +227,8 @@ def get_data_table_onclick_30_day(data):
     flag_pricel=0
     data_parse = table_pump_30_day.get_row(data['row'])
     df = get_save_df(data_parse[2])
-    table_pump_30_day.select_row(data['row'])
-    print_graph(df,dop_data_row_30_daya[data_parse[0]])
+    # table_pump_30_day.select_row(data['row'])
+    print_graph(df,int(dop_data_row_30_daya[data_parse[0]])+1)
     
 # обработка нажатия на строку в таблице пампов за 24 часа
 def get_data_table_onclick_today(data):
@@ -165,8 +236,8 @@ def get_data_table_onclick_today(data):
     flag_pricel=0
     data_parse = table_pump_today.get_row(data['row'])
     df = get_save_df(data_parse[1])
-    table_pump_today.select_row(data['row'])
-    print_graph(df,dop_data_row_today[data_parse[0]])
+    # table_pump_today.select_row(data['row'])
+    print_graph(df,int(dop_data_row_today[data_parse[0]])+1)
 
 # Получите последние n свечей по n минут для торговой пары, обрабатываем и записывае данные в датафрейм
 def get_futures_klines(symbol,TF='4h',VOLUME=value_get_data):
