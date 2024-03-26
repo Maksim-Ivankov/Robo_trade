@@ -3,6 +3,7 @@ import models.treayd_historical as bin
 import models.main_TV as TV
 import strategy.print_settings.strat1 as strat
 import strategy.print_settings.strat_real_test as strat_real_test
+import strategy.print_settings.strat_historical as strat_historical
 import models.real_test_trade as real
 import models.treayd_historical_2_bollindger as bin_2
 import strategy.strategys.strat_1 as str_1
@@ -31,6 +32,7 @@ win.geometry('%dx%d+%d+%d' % (w, h, x, y))
 win.grid_rowconfigure(0, weight=1)
 win.grid_columnconfigure(1, weight=1)
 name_bot_real_test = "Версия 1_1"
+name_bot_historical = "Версия 1_1"
 strat_mas_real_test = ['strat1'] # выбор по умолчанию - 1 вариант
 strat_mas_historical = ['strat1'] # выбор по умолчанию - 1 вариант
 check_var_real_test = customtkinter.StringVar(value=strat_mas_real_test[0]) # первичный выбор настройки ртт шаг 2
@@ -481,38 +483,61 @@ def get_dataset_file_start(frame_2_set2_3_1):
         customtkinter.CTkLabel(frame_2_set2_3_1,text='Найден датасет '+ name , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
         symbol=name  
 # стартуем историческую торговлю
-def start_historical_trade_strat_1(frame_2_set2_graph,frame_3_set4_1_2,frame_3_set4_1_1_1,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4):
+def start_historical_trade_strat_1():
+    
+    print('Типа начали')
     try:
-        global work_timeframe_HM
-        bin.work_timeframe_HM = work_timeframe_HM
-        bin.wait_time = int(set1_timveframe.get(bin.TF))
-        bin.COMMISSION_MAKER = float(float(frame_2_set4_2_set_1.get())/100)
-        bin.COMMISSION_TAKER = float(float(frame_2_set4_2_set_2.get())/100)
-        bin.TP = float(float(frame_2_set4_2_set_3.get())/100)
-        bin.SL = float(float(frame_2_set4_2_set_4.get())/100)
-        bin.DEPOSIT = int(frame_2_set4_3_set_1.get())
-        bin.LEVERAGE = int(frame_2_set4_3_set_2.get())
-        str_1.CANAL_MAX = float(float(frame_2_set4_3_set_3.get())/100)
-        str_1.CANAL_MIN = float(float(frame_2_set4_3_set_4.get())/100)
-        str_1.CORNER_LONG = int(frame_2_set4_4_set_1.get())
-        str_1.CORNER_SHORT = int(frame_2_set4_4_set_2.get())
-        bin.CANDLE_COIN_MIN = int(frame_2_set4_4_set_3.get())
-        bin.CANDLE_COIN_MAX = int(frame_2_set4_4_set_4.get())
-        logger('H','Начинаем историческую торговлю')
-        logger('H',f'Настройки ИТ: Комиссия мейкер {bin.COMMISSION_MAKER} | Комиссия тейкер {bin.COMMISSION_TAKER}')
-        logger('H',f'Настройки ИТ: Тейк профит {bin.TP} | Стоп лосс {bin.SL}')
-        logger('H',f'Настройки ИТ: Депозит {bin.DEPOSIT} | Плечо {bin.LEVERAGE}')
-        logger('H',f'Настройки ИТ: Верх канала {str_1.CANAL_MAX} | Низ канала {str_1.CANAL_MIN}')
-        logger('H',f'Настройки ИТ: Угол лонг {str_1.CORNER_LONG} | Угол шорт {str_1.CORNER_SHORT}')
-        logger('H',f'Настройки ИТ: Объём мин {bin.CANDLE_COIN_MIN} | Объём макс {bin.CANDLE_COIN_MAX}')
-        for widget in frame_3_set4_1_1_1.winfo_children(): # чистим логи тоговли
-            widget.forget()
-        for widget in frame_2_set2_graph.winfo_children(): # чистим табличку
-            widget.forget()
-        thread = threading.Thread(target=lambda:bin.start_trade_hist_model(frame_2_set2_graph,frame_3_set4_1_1_1,frame_3_set4_1_2))
-        thread.start()
+        global thread292
+        logger('RT',f'------------------------------------------------------------------------')
+        logger('RT',f'Реальная тестовая торговля | Начали торговлю')
+        logger('RT',f'Реальная тестовая торговля | Настройки:')
+        logger('RT',f'Реальная тестовая торговля | Комисия мейкер - {bin.COMMISSION_MAKER}, тейкер - {bin.COMMISSION_TAKER}')
+        logger('RT',f'Реальная тестовая торговля | Тейк - {bin.TP}, стоп - {bin.SL}')
+        logger('RT',f'Реальная тестовая торговля | Депозит - {bin.DEPOSIT}, плечо - {bin.LEVERAGE}')
+        logger('RT',f'Реальная тестовая торговля | Канал макс - {str_1.CANAL_MAX}, канал мин - {str_1.CANAL_MIN}')
+        logger('RT',f'Реальная тестовая торговля | Угол лонг - {str_1.CORNER_LONG}, угол шорт - {str_1.CORNER_SHORT}')
+        logger('RT',f'Реальная тестовая торговля | Объём мин - {bin.CANDLE_COIN_MIN}, макс - {bin.CANDLE_COIN_MAX}')
+        logger('RT',f'Реальная тестовая торговля | Название бота - {name_bot_historical}')
+        # for widget in real_test_frame_3_1_1.winfo_children():
+        #     widget.forget()
+        # for widget in real_test_frame_3_2_1.winfo_children():
+        #     widget.forget()
+        # thread292 = threading.Thread(target=lambda:real.start_real_test_trade_model_thread_1(strat_now_rt,strat_mas_real_test,real_test_frame_4,card_trade_menu,name_bot_real_test,sost_tg_message_real_test,real_test_frame_3_1_1,real_test_frame_3_2_1))
+        # thread292.start()
     except ValueError: 
-        messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
+        messagebox.showinfo('Внимание','Ошибка запуска торговли')
+    
+    # try:
+    #     global work_timeframe_HM
+    #     bin.work_timeframe_HM = work_timeframe_HM
+    #     bin.wait_time = int(set1_timveframe.get(bin.TF))
+    #     bin.COMMISSION_MAKER = float(float(frame_2_set4_2_set_1.get())/100)
+    #     bin.COMMISSION_TAKER = float(float(frame_2_set4_2_set_2.get())/100)
+    #     bin.TP = float(float(frame_2_set4_2_set_3.get())/100)
+    #     bin.SL = float(float(frame_2_set4_2_set_4.get())/100)
+    #     bin.DEPOSIT = int(frame_2_set4_3_set_1.get())
+    #     bin.LEVERAGE = int(frame_2_set4_3_set_2.get())
+    #     str_1.CANAL_MAX = float(float(frame_2_set4_3_set_3.get())/100)
+    #     str_1.CANAL_MIN = float(float(frame_2_set4_3_set_4.get())/100)
+    #     str_1.CORNER_LONG = int(frame_2_set4_4_set_1.get())
+    #     str_1.CORNER_SHORT = int(frame_2_set4_4_set_2.get())
+    #     bin.CANDLE_COIN_MIN = int(frame_2_set4_4_set_3.get())
+    #     bin.CANDLE_COIN_MAX = int(frame_2_set4_4_set_4.get())
+    #     logger('H','Начинаем историческую торговлю')
+    #     logger('H',f'Настройки ИТ: Комиссия мейкер {bin.COMMISSION_MAKER} | Комиссия тейкер {bin.COMMISSION_TAKER}')
+    #     logger('H',f'Настройки ИТ: Тейк профит {bin.TP} | Стоп лосс {bin.SL}')
+    #     logger('H',f'Настройки ИТ: Депозит {bin.DEPOSIT} | Плечо {bin.LEVERAGE}')
+    #     logger('H',f'Настройки ИТ: Верх канала {str_1.CANAL_MAX} | Низ канала {str_1.CANAL_MIN}')
+    #     logger('H',f'Настройки ИТ: Угол лонг {str_1.CORNER_LONG} | Угол шорт {str_1.CORNER_SHORT}')
+    #     logger('H',f'Настройки ИТ: Объём мин {bin.CANDLE_COIN_MIN} | Объём макс {bin.CANDLE_COIN_MAX}')
+    #     for widget in frame_3_set4_1_1_1.winfo_children(): # чистим логи тоговли
+    #         widget.forget()
+    #     for widget in frame_2_set2_graph.winfo_children(): # чистим табличку
+    #         widget.forget()
+    #     thread = threading.Thread(target=lambda:bin.start_trade_hist_model(frame_2_set2_graph,frame_3_set4_1_1_1,frame_3_set4_1_2))
+    #     thread.start()
+    # except ValueError: 
+    #     messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
 # открываем логи торгов в блокноте
 def open_history_trade_log():
     print('Открыли логи истор торгов')
@@ -591,9 +616,9 @@ def start_historical_trade_strat_2_bollindger(frame_2_set2_graph_2):
 
 # валидация на данные с шага 1
 def step_2_historical_trade_prom(frame,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4,input_2_1,input_2_167):
-    global name_bot_real_test
+    global name_bot_historical
     global sost_tg_message_real_test
-    if name_bot_real_test=='': 
+    if name_bot_historical=='': 
         messagebox.showinfo('Внимание','Введите имя бота')
     elif bin.how_mach_coin=='': 
         messagebox.showinfo('Внимание','Введите количество монет для торговли')
@@ -622,7 +647,7 @@ def step_2_historical_trade_prom(frame,frame_2_set4_2_set_1,frame_2_set4_2_set_2
         bin.LEVERAGE = int(frame_2_set4_3_set_2.get())
         bin.CANDLE_COIN_MIN = int(frame_2_set4_4_set_3.get())
         bin.CANDLE_COIN_MAX = int(frame_2_set4_4_set_4.get())
-        name_bot_real_test = input_2_1.get()
+        name_bot_historical = input_2_1.get()
         bin.how_mach_coin = input_2_167.get()
         open_step_2_historical(frame)
 
@@ -633,6 +658,39 @@ def step_3_historical_trade_prom(frame):
         messagebox.showinfo('Внимание','Выберете хотя бы одну стратегию')
     else:
         open_step_3_historical(frame)
+
+# валидация на данные с шага 3
+def step_4_historical_trade_prom(frame):
+    global strat_mas_historical
+    for i in strat_mas_historical:
+        match i:
+            case 'strat1' : data_settings_1 = strat_historical.strat1_param()
+            case 'strat2' : strat_historical.strat2_param()
+            case 'strat3' : strat_historical.strat3()
+            case 'strat4' : strat_historical.strat4()
+            case 'strat5' : strat_historical.strat5()
+            case 'strat6' : strat_historical.strat6()
+            case 'strat7' : strat_historical.strat7()
+            case 'strat8' : strat_historical.strat8()
+            case 'strat9' : strat_historical.strat9()
+            case 'strat10': strat_historical.strat10()
+            case 'strat11': strat_historical.strat11()
+            case 'strat12': strat_historical.strat12()
+            case 'strat13': strat_historical.strat13()
+            case 'strat14': strat_historical.strat14()
+            case 'strat15': strat_historical.strat15()
+            case 'strat16': strat_historical.strat16()
+            case 'strat17': strat_historical.strat17()
+            case 'strat18': strat_historical.strat18()
+            case 'strat19': strat_historical.strat19()
+            case 'strat20': strat_historical.strat20()
+            case 'strat21': strat_historical.strat21()
+            case 'strat22': strat_historical.strat22()
+            case 'strat23': strat_historical.strat23()
+            case 'strat24': strat_historical.strat24()
+    print(data_settings_1)
+    if data_settings_1 != None:
+        open_step_4_historical(frame,data_settings_1)
 
 def open_step_1_historical(frame):
     print('1')
@@ -712,7 +770,7 @@ def open_step_1_historical(frame):
     label__2_set4_4_set_4 = customtkinter.CTkLabel(frame_2_set4_25, text="Объм торгов макс", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     button32 = customtkinter.CTkButton(frame, text="Выбрать стратегию торговли",command=lambda:step_2_historical_trade_prom(frame,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4,input_2_1,input_2_167))
     
-    input_2_1.insert(0, name_bot_real_test)
+    input_2_1.insert(0, name_bot_historical)
     input_2_167.insert(0, bin.how_mach_coin)
     frame_2_set4_2_set_1.insert(0, round(bin.COMMISSION_MAKER*100,3))
     frame_2_set4_2_set_2.insert(0, round(bin.COMMISSION_TAKER*100,3))
@@ -761,33 +819,33 @@ def open_step_2_historical(frame):
     frame_2_set4_0 = customtkinter.CTkFrame(frame_2_set4, corner_radius=0, fg_color="#2B2B2B")
     frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
     frame_2_set4_1_1 = customtkinter.CTkScrollableFrame(frame_2_set4_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=500, height=450)
-    radiobutton_1 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat1", offvalue="0",text="Канал, тренд, локаль, объём",text_color='#242424')
-    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat2", offvalue="1",text="Суммарный тех индикатор TreadingView",text_color='#242424')
-    radiobutton_3 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat3", offvalue="2",text="BarUpDn",text_color='#242424')
-    radiobutton_4 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat4", offvalue="3",text="Полосы Боллинджера направленные",text_color='#242424')
-    radiobutton_5 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat5", offvalue="4",text="Channel BreakOut",text_color='#242424')
-    radiobutton_6 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat6", offvalue="5",text="Consecutive Up/Down",text_color='#242424')
-    radiobutton_7 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat7", offvalue="6",text="Greedy",text_color='#242424')
-    radiobutton_8 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat8", offvalue="7",text="InSide Bar",text_color='#242424')
-    radiobutton_9 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat9", offvalue="8",text="Канал Кельтнера",text_color='#242424')
-    radiobutton_10 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat10", offvalue="9",text="MACD",text_color='#242424')
-    radiobutton_11 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat11", offvalue="10",text="Моментум",text_color='#242424')
-    radiobutton_12 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat12", offvalue="11",text="Пересечение двух линий скользящих средних",text_color='#242424')
-    radiobutton_13 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat13", offvalue="12",text="Пересечение скользящих средних",text_color='#242424')
-    radiobutton_14 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat14", offvalue="13",text="OutSide Bar",text_color='#242424')
-    radiobutton_15 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat15", offvalue="14",text="Параболическая остановка и разворот",text_color='#242424')
-    radiobutton_16 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat16", offvalue="15",text="Pivot Extension",text_color='#242424')
-    radiobutton_17 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat17", offvalue="16",text="Контрольная точка разворота",text_color='#242424')
-    radiobutton_18 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat18", offvalue="17",text="Ценовые каналы",text_color='#242424')
-    radiobutton_19 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat19", offvalue="18",text="Роб Букер - Прорыв ADX",text_color='#242424')
-    radiobutton_20 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat20", offvalue="19",text="RSI",text_color='#242424')
-    radiobutton_21 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat21", offvalue="20",text="Медленный стохастик",text_color='#242424')
-    radiobutton_22 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat22", offvalue="21",text="Супертренд",text_color='#242424')
-    radiobutton_23 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat23", offvalue="22",text="Технический индикатор рынка",text_color='#242424')
-    radiobutton_24 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat24", offvalue="23",text="Volty Expan Close",text_color='#242424')
-    radiobutton_25 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_real_test,variable=check_var_historical, onvalue="strat25", offvalue="24",text="Линии Боллинджера",text_color='#242424')
+    radiobutton_1 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat1", offvalue="0",text="Канал, тренд, локаль, объём",text_color='#242424')
+    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat2", offvalue="1",text="Суммарный тех индикатор TreadingView",text_color='#242424')
+    radiobutton_3 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat3", offvalue="2",text="BarUpDn",text_color='#242424')
+    radiobutton_4 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat4", offvalue="3",text="Полосы Боллинджера направленные",text_color='#242424')
+    radiobutton_5 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat5", offvalue="4",text="Channel BreakOut",text_color='#242424')
+    radiobutton_6 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat6", offvalue="5",text="Consecutive Up/Down",text_color='#242424')
+    radiobutton_7 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat7", offvalue="6",text="Greedy",text_color='#242424')
+    radiobutton_8 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat8", offvalue="7",text="InSide Bar",text_color='#242424')
+    radiobutton_9 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat9", offvalue="8",text="Канал Кельтнера",text_color='#242424')
+    radiobutton_10 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat10", offvalue="9",text="MACD",text_color='#242424')
+    radiobutton_11 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat11", offvalue="10",text="Моментум",text_color='#242424')
+    radiobutton_12 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat12", offvalue="11",text="Пересечение двух линий скользящих средних",text_color='#242424')
+    radiobutton_13 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat13", offvalue="12",text="Пересечение скользящих средних",text_color='#242424')
+    radiobutton_14 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat14", offvalue="13",text="OutSide Bar",text_color='#242424')
+    radiobutton_15 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat15", offvalue="14",text="Параболическая остановка и разворот",text_color='#242424')
+    radiobutton_16 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat16", offvalue="15",text="Pivot Extension",text_color='#242424')
+    radiobutton_17 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat17", offvalue="16",text="Контрольная точка разворота",text_color='#242424')
+    radiobutton_18 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat18", offvalue="17",text="Ценовые каналы",text_color='#242424')
+    radiobutton_19 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat19", offvalue="18",text="Роб Букер - Прорыв ADX",text_color='#242424')
+    radiobutton_20 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat20", offvalue="19",text="RSI",text_color='#242424')
+    radiobutton_21 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat21", offvalue="20",text="Медленный стохастик",text_color='#242424')
+    radiobutton_22 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat22", offvalue="21",text="Супертренд",text_color='#242424')
+    radiobutton_23 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat23", offvalue="22",text="Технический индикатор рынка",text_color='#242424')
+    radiobutton_24 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat24", offvalue="23",text="Volty Expan Close",text_color='#242424')
+    radiobutton_25 = customtkinter.CTkCheckBox(frame_2_set4_1_1, command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat25", offvalue="24",text="Линии Боллинджера",text_color='#242424')
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
-    button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:real_test_trade())
+    button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:historical_trade())
     button3213 = customtkinter.CTkButton(frame_2_set412, text="Настроить стратегию торговли",command=lambda:step_3_historical_trade_prom(frame))
     
     # выбор ранее отмеченных чекбоксов
@@ -855,35 +913,145 @@ def open_step_2_historical(frame):
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
 
 def open_step_3_historical(frame):
-    global strat_mas
+    global strat_mas_historical
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
-    for i in strat_mas:
+    for i in strat_mas_historical:
         match i:
-            case 'strat1' : strat.strat1(frame,open_step_2_historical)
-            case 'strat2' : strat.strat2()
-            case 'strat3' : strat.strat3()
-            case 'strat4' : strat.strat4()
-            case 'strat5' : strat.strat5()
-            case 'strat6' : strat.strat6()
-            case 'strat7' : strat.strat7()
-            case 'strat8' : strat.strat8()
-            case 'strat9' : strat.strat9()
-            case 'strat10': strat.strat10()
-            case 'strat11': strat.strat11()
-            case 'strat12': strat.strat12()
-            case 'strat13': strat.strat13()
-            case 'strat14': strat.strat14()
-            case 'strat15': strat.strat15()
-            case 'strat16': strat.strat16()
-            case 'strat17': strat.strat17()
-            case 'strat18': strat.strat18()
-            case 'strat19': strat.strat19()
-            case 'strat20': strat.strat20()
-            case 'strat21': strat.strat21()
-            case 'strat22': strat.strat22()
-            case 'strat23': strat.strat23()
-            case 'strat24': strat.strat24()
+            case 'strat1' : strat_historical.strat1(frame)
+            case 'strat2' : strat_historical.strat2(frame)
+            case 'strat3' : strat_historical.strat3()
+            case 'strat4' : strat_historical.strat4()
+            case 'strat5' : strat_historical.strat5()
+            case 'strat6' : strat_historical.strat6()
+            case 'strat7' : strat_historical.strat7()
+            case 'strat8' : strat_historical.strat8()
+            case 'strat9' : strat_historical.strat9()
+            case 'strat10': strat_historical.strat10()
+            case 'strat11': strat_historical.strat11()
+            case 'strat12': strat_historical.strat12()
+            case 'strat13': strat_historical.strat13()
+            case 'strat14': strat_historical.strat14()
+            case 'strat15': strat_historical.strat15()
+            case 'strat16': strat_historical.strat16()
+            case 'strat17': strat_historical.strat17()
+            case 'strat18': strat_historical.strat18()
+            case 'strat19': strat_historical.strat19()
+            case 'strat20': strat_historical.strat20()
+            case 'strat21': strat_historical.strat21()
+            case 'strat22': strat_historical.strat22()
+            case 'strat23': strat_historical.strat23()
+            case 'strat24': strat_historical.strat24()
+    
+    frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
+    button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:open_step_2_historical(frame))
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command=lambda:step_4_historical_trade_prom(frame))
+    
+    frame_2_set412.pack(pady=20, anchor='n')
+    button3212.grid(row=0, column=0, sticky="ew",padx=10)
+    button3213.grid(row=0, column=1, sticky="ew",padx=10)
+
+def open_step_4_historical(frame,data_settings_1=[]):
+    for widget in frame.winfo_children(): # чистим табличку
+        widget.destroy()
+    global name_bot_historical
+    global strat_mas_historical
+    strat_now_rt = []
+    for i in strat_mas_historical:
+        match i:
+            case 'strat1' : strat_now_rt.append('Канал, тренд, локаль, объём')
+            case 'strat2' : strat_now_rt.append('Суммарный тех индикатор TreadingView')
+            case 'strat3' : strat_now_rt.append('BarUpDn')
+            case 'strat4' : strat_now_rt.append('Полосы Боллинджера направленные')
+            case 'strat5' : strat_now_rt.append('Channel BreakOut')
+            case 'strat6' : strat_now_rt.append('Consecutive Up/Down')
+            case 'strat7' : strat_now_rt.append('Greedy')
+            case 'strat8' : strat_now_rt.append('InSide Bar')
+            case 'strat9' : strat_now_rt.append('Канал Кельтнера')
+            case 'strat10': strat_now_rt.append('MACD')
+            case 'strat11': strat_now_rt.append('Моментум')
+            case 'strat12': strat_now_rt.append('Пересечение двух линий скользящих средних')
+            case 'strat13': strat_now_rt.append('Пересечение скользящих средних')
+            case 'strat14': strat_now_rt.append('OutSide Bar')
+            case 'strat15': strat_now_rt.append('Параболическая остановка и разворот')
+            case 'strat16': strat_now_rt.append('Pivot Extension')
+            case 'strat17': strat_now_rt.append('Контрольная точка разворота')
+            case 'strat18': strat_now_rt.append('Ценовые каналы')
+            case 'strat19': strat_now_rt.append('Роб Букер - Прорыв ADX')
+            case 'strat20': strat_now_rt.append('RSI')
+            case 'strat21': strat_now_rt.append('Медленный стохастик')
+            case 'strat22': strat_now_rt.append('Супертренд')
+            case 'strat23': strat_now_rt.append('Технический индикатор рынка')
+            case 'strat24': strat_now_rt.append('Volty Expan Close')
+            case 'strat25' : strat_now_rt.append('Линии Боллинджера')
+    label_title112 = customtkinter.CTkLabel(frame, text="Проверьте настройки и запустите торговлю", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+    frame_2_strat_1= customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B",width=800)
+    label_title2_1_0 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Общие настройки робота", fg_color="transparent",text_color='white',anchor='center',font=('Arial',14,'bold'),width=200)
+    label_title2_1_1 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Имя робота для логов - {name_bot_historical}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    label_title2_1_2 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Таймфрейм - {bin.TF}", fg_color="transparent",font=('Arial',12,'bold'),width=200)
+    label_title2_1_3 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Сколько топ монет торговать - {bin.how_mach_coin}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    label_title2_1_41 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Комиссия мейкер, {round(bin.COMMISSION_MAKER*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_42 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Комиссия тейкер, {round(bin.COMMISSION_TAKER*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_43 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Тейк профит, {round(bin.TP*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_44 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Стоп лосс, {round(bin.SL*100,3)}%", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_45 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Деозит, {bin.DEPOSIT}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_46 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Плечо {bin.LEVERAGE}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_47 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Объём торгов мин {bin.CANDLE_COIN_MIN}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_48 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Объм торгов макс {bin.CANDLE_COIN_MAX}", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    label_title2_1_5 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Выбраны стратегии:", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
+    frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
+    button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:open_step_3_historical(frame))
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_historical_trade_strat_1())
+    stop_trade_real_test = customtkinter.CTkButton(frame_2_set412, text="Остановить торговлю", command=stop_real_test_trade)
+    real_test_frame_3 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="#2B2B2B")
+    real_test_frame_3_1 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
+    real_test_frame_3_2 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
+    real_test_label_3_1 = customtkinter.CTkLabel(real_test_frame_3_1, text="Данные по монете в сделке", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_frame_3_1_1 = customtkinter.CTkScrollableFrame(real_test_frame_3_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=160, height=260)
+    real_test_label_3_2 = customtkinter.CTkLabel(real_test_frame_3_2, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_frame_3_2_1 = customtkinter.CTkScrollableFrame(real_test_frame_3_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=460, height=260)
+    real_test_frame_4 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="transparent") # графики
+    
+    label_title112.pack(pady=0, anchor='n')
+    frame_2_strat_1.pack(pady=10, anchor='n')
+    label_title2_1_0.grid(row=0, column=0,columnspan=2, sticky="ew",padx=10)
+    label_title2_1_1.grid(row=1, column=0, sticky="w",padx=10)
+    label_title2_1_2.grid(row=1, column=1, sticky="w",padx=10)
+    label_title2_1_3.grid(row=2, column=0, sticky="w",padx=10)
+    label_title2_1_41.grid(row=3, column=0, sticky="w",padx=10)
+    label_title2_1_42.grid(row=3, column=1, sticky="w",padx=10)
+    label_title2_1_43.grid(row=4, column=0, sticky="w",padx=10)
+    label_title2_1_44.grid(row=4, column=1, sticky="w",padx=10)
+    label_title2_1_45.grid(row=5, column=0, sticky="w",padx=10)
+    label_title2_1_46.grid(row=5, column=1, sticky="w",padx=10)
+    label_title2_1_47.grid(row=6, column=0, sticky="w",padx=10)
+    label_title2_1_48.grid(row=6, column=1, sticky="w",padx=10)
+    label_title2_1_5.grid(row=7, column=0,columnspan=2, sticky="ew",padx=10)
+    for ind, i in enumerate(strat_now_rt):
+        customtkinter.CTkLabel(frame_2_strat_1, text=i, fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200).grid(row=8+ind, column=0,columnspan=2, sticky="ew",padx=10)
+    if len(data_settings_1)!=0:
+        frame_2_strat_122= customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B",width=800)
+        frame_2_strat_122.pack(pady=10, anchor='n')
+        customtkinter.CTkLabel(frame_2_strat_122, text='Настройки стратегии - Канал, тренд, локаль, объём', fg_color="transparent",text_color='white',anchor='center',font=('Arial',14,'bold'),width=200).grid(row=0, column=0,columnspan=2, sticky="ew",padx=10)
+        customtkinter.CTkLabel(frame_2_strat_122, text=f"Верх канала, {round(float(data_settings_1[6])*100,3)} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=1, column=0, sticky="w",padx=10)
+        customtkinter.CTkLabel(frame_2_strat_122, text=f"Низ канала, {round(float(data_settings_1[7])*100,3)} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=2, column=0, sticky="w",padx=10)
+        customtkinter.CTkLabel(frame_2_strat_122, text=f"Угол тренда лонг {data_settings_1[8]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=3, column=0, sticky="w",padx=10)
+        customtkinter.CTkLabel(frame_2_strat_122, text=f"Угол тренда шорт {data_settings_1[9]}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=4, column=0, sticky="w",padx=10)
+    frame_2_set412.pack(pady=20, anchor='n')
+    button3212.grid(row=0, column=0, sticky="ew",padx=10)
+    button3213.grid(row=0, column=1, sticky="ew",padx=10)
+    stop_trade_real_test.grid(row=0, column=2, sticky="ew",padx=10)
+    #---
+    real_test_frame_3.pack(pady=20)
+    real_test_frame_3_1.grid(row=0, column=0, sticky="ew",padx=10)
+    real_test_frame_3_2.grid(row=0, column=1, sticky="ew",padx=10)
+    real_test_label_3_1.pack(pady=0)
+    real_test_frame_3_1_1.pack(pady=0)
+    real_test_label_3_2.pack(pady=0)
+    real_test_frame_3_2_1.pack(pady=0)
+    #---
+    
+    real_test_frame_4.pack(pady=20)
 
 def get_strategy_HT(frame_2_set4_0,radio_var):
     print(radio_var.get())
@@ -1037,6 +1205,62 @@ def get_strategy_HT(frame_2_set4_0,radio_var):
         frame_2_set2_graph_2 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="transparent") 
         frame_2_set2_graph_2.pack(pady=[0,20],padx=20)   
 
+# функция отработки нажатия чекбоксов в шаге 2
+def checkbox_event_strat_historical(): 
+    global strat_mas_historical
+    match check_var_historical.get():
+        case '0' : strat_mas_historical.remove('strat1')
+        case '1' : strat_mas_historical.remove('strat2')
+        case '2' : strat_mas_historical.remove('strat3')
+        case '3' : strat_mas_historical.remove('strat4')
+        case '4' : strat_mas_historical.remove('strat5')
+        case '5' : strat_mas_historical.remove('strat6')
+        case '6' : strat_mas_historical.remove('strat7')
+        case '7' : strat_mas_historical.remove('strat8')
+        case '8' : strat_mas_historical.remove('strat9')
+        case '9' : strat_mas_historical.remove('strat10')
+        case '10': strat_mas_historical.remove('strat11')
+        case '11': strat_mas_historical.remove('strat12')
+        case '12': strat_mas_historical.remove('strat13')
+        case '13': strat_mas_historical.remove('strat14')
+        case '14': strat_mas_historical.remove('strat15')
+        case '15': strat_mas_historical.remove('strat16')
+        case '16': strat_mas_historical.remove('strat17')
+        case '17': strat_mas_historical.remove('strat18')
+        case '18': strat_mas_historical.remove('strat19')
+        case '19': strat_mas_historical.remove('strat20')
+        case '20': strat_mas_historical.remove('strat21')
+        case '21': strat_mas_historical.remove('strat22')
+        case '22': strat_mas_historical.remove('strat23')
+        case '23': strat_mas_historical.remove('strat24')
+        case '24': strat_mas_historical.remove('strat25')
+        case 'strat1' : strat_mas_historical.append('strat1')
+        case 'strat2' : strat_mas_historical.append('strat2')
+        case 'strat3' : strat_mas_historical.append('strat3')
+        case 'strat4' : strat_mas_historical.append('strat4')
+        case 'strat5' : strat_mas_historical.append('strat5')
+        case 'strat6' : strat_mas_historical.append('strat6')
+        case 'strat7' : strat_mas_historical.append('strat7')
+        case 'strat8' : strat_mas_historical.append('strat8')
+        case 'strat9' : strat_mas_historical.append('strat9')
+        case 'strat10': strat_mas_historical.append('strat10')
+        case 'strat11': strat_mas_historical.append('strat11')
+        case 'strat12': strat_mas_historical.append('strat12')
+        case 'strat13': strat_mas_historical.append('strat13')
+        case 'strat14': strat_mas_historical.append('strat14')
+        case 'strat15': strat_mas_historical.append('strat15')
+        case 'strat16': strat_mas_historical.append('strat16')
+        case 'strat17': strat_mas_historical.append('strat17')
+        case 'strat18': strat_mas_historical.append('strat18')
+        case 'strat19': strat_mas_historical.append('strat19')
+        case 'strat20': strat_mas_historical.append('strat20')
+        case 'strat21': strat_mas_historical.append('strat21')
+        case 'strat22': strat_mas_historical.append('strat22')
+        case 'strat23': strat_mas_historical.append('strat23')
+        case 'strat24': strat_mas_historical.append('strat24')
+        case 'strat25': strat_mas_historical.append('strat25')
+    print(strat_mas_historical)
+    
 # отрисовка страницы - историческая торговля
 def historical_trade():
     
