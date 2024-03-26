@@ -146,7 +146,7 @@ def get_top_coin():
     return result
 
 # определяем размер позиции, на которую должны зайти
-def get_trade_VOLUME(get_symbol_price):
+def get_trade_VOLUME(get_symbol_price,DEPOSIT,LEVERAGE):
     vol = round(DEPOSIT*LEVERAGE/get_symbol_price)
     return vol
 
@@ -166,8 +166,7 @@ def print_log(msg):
     f = open(path,'a',encoding='utf-8')
     f.write('\n'+time.strftime("%d.%m.%Y | %H:%M:%S | ", time.localtime())+msg)
     f.close()
-     
-                  
+                
 # принтуем логи в фрейм в гуи и логи
 def print_components_log(msg,frame,type):
     global data_print_ad_df
@@ -242,7 +241,7 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_H
 # -------------------------------------- ТОРГОВЛЯ --------------------------------------
 
 # открывает лонг или шорт
-def open_position(trend,value,price):
+def open_position(trend,value,price,SL,TP):
     global open_sl
     global price_trade
     global signal_trade
@@ -256,26 +255,25 @@ def open_position(trend,value,price):
     value_trade = value
     open_sl = True
     # print_components_log(f'Открыл {signal_trade}, монета {coin_trade}, цена {price_trade}',frame_3_set4_1_1_1,'HT')
-    take_profit_price = get_take_profit(trend,price_trade) # получаем цену тэйк профита
-    stop_loss_price = get_stop_loss(trend,price_trade) # получаем цену стоп лосса
+    take_profit_price = get_take_profit(trend,price_trade,TP) # получаем цену тэйк профита
+    stop_loss_price = get_stop_loss(trend,price_trade,SL) # получаем цену стоп лосса
 
 # получаем цену тейк профита в зависимости от направления
-def get_take_profit(trend,price_trade): 
+def get_take_profit(trend,price_trade,TP): 
     if trend == 'long':
         return price_trade*(1+TP)
     if trend == 'short':
         return price_trade*(1-TP)
 
 # получаем цену стоп лосса в зависимости от направления
-def get_stop_loss(trend,price_trade): 
+def get_stop_loss(trend,price_trade,SL): 
     if trend == 'long':
         return price_trade*(1-SL)
     if trend == 'short':
         return price_trade*(1+SL)
     
 # Закрываем сделку
-def close_trade(status,procent):
-    global DEPOSIT
+def close_trade(status,procent,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAGE):
     global open_sl
     global profit
     global loss
@@ -285,18 +283,17 @@ def close_trade(status,procent):
         commission = commission + LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER)
         DEPOSIT = DEPOSIT + LEVERAGE*DEPOSIT*procent - LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
         open_sl = False
-        print(f'ТЕЙК в + | {DEPOSIT}')
         # print_components_log(f'Сработал ТЕЙК|Депо={round(DEPOSIT,1)}, профит={round(profit,1)},ком={round(commission,1)}',frame_3_set4_1_1_1,'HT')
     if status == '-': # если закрыли в минус
         loss = loss + LEVERAGE*DEPOSIT*procent
         commission = commission + LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER)
         DEPOSIT = DEPOSIT - LEVERAGE*DEPOSIT*procent - LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
         open_sl = False
-        print(f'СТОП В - | {DEPOSIT}')
+
         # print_components_log(f'Сработал СТОП|Депо={round(DEPOSIT,1)}, убыток={round(loss,1)},ком={round(commission,1)}',frame_3_set4_1_1_1,'HT')
 
 # когда в сделке - чекаем, словили тп или сл
-def check_trade(price):
+def check_trade(price,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE):
     now_price_trade = price #получаем текущую цену монеты
     global count_long_take
     global count_long_loss
@@ -306,56 +303,29 @@ def check_trade(price):
     global stop_loss_price
     if signal_trade == 'long':
         if float(now_price_trade)>float(take_profit_price):
-            close_trade('+',TP)
+            close_trade('+',TP,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAGE)
             count_long_take=count_long_take+1
             return 1
         if float(now_price_trade)<float(stop_loss_price):
             count_long_loss = count_long_loss + 1
-            close_trade('-',SL)
+            close_trade('-',SL,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAGE)
             return 1
     if signal_trade == 'short':
         if float(now_price_trade)<float(take_profit_price):
-            close_trade('+',TP)
+            close_trade('+',TP,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAGE)
             count_short_take = count_short_take+1
             return 1
         if float(now_price_trade)>float(stop_loss_price):
             count_short_loss = count_short_loss + 1
-            close_trade('-',SL)
+            close_trade('-',SL,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAGE)
             return 1
-# # когда в сделке - чекаем, словили тп или сл
-# def check_trade(price,frame_3_set4_1_1_1):
-#     now_price_trade = price #получаем текущую цену монеты
-#     global count_long_take
-#     global count_long_loss
-#     global count_short_take
-#     global count_short_loss
-#     global take_profit_price
-#     global stop_loss_price
-#     if signal_trade == 'long':
-#         if float(now_price_trade)>float(take_profit_price):
-#             close_trade('+',TP,frame_3_set4_1_1_1)
-#             count_long_take=count_long_take+1
-#             return 1
-#         if float(now_price_trade)<float(stop_loss_price):
-#             count_long_loss = count_long_loss + 1
-#             close_trade('-',SL,frame_3_set4_1_1_1)
-#             return 1
-#     if signal_trade == 'short':
-#         if float(now_price_trade)<float(take_profit_price):
-#             close_trade('+',TP,frame_3_set4_1_1_1)
-#             count_short_take = count_short_take+1
-#             return 1
-#         if float(now_price_trade)>float(stop_loss_price):
-#             count_short_loss = count_short_loss + 1
-#             close_trade('-',SL,frame_3_set4_1_1_1)
-#             return 1
+
 # -------------------------------------- ТОРГОВЛЯ --------------------------------------
 # -------------------------------------- СТРАТЕГИЯ --------------------------------------
 
 # точка входа в стратегии
 def check_if_signal(prices,index,strat_mas_historical):
-    global TF
-    global summ_strat,DEPOSIT
+    global summ_strat
     for strat in strat_mas_historical: # перебор по id выбранных стратегий
         match strat:
             case 'strat1' : summ_strat['Канал, тренд, локаль, объём'] = get_strat_1(prices,index)
@@ -396,12 +366,11 @@ def check_if_signal(prices,index,strat_mas_historical):
             strat_neutral = strat_neutral + 1
     # print(f'Лонг - {strat_long} | Шорт - {strat_short} | Нейтрально - {strat_neutral}')
     # print_components_log(f'Лонг - {strat_long} | Шорт - {strat_short} | Нейтрально - {strat_neutral}',real_test_frame_3_2_1,'OS1')
-    print(f'Шаг - {index} | Депозит {DEPOSIT} | Лонг - {strat_long} | Шорт - {strat_short} | Нейтрально - {strat_neutral}')
     if strat_long == len(summ_strat): return 'long'
     elif strat_short == len(summ_strat): return 'short'
     else : return 'нет сигнала'
     
-    
+# если есть первая стратегия
 def get_strat_1(prices,index):
     try:
         return str_1.strat_1(prices,index) 
@@ -416,48 +385,26 @@ def remove_csv(dir):
     for f in filelist:
         os.remove(os.path.join(dir, f))
         
-# получаем датафрейм по монете из обзего массива датафреймов
-def get_df_coin(coin):
-    global symbol
-    for x,result in enumerate(coin_mas_10):
-        if result == coin:
-            symbol = coin
-            return df_our_coin[x]
-
-# получаем цену закрытия из фрейма по монете в сделке по индексу фрейма
-def get_df_coin_now_price(index):
-    for x,result in enumerate(coin_mas_10):
-        if str(result) == str(symbol):
-            if int(index) > int(VOLUME_5MIN-1):
-                return 0
-            return df_our_coin_5min[x].iloc[index]['close']
-        
-# возвращаем список индексов таймфреймов 1м внутри 5м по цене закрытия на текущем шаге итерации
-def get_price_5min(time):
-    for x,result in enumerate(coin_mas_10):
-        global coutnt_index_time_df
-        if str(result) == str(symbol):
-            df_new = df_our_coin_5min[x][df_our_coin_5min[x]['close_time'] == time].index[0]
-            index_time_df = []
-            for i in range(df_new+coutnt_index_time_df*int(wait_time/work_timeframe_HM),df_new+int(wait_time/work_timeframe_HM)+coutnt_index_time_df*int(wait_time/work_timeframe_HM)):
-                index_time_df.append(i)
-            coutnt_index_time_df = coutnt_index_time_df+1
-            return index_time_df
-
 # -------------------------------------- Перебор по датафрейму --------------------------------------
 
 # точка входа
-def start_trade_hist_model(strat_mas_historical):
-    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,DEPOSIT,open_sl,data_numbers,DEPOSIT
-    open_sl = False
-    DEPOSIT = 100
-    print(f'{VOLUME} | {VOLUME_5MIN} | {STEP_5_min_VALUE} | CANDLE_COIN_MIN - {CANDLE_COIN_MIN} | CANDLE_COIN_MAX - {CANDLE_COIN_MAX}')
+def start_trade_hist_model(strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX):
+    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss
+    open_sl = False # всегда при старте функции, мы не стоим в сделке
+    DEPOSIT = 100 # Всегда при старте фукнции делаем депозит стартовым
     data_numbers = []
+    profit = 0  # Обнуляем профит сделки при старте функции
+    loss = 0  # Обнуляем размер лося на стедку при страте функции
+    commission = 0 # обнуляем комиссию на сделку при страте функции
+    count_long_take = 0 # обнуляем количество лонговых позиций в плюс при старте функции
+    count_long_loss = 0 # обнуляем количество лонговых позиций в минус при старте функции
+    count_short_take = 0 # обнуляем количество шортовых позиций в плюс при старте функции
+    count_short_loss = 0 # обнуляем количество шортовых позиций в минус при старте функции
     fi = open(MYDIR_COIN,'r') # открываем файл с монетами
     coin_mas_10 = fi.read().split('|') # записываем омнеты массивом сюда
     fi.close()
     for index in range(VOLUME):
-        print(f'Шаг - {index} | Депозит {DEPOSIT}')
+        print(index)
         data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
         if index>10: # начинаем не с нуля, а с 5-ой свечи
             if open_sl == False: # если нет позиции
@@ -475,12 +422,10 @@ def start_trade_hist_model(strat_mas_historical):
                             trend = "нет сигнала"  
                     else:
                         trend = "нет сигнала"  
-                        print('Не прошли по объёму')
                 # если получили сигнал и объём за свечку больше минимального объема (настройка) и меншье максимального объёма (настройка)  
                 if trend != "нет сигнала":
                     # если есть сигнал, то открываем позицию - направление, объём, цена входа, 
-                    print('СДЕЛКА!!!!!')
-                    open_position(trend,get_trade_VOLUME(prices['close'][index]),prices['close'][index])   
+                    open_position(trend,get_trade_VOLUME(prices['close'][index],DEPOSIT,LEVERAGE),prices['close'][index],SL,TP)   
             else: #если есть позиция
                 df = pd.read_csv(f'{MYDIR_WORKER}{symbol}.csv') # получили датафрейм из файла
                 prices = df.iloc[data_numbers]
@@ -488,73 +433,16 @@ def start_trade_hist_model(strat_mas_historical):
                 for index2, row in df_mal.iterrows(): # находим индекс, с которого начгнем следить за ценой
                     if row['close_time'] == prices['close_time'][index]:
                         if int(index2)>int(VOLUME_5MIN)-int(STEP_5_min_VALUE)-5:
-                            print('В сделке, но в конце массива, выходим из сделки')
                             break
                         for i in range(int(index2),int(index2)+int(STEP_5_min_VALUE),1):
                             # print(f'{i} - {df_mal['close'][i]}|{price_trade} | {(float(df_mal['close'][i])/float(price_trade))*100}%')
-                            if check_trade(df_mal['close'][i]): break # чекаем монету по шагам итерации между большим и мальеньким фреймом
+                            if check_trade(df_mal['close'][i],COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE): break # чекаем монету по шагам итерации между большим и мальеньким фреймом
             if float(DEPOSIT)/float(DEPOSIT_START) < 0.4:
-                print('Слили депозит! Торговля закончена')
                 break
     print('Закончили')
                     
 
-# точка входа
-def start_trade_hist_model2(strat_mas_historical):
-    global coin_mas_10
-    global symbol
-    global coutnt_index_time_df
-    global trend
-    global time_close_tf
-    print('Начали торговлю')
-    # print_components_log('Начали торговлю',frame_3_set4_1_1_1,'HT')
-    # print_components_log(f'Настройки:\nДепозит:{DEPOSIT} | Плечо:{LEVERAGE} | Комиссия покупка:{COMMISSION_MAKER}\nКомиссия продажа:{COMMISSION_TAKER} | Тейк:{TP} | Стоп:{SL} | Канал верх:{CANAL_MAX}\nКанал низ:{CANAL_MIN} | Угол лонг:{CORNER_LONG} | Угол шорт:{CORNER_SHORT} | Объём мин:{CANDLE_COIN_MIN}\nОбъём макс:{CANDLE_COIN_MAX} | Объём основа:{VOLUME} | Объём 5 мин: {VOLUME_5MIN}',frame_3_set4_1_1_1,'HT')
-    
-    fi = open(MYDIR_COIN,'r') # открываем файл с монетами
-    coin_mas_10 = fi.read().split('|') # записываем омнеты массивом сюда
-    fi.close()
-    count_mas = 0
-    for x,result in enumerate(coin_mas_10): # В цикле сохраняем ДФ всех монет в обзем массиве
-        df = pd.read_csv(f'{MYDIR_WORKER}{result}.csv') # получили датафрейм из файла
-        df_our_coin.append(df) # добавили в массив всех фреймов
-        df_5min = pd.read_csv(f'{MYDIR_5MIN}{result}.csv') # получили датафрйм слежения за ценой по текущей монете
-        df_our_coin_5min.append(df_5min) # и так же сохранили его в файл
-        count_mas = count_mas+1
-    for index in range(VOLUME):  # перебор по клдичеству свечей в фрейме
-        data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
-        if index>4: # начинаем не с нуля, а с 5-ой свечи
-            if open_sl == False: # если нет позиции
-                coutnt_index_time_df = 0
-                for x,result in enumerate(coin_mas_10): # снова бежим по монетам
-                    prices_old = get_df_coin(result) # получеам датафрейм по текущей монете
-                    prices = prices_old.iloc[data_numbers] # берем из фрема свечи по текущий шаг итерации
-                    trend = check_if_signal(prices,index,strat_mas_historical) # определяем тренд - стратегия
-                    if trend != 'нет сигнала': # если есть сигнал
-                        # canvas_coin = canvas_mas[x]
-                        symbol = result # сохраняем монету с сигналом
-                        time_close_tf = prices['close_time'][index]
-                        break
-                    else:
-                        trend = "нет сигнала"           
-                # если получили сигнал и объём за свечку больше минимального объема (настройка) и меншье максимального объёма (настройка)  
-                if trend != "нет сигнала" and prices['VOLUME'][index]>CANDLE_COIN_MIN and prices['VOLUME'][index]<CANDLE_COIN_MAX:
-                    # если есть сигнал, то открываем позицию - направление, объём, цена входа, 
-                    print('СДЕЛКА!!!!!')
-                    open_position(trend,get_trade_VOLUME(prices['close'][index]),prices['close'][index]) 
-            if open_sl == True:
-                for x,result in enumerate(coin_mas_10): # еще раз получаем фрейм по монете по текущий шаг (зачем?)
-                    prices_old = get_df_coin(result)
-                    prices = prices_old.iloc[data_numbers]
-                for index_5min in get_price_5min(time_close_tf): # дальше какое-то волшебство
-                    price_now = get_df_coin_now_price(index_5min)
-                    if price_now != 0:
-                        if check_trade(price_now): # следим за монетой, отрабатываем тп и сл
-                            break
-                    else:
-                        break       
-        if float(DEPOSIT)/float(DEPOSIT_START) < 0.4:
-            break
-    print('Закончили торговлю')
+
     # print_components_log('Закончил торговлю',frame_3_set4_1_1_1,'HT')
     # for widget in frame_3_set4_1_2.winfo_children():
     #     widget.forget()

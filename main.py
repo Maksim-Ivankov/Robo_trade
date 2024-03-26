@@ -519,7 +519,7 @@ def start_historical_trade_strat_1():
         #     widget.forget()
         # for widget in real_test_frame_3_2_1.winfo_children():
         #     widget.forget()
-        thread2922 = threading.Thread(target=lambda:bin.start_trade_hist_model(strat_mas_historical))
+        thread2922 = threading.Thread(target=lambda:bin.start_trade_hist_model(strat_mas_historical,bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX))
         thread2922.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Ошибка запуска торговли')
