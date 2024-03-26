@@ -446,15 +446,8 @@ def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3,input_2_167):
     thread7654 = threading.Thread(target=lambda:bin.generate_dataframe(bin.TF,bin.VOLUME,bin.VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM,frame_2_set2_2_1))
     thread7654.start()
     time.sleep(1)
-    # file = open('../ROBO_TRADE/DF/coin_procent.txt', mode="r")
-    # bin.coin_mas_10 = file.read().split('|')
-    # i=-1
-    # for coin in bin.coin_mas_10:
-    #     i=i+1
-    #     customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
         
     
-    # select_frame_by_name("frame_2")
 # отрисовка монет из файла, если он не пустой
 def get_coin_proc_start(frame_2_set2_2_1):
     global input_2_167
@@ -497,7 +490,7 @@ def get_dataset_file_start(frame_2_set2_3_1):
         elif int(time_Work_F*time_F) == 1440: appearance_mode_menu2_his.set('24 часа')
         elif int(time_Work_F*time_F) == 2880: appearance_mode_menu2_his.set('2 дня')
         elif int(time_Work_F*time_F) == 4320: appearance_mode_menu2_his.set('3 дня')
-        
+        bin.wait_time = int(time_F)
         
         time_HM = int(time_Work_F*time_F)
         customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Рабочий ТF - {int(time_F)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
@@ -530,38 +523,6 @@ def start_historical_trade_strat_1():
         thread2922.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Ошибка запуска торговли')
-    
-    # try:
-    #     global work_timeframe_HM
-    #     bin.work_timeframe_HM = work_timeframe_HM
-    #     bin.wait_time = int(set1_timveframe.get(bin.TF))
-    #     bin.COMMISSION_MAKER = float(float(frame_2_set4_2_set_1.get())/100)
-    #     bin.COMMISSION_TAKER = float(float(frame_2_set4_2_set_2.get())/100)
-    #     bin.TP = float(float(frame_2_set4_2_set_3.get())/100)
-    #     bin.SL = float(float(frame_2_set4_2_set_4.get())/100)
-    #     bin.DEPOSIT = int(frame_2_set4_3_set_1.get())
-    #     bin.LEVERAGE = int(frame_2_set4_3_set_2.get())
-    #     str_1.CANAL_MAX = float(float(frame_2_set4_3_set_3.get())/100)
-    #     str_1.CANAL_MIN = float(float(frame_2_set4_3_set_4.get())/100)
-    #     str_1.CORNER_LONG = int(frame_2_set4_4_set_1.get())
-    #     str_1.CORNER_SHORT = int(frame_2_set4_4_set_2.get())
-    #     bin.CANDLE_COIN_MIN = int(frame_2_set4_4_set_3.get())
-    #     bin.CANDLE_COIN_MAX = int(frame_2_set4_4_set_4.get())
-    #     logger('H','Начинаем историческую торговлю')
-    #     logger('H',f'Настройки ИТ: Комиссия мейкер {bin.COMMISSION_MAKER} | Комиссия тейкер {bin.COMMISSION_TAKER}')
-    #     logger('H',f'Настройки ИТ: Тейк профит {bin.TP} | Стоп лосс {bin.SL}')
-    #     logger('H',f'Настройки ИТ: Депозит {bin.DEPOSIT} | Плечо {bin.LEVERAGE}')
-    #     logger('H',f'Настройки ИТ: Верх канала {str_1.CANAL_MAX} | Низ канала {str_1.CANAL_MIN}')
-    #     logger('H',f'Настройки ИТ: Угол лонг {str_1.CORNER_LONG} | Угол шорт {str_1.CORNER_SHORT}')
-    #     logger('H',f'Настройки ИТ: Объём мин {bin.CANDLE_COIN_MIN} | Объём макс {bin.CANDLE_COIN_MAX}')
-    #     for widget in frame_3_set4_1_1_1.winfo_children(): # чистим логи тоговли
-    #         widget.forget()
-    #     for widget in frame_2_set2_graph.winfo_children(): # чистим табличку
-    #         widget.forget()
-    #     thread = threading.Thread(target=lambda:bin.start_trade_hist_model(frame_2_set2_graph,frame_3_set4_1_1_1,frame_3_set4_1_2))
-    #     thread.start()
-    # except ValueError: 
-    #     messagebox.showinfo('Внимание','Введите правильные значения в настройках торговли')
     
 # открываем логи торгов в блокноте
 def open_history_trade_log():
@@ -667,7 +628,7 @@ def step_2_historical_trade_prom(frame,frame_2_set4_2_set_1,frame_2_set4_2_set_2
         bin.COMMISSION_TAKER = float(float(frame_2_set4_2_set_2.get())/100)
         bin.TP = float(float(frame_2_set4_2_set_3.get())/100)
         bin.SL = float(float(frame_2_set4_2_set_4.get())/100)
-        bin.DEPOSIT = int(frame_2_set4_3_set_1.get())
+        bin.DEPOSIT = float(frame_2_set4_3_set_1.get())
         bin.LEVERAGE = int(frame_2_set4_3_set_2.get())
         bin.CANDLE_COIN_MIN = int(frame_2_set4_4_set_3.get())
         bin.CANDLE_COIN_MAX = int(frame_2_set4_4_set_4.get())
@@ -1027,6 +988,8 @@ def open_step_4_historical(frame,data_settings_1=[]):
     real_test_frame_3 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="#2B2B2B")
     real_test_frame_3_2 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
     
+    
+    
     real_test_label_3_2 = customtkinter.CTkLabel(real_test_frame_3_2, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     real_test_frame_3_2_1_historical = customtkinter.CTkScrollableFrame(real_test_frame_3_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=460, height=260)
     real_test_frame_4 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="transparent") # графики
@@ -1060,6 +1023,22 @@ def open_step_4_historical(frame,data_settings_1=[]):
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
     stop_trade_real_test.grid(row=0, column=2, sticky="ew",padx=10)
+    #------------
+    
+    # условие на вывод торговли по сету готовых настроек
+    if strat_mas_historical[0] == 'strat1' and len(strat_mas_historical)==1:
+        frame_2_strat_1_settings = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B",width=800)
+        label_title112_settings = customtkinter.CTkLabel(frame_2_strat_1_settings, text="Торговля стартегией 'Канал, тренд, локаль, объём'\nпо готовому сету настроек", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+        frame_2_strat_122_settings = customtkinter.CTkFrame(frame_2_strat_1_settings, corner_radius=10, fg_color="#2B2B2B")
+        button3213_settings = customtkinter.CTkButton(frame_2_strat_122_settings, text="Загрузить сет настрорек",command = lambda:open_history_trade_strat_1_set())
+        button32132_settings = customtkinter.CTkButton(frame_2_strat_122_settings, text="Начать торговлю",command = lambda:start_historical_trade_strat_1_set_validation())
+        
+        frame_2_strat_1_settings.pack(pady=20,ipadx=12)
+        label_title112_settings.pack(pady=20)
+        frame_2_strat_122_settings.pack(pady=[0,20])
+        button3213_settings.grid(row=0, column=0,padx=10)
+        button32132_settings.grid(row=0, column=1,padx=10)
+    
     #---
     real_test_frame_3.pack(pady=20)
     real_test_frame_3_2.grid(row=0, column=1, sticky="ew",padx=10)
@@ -1069,157 +1048,14 @@ def open_step_4_historical(frame,data_settings_1=[]):
     
     real_test_frame_4.pack(pady=20)
 
-# def get_strategy_HT(frame_2_set4_0,radio_var):
-#     print(radio_var.get())
-#     global frame_2_strat_1
-#     global frame_2_strat_2
-#     global frame_2_set2_graph_2
-#     global frame_2_set2_graph
-#     global frame_3_set4_1
-#     global frame_3_set4_1_trat_2,frame_3_set4_1_1_1_historical,frame_3_set4_1_2_historical
-#     # первая стратегия
-#     if radio_var.get() == 1:
-#         frame_2_strat_1= customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
-#         frame_2_strat_2.destroy()
-#         frame_2_set4_2 = customtkinter.CTkFrame(frame_2_strat_1, corner_radius=0, fg_color="#2B2B2B")
-#         frame_2_set4_3 = customtkinter.CTkFrame(frame_2_strat_1, corner_radius=0, fg_color="#2B2B2B")
-#         frame_2_set4_4 = customtkinter.CTkFrame(frame_2_strat_1, corner_radius=0, fg_color="#2B2B2B")
-#         frame_2_set4_2_set_1 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="0.2",justify="center")
-#         frame_2_set4_2_set_2 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="0.1",justify="center")
-#         frame_2_set4_2_set_3 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="1.2",justify="center")
-#         frame_2_set4_2_set_4 = customtkinter.CTkEntry(frame_2_set4_2, placeholder_text="0.4",justify="center")
-#         label__2_set4_2_set_1 = customtkinter.CTkLabel(frame_2_set4_2, text="Комиссия мейкер, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         label__2_set4_2_set_2 = customtkinter.CTkLabel(frame_2_set4_2, text="Комиссия тейкер, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         label__2_set4_2_set_3 = customtkinter.CTkLabel(frame_2_set4_2, text="Тейк профит, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         label__2_set4_2_set_4 = customtkinter.CTkLabel(frame_2_set4_2, text="Стоп лосс, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         frame_2_set4_3_set_1 = customtkinter.CTkEntry(frame_2_set4_3, placeholder_text="100",justify="center")
-#         frame_2_set4_3_set_2 = customtkinter.CTkEntry(frame_2_set4_3, placeholder_text="20",justify="center")
-#         frame_2_set4_3_set_3 = customtkinter.CTkEntry(frame_2_set4_3, placeholder_text="85",justify="center")
-#         frame_2_set4_3_set_4 = customtkinter.CTkEntry(frame_2_set4_3, placeholder_text="15",justify="center")
-#         label__2_set4_3_set_1 = customtkinter.CTkLabel(frame_2_set4_3, text="Деозит, $", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         label__2_set4_3_set_2 = customtkinter.CTkLabel(frame_2_set4_3, text="Плечо", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         label__2_set4_3_set_3 = customtkinter.CTkLabel(frame_2_set4_3, text="Верх канала, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         label__2_set4_3_set_4 = customtkinter.CTkLabel(frame_2_set4_3, text="Низ канала, %", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         frame_2_set4_4_set_1 = customtkinter.CTkEntry(frame_2_set4_4, placeholder_text="10",justify="center")
-#         frame_2_set4_4_set_2 = customtkinter.CTkEntry(frame_2_set4_4, placeholder_text="10",justify="center")
-#         frame_2_set4_4_set_3 = customtkinter.CTkEntry(frame_2_set4_4, placeholder_text="200000",justify="center")
-#         frame_2_set4_4_set_4 = customtkinter.CTkEntry(frame_2_set4_4, placeholder_text="500000",justify="center")
-#         label__2_set4_4_set_1 = customtkinter.CTkLabel(frame_2_set4_4, text="Угол тренда лонг", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         label__2_set4_4_set_2 = customtkinter.CTkLabel(frame_2_set4_4, text="Угол тренда шорт", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         label__2_set4_4_set_3 = customtkinter.CTkLabel(frame_2_set4_4, text="Объём торгов мин", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         label__2_set4_4_set_4 = customtkinter.CTkLabel(frame_2_set4_4, text="Объм торгов макс", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         frame_2_set4_2_set_1.insert(0, "0.2")
-#         frame_2_set4_2_set_2.insert(0, "0.1")
-#         frame_2_set4_2_set_3.insert(0, "1.2")
-#         frame_2_set4_2_set_4.insert(0, "0.4")
-#         frame_2_set4_3_set_1.insert(0, "100")
-#         frame_2_set4_3_set_2.insert(0, "20")
-#         frame_2_set4_3_set_3.insert(0, "85")
-#         frame_2_set4_3_set_4.insert(0, "15")
-#         frame_2_set4_4_set_1.insert(0, "10")
-#         frame_2_set4_4_set_2.insert(0, "10")
-#         frame_2_set4_4_set_3.insert(0, "200000")
-#         frame_2_set4_4_set_4.insert(0, "500000")
-#         frame_2_strat_1.grid(row=0, column=2, sticky="ew",padx=10)
-#         frame_2_set4_2.grid(row=0, column=0, sticky="ew",padx=10)
-#         frame_2_set4_3.grid(row=0, column=1, sticky="ew",padx=10)
-#         frame_2_set4_4.grid(row=0, column=2, sticky="ew",padx=10)
-#         label__2_set4_2_set_1.pack(pady=1)
-#         frame_2_set4_2_set_1.pack(pady=1)
-#         label__2_set4_2_set_2.pack(pady=1)
-#         frame_2_set4_2_set_2.pack(pady=1)
-#         label__2_set4_2_set_3.pack(pady=1)
-#         frame_2_set4_2_set_3.pack(pady=1)
-#         label__2_set4_2_set_4.pack(pady=1)
-#         frame_2_set4_2_set_4.pack(pady=1)
-#         label__2_set4_3_set_1.pack(pady=1)
-#         frame_2_set4_3_set_1.pack(pady=1)
-#         label__2_set4_3_set_2.pack(pady=1)
-#         frame_2_set4_3_set_2.pack(pady=1)
-#         label__2_set4_3_set_3.pack(pady=1)
-#         frame_2_set4_3_set_3.pack(pady=1)
-#         label__2_set4_3_set_4.pack(pady=1)
-#         frame_2_set4_3_set_4.pack(pady=1)
-#         label__2_set4_4_set_1.pack(pady=1)
-#         frame_2_set4_4_set_1.pack(pady=1)
-#         label__2_set4_4_set_2.pack(pady=1)
-#         frame_2_set4_4_set_2.pack(pady=1)
-#         label__2_set4_4_set_3.pack(pady=1)
-#         frame_2_set4_4_set_3.pack(pady=1)
-#         label__2_set4_4_set_4.pack(pady=1)
-#         frame_2_set4_4_set_4.pack(pady=1)
-#         button6 = customtkinter.CTkButton(frame_2_strat_1, text="Запустить торговлю",command=lambda:start_historical_trade_strat_1(frame_2_set2_graph,frame_3_set4_1_2_historical,frame_3_set4_1_1_1_historical,frame_2_set4_2_set_1,frame_2_set4_2_set_2,frame_2_set4_2_set_3,frame_2_set4_2_set_4,frame_2_set4_3_set_1,frame_2_set4_3_set_2,frame_2_set4_3_set_3,frame_2_set4_3_set_4,frame_2_set4_4_set_1,frame_2_set4_4_set_2,frame_2_set4_4_set_3,frame_2_set4_4_set_4))
-#         button6.grid(row=1, column=1, sticky="ew",padx=10,pady=15)
-#         frame_3_set4_1 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="#2B2B2B")
-#         frame_3_set4_1_1 = customtkinter.CTkFrame(frame_3_set4_1, corner_radius=0, fg_color="#2B2B2B")
-#         frame_3_set4_1_2_historical = customtkinter.CTkFrame(frame_3_set4_1, corner_radius=0, fg_color="#2B2B2B")
-#         label__3_set4_1_1_set_1 = customtkinter.CTkLabel(frame_3_set4_1_1, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-#         frame_3_set4_1_1_1_historical = customtkinter.CTkScrollableFrame(frame_3_set4_1_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=460, height=260)
-#         customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Начальный депозит:                         ", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-#         customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Конечный депозит:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-#         customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Процент торговли:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-#         customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Сделок совершено:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-#         customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="+ в лонг:  | + в шорт: ", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-#         customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="- в лонг:  | - в шорт: ", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-#         customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Прибыль от сделок:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-#         customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Убыток от сделок:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-#         customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Комиссия биржи:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')  
-#         frame_3_set4_1.pack(pady=[10,10],padx=20)
-#         frame_3_set4_1_1.grid(row=0, column=1, sticky="ew",padx=10)
-#         frame_3_set4_1_2_historical.grid(row=0, column=2, sticky="ew",padx=10)
-#         label__3_set4_1_1_set_1.pack(pady=5)
-#         frame_3_set4_1_1_1_historical.pack(pady=[5,2])
-#         frame_2_set2_graph = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="transparent") 
-#         frame_2_set2_graph.pack(pady=[0,20],padx=20)
-#         for widget in frame_2_set2_graph_2.winfo_children(): # чистим табличку
-#             widget.forget()
-#         for widget in frame_3_set4_1_trat_2.winfo_children(): # чистим табличку
-#             widget.forget()
-#         frame_2_set2_graph_2.destroy()
-#         frame_3_set4_1_trat_2.destroy()
-        
-    # стратегия - линии Боллинджера
-    # if radio_var.get() == 2:
-    #     frame_2_strat_2= customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
-    #     for widget in frame_2_strat_1.winfo_children(): # чистим табличку
-    #         widget.forget()
-    #     for widget in frame_2_set2_graph.winfo_children(): # чистим табличку
-    #         widget.forget()
-    #     for widget in frame_3_set4_1.winfo_children(): # чистим табличку
-    #         widget.forget()
-    #     frame_2_strat_1.destroy()
-    #     frame_2_set2_graph.destroy()
-    #     frame_3_set4_1.destroy()
-    #     frame_2_strat_2.grid(row=0, column=2, sticky="ew",padx=10)
-    #     frame_2_set4_2 = customtkinter.CTkFrame(frame_2_strat_2, corner_radius=0, fg_color="#2B2B2B")
-    #     frame_2_set4_3 = customtkinter.CTkFrame(frame_2_strat_2, corner_radius=0, fg_color="#2B2B2B")
-    #     frame_2_set4_4 = customtkinter.CTkFrame(frame_2_strat_2, corner_radius=0, fg_color="#2B2B2B")
-    #     frame_2_set4_2.grid(row=0, column=0, sticky="ew",padx=10)
-    #     frame_2_set4_3.grid(row=0, column=1, sticky="ew",padx=10)
-    #     frame_2_set4_4.grid(row=0, column=2, sticky="ew",padx=10)
-    #     button6 = customtkinter.CTkButton(frame_2_set4_3, text="Запустить торговлю",command=lambda:start_historical_trade_strat_2_bollindger(frame_2_set2_graph_2))
-    #     button6.grid(row=0, column=0, sticky="ew",padx=10,pady=15)
-    #     frame_3_set4_1_trat_2 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="#2B2B2B")
-    #     frame_3_set4_1_1 = customtkinter.CTkFrame(frame_3_set4_1_trat_2, corner_radius=0, fg_color="#2B2B2B")
-    #     frame_3_set4_1_2_historical = customtkinter.CTkFrame(frame_3_set4_1_trat_2, corner_radius=0, fg_color="#2B2B2B")
-    #     label__3_set4_1_1_set_1 = customtkinter.CTkLabel(frame_3_set4_1_1, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    #     frame_3_set4_1_1_1 = customtkinter.CTkScrollableFrame(frame_3_set4_1_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=460, height=260)
-    #     customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Начальный депозит:                         ", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    #     customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Конечный депозит:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    #     customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Процент торговли:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    #     customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Сделок совершено:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    #     customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="+ в лонг:  | + в шорт: ", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    #     customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="- в лонг:  | - в шорт: ", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    #     customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Прибыль от сделок:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    #     customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Убыток от сделок:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    #     customtkinter.CTkLabel(frame_3_set4_1_2_historical, text="Комиссия биржи:", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')  
-    #     frame_3_set4_1_trat_2.pack(pady=[10,10],padx=20)
-    #     frame_3_set4_1_1.grid(row=0, column=1, sticky="ew",padx=10)
-    #     frame_3_set4_1_2_historical.grid(row=0, column=2, sticky="ew",padx=10)
-    #     label__3_set4_1_1_set_1.pack(pady=5)
-    #     frame_3_set4_1_1_1.pack(pady=[5,2])
-    #     frame_2_set2_graph_2 = customtkinter.CTkFrame(second_frame, corner_radius=10, fg_color="transparent") 
-    #     frame_2_set2_graph_2.pack(pady=[0,20],padx=20)   
+# Валидация на начало торговли по сету настроек на первой стратегии - если есть данные в файле и они правильные
+def start_historical_trade_strat_1_set_validation():
+    pass
+
+# открываем блокнот дл янастроект 1 стратегии в сете
+def open_history_trade_strat_1_set():
+    print('Открыли файл для сохранения настроек')
+    os.system("notepad strat_1_set.txt")
 
 # функция отработки нажатия чекбоксов в шаге 2
 def checkbox_event_strat_historical(): 

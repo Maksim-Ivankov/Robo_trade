@@ -18,7 +18,7 @@ COMMISSION_MAKER = 0.002 # комиссия а вход
 COMMISSION_TAKER = 0.001 # комиссия на выхд
 VOLUME = 144 # сколько свечей получить при запросе к бирже
 VOLUME_5MIN = 720 # сколько свечей получить в режиме слежения за ценой
-STEP_5_min_VALUE = 3
+STEP_5_min_VALUE = 5
 CANAL_MAX = 0.85 # Верх канала
 CANAL_MIN = 0.15 # Низ канала
 CORNER_SHORT = 10 # Угол наклона шорт
@@ -29,6 +29,32 @@ MYDIR_WORKER = '../ROBO_TRADE/DF/worker/'
 MYDIR_5MIN = '../ROBO_TRADE/DF/5min/'
 MYDIR_COIN = '../ROBO_TRADE/DF/coin.txt'
 MYDIR_COIN_PROCENT = '../ROBO_TRADE/DF/coin_procent.txt'
+
+#--------------------
+
+# Следим за ценой {wait_time*VOLUME/VOLUME_5MIN}мин
+# Рабочий таймфрейм {wait_time}мин
+# Длительность {wait_time*VOLUME/60}ч
+# Сколько монет торговать {how_mach_coin}
+# Ком мейк {COMMISSION_MAKER*100}%
+# Ком тейк {COMMISSION_TAKER*100}%
+# Тейк {TP*100}%
+# Стоп {SL*100}%
+# Депо {DEPOSIT}$
+# Плечо {LEVERAGE}
+# Объём торгов мин {CANDLE_COIN_MIN}
+# Объём торгов макс {CANDLE_COIN_MAX}
+# Верх канала {CANAL_MAX*100}%
+# Низ канала {CANAL_MIN*100}%
+# Угол лонг {CORNER_LONG}
+# Угол шорт {CORNER_SHORT}
+# 
+# 
+# 
+# 
+
+#--------------------
+
 
 how_mach_coin = 10
 
@@ -130,7 +156,19 @@ def remove_csv(dir):
     for f in filelist:
         os.remove(os.path.join(dir, f))
 
-# принтуем логи в фрейм в гуи
+# принтуем логи в файл
+def print_log(msg):
+    global data_print_ad_df
+    global number_print_df
+    global number_print_ht
+    global data_print_ad_ht
+    path ='H_log.txt'
+    f = open(path,'a',encoding='utf-8')
+    f.write('\n'+time.strftime("%d.%m.%Y | %H:%M:%S | ", time.localtime())+msg)
+    f.close()
+     
+                  
+# принтуем логи в фрейм в гуи и логи
 def print_components_log(msg,frame,type):
     global data_print_ad_df
     global number_print_df
@@ -199,12 +237,6 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_H
         time.sleep(2)
     print_components_log(f'Датафреймы добавлены!',frame_2_set2_3,'DF')
     return coin_mas_10
-
-# не используется ни где
-def print_log_his(frame,msg):
-    global i1
-    i1=i1+1
-    customtkinter.CTkLabel(frame, text=msg, fg_color="#DAE2EC",text_color='#242424',anchor='w',justify="left",font=('Arial',12,'normal')).grid(row=i1, column=0, sticky="w",pady=0,padx=5)
 
 
 # -------------------------------------- ТОРГОВЛЯ --------------------------------------
@@ -465,14 +497,7 @@ def start_trade_hist_model(strat_mas_historical):
                 print('Слили депозит! Торговля закончена')
                 break
     print('Закончили')
-                
-                # for index_5min in get_price_5min(time_close_tf): # дальше какое-то волшебство
-                #     price_now = get_df_coin_now_price(index_5min)
-                #     if price_now != 0:
-                #         if check_trade(price_now): # следим за монетой, отрабатываем тп и сл
-                #             break
-                #     else:
-                #         break      
+                    
 
 # точка входа
 def start_trade_hist_model2(strat_mas_historical):
