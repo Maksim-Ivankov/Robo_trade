@@ -150,8 +150,10 @@ def print_components_log(msg,frame,type):
         for component in data_print_ad_ht:
             component.pack(anchor="w")          
 
-def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM):
+def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM,frame_2_set2_2_1):
     global coin_mas_10
+    for widget in frame_2_set2_2_1.winfo_children(): # чистим табличку
+        widget.destroy()
     print_components_log('Начали сбор данных',frame_2_set2_3,'DF')
     coin_mas_10 = get_top_coin() # один раз запускаем функцию, чтобы обновить монету, с которой работаем
     open(MYDIR_COIN, "w").close()
@@ -160,9 +162,12 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_H
     fi2 = open(MYDIR_COIN_PROCENT,'a',encoding='utf-8')
     arr_coin = []
     arr_coin_procent = []
+    i=-1
     for key, value in coin_mas_10.items():
         arr_coin.append(key)
         arr_coin_procent.append(f'{key}: {value}')
+        i=i+1
+        customtkinter.CTkButton(frame_2_set2_2_1, text=f'{key}: {value}').grid(row=i, column=0, sticky="ew",pady=5)
     result_as_list1 = '|'.join(arr_coin)
     result_as_list2 = '|'.join(arr_coin_procent)
     fi1.write(result_as_list1)
@@ -172,6 +177,11 @@ def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_H
     # выше записываем файл с монетами роста + монеты роста и проценты
     remove_csv(MYDIR_WORKER)
     remove_csv(MYDIR_5MIN)
+    # if coin_mas_10:
+    #     i=-1
+    #     for coin in coin_mas_10:
+    #         i=i+1
+    #         customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
     for x,result in enumerate(coin_mas_10):
         print(f'{result},{TF},{VOLUME}')
         df = get_futures_klines(result,TF,VOLUME)

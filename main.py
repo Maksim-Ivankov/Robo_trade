@@ -411,19 +411,17 @@ def get_setting_timeframe(data):
     global timeframe_HM
     timeframe_HM = set1_timveframe.get(data) # число 5,15,30,60
     bin.TF = data
-    print(time_HM)
 # обработка выбора таймфрейма слежения за ценой в блоке создания датафреймов | слежка, сколько времени работаем, по какому основному таймфрейму
 def get_setting_timeframe_slega(data):
     global work_timeframe_HM
     global work_timeframe_str_HM
     work_timeframe_str_HM = data
     work_timeframe_HM = set1_timveframe.get(data) # число 1 или 5
-    print(work_timeframe_HM)
+    print(f'work_timeframe_HM - {work_timeframe_HM}')
 # обработка выбора времени работы в блоке создания датафреймов
 def get_setting_time(data):
     global time_HM
     time_HM = set1_time.get(data) # сколько минут отрабатываем
-    print(timeframe_HM)
 # кнопка - получить данные, формируем файлы датафреймов
 def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3,input_2_167):
     global work_timeframe_HM
@@ -433,6 +431,7 @@ def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3,input_2_167):
     bin.VOLUME = int(time_HM/timeframe_HM)
     bin.VOLUME_5MIN = int(time_HM/work_timeframe_HM)
     bin.how_mach_coin = input_2_167.get()
+    
     logger('H','Историческая торговля, формируем датафреймы')
     logger('H',f'Историческая торговля, настройки: рабочий таймфрейм {bin.TF} мин')
     logger('H',f'Историческая торговля, настройки: таймфрейм отслеживания цены {bin.VOLUME_5MIN} мин')
@@ -441,22 +440,27 @@ def get_dataframe_with_binance(frame_2_set2_2_1,frame_2_set2_3,input_2_167):
             widget.destroy()
     for widget in frame_2_set2_3.winfo_children():
             widget.destroy()
-    thread7654 = threading.Thread(target=lambda:bin.generate_dataframe(bin.TF,bin.VOLUME,bin.VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM))
+    bin.number_print_df = 0
+    bin.data_print_ad_df[:] = []
+    thread7654 = threading.Thread(target=lambda:bin.generate_dataframe(bin.TF,bin.VOLUME,bin.VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM,frame_2_set2_2_1))
     thread7654.start()
     time.sleep(1)
-    file = open('../ROBO_TRADE/DF/coin_procent.txt', mode="r")
-    bin.coin_mas_10 = file.read().split('|')
-    i=-1
-    for coin in bin.coin_mas_10:
-        i=i+1
-        customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
+    # file = open('../ROBO_TRADE/DF/coin_procent.txt', mode="r")
+    # bin.coin_mas_10 = file.read().split('|')
+    # i=-1
+    # for coin in bin.coin_mas_10:
+    #     i=i+1
+    #     customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
         
     
     # select_frame_by_name("frame_2")
 # отрисовка монет из файла, если он не пустой
 def get_coin_proc_start(frame_2_set2_2_1):
+    global input_2_167
     file = open('../ROBO_TRADE/DF/coin_procent.txt', mode="r")
     bin.coin_mas_10 = file.read().split('|')
+    bin.how_mach_coin = len(bin.coin_mas_10)
+    # input_2_167.insert(0, bin.how_mach_coin)
     if bin.coin_mas_10:
         i=-1
         for coin in bin.coin_mas_10:
@@ -464,24 +468,41 @@ def get_coin_proc_start(frame_2_set2_2_1):
             customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
 # отрисовка датафреймов из файла           
 def get_dataset_file_start(frame_2_set2_3_1):
+    global appearance_mode_menu0_his,appearance_mode_menu1_his,work_timeframe_str_HM,time_HM,appearance_mode_menu2_his
     mypath = '../ROBO_TRADE/DF/5min/'
     filenames = next(walk(mypath), (None, None, []))[2]  # [] if no file
-    symbol = filenames[0]
-    df = pd.read_csv(f'{bin.MYDIR_WORKER}{symbol}')
-    time_F = int(df.iloc[1]['open_time'] - df.iloc[0]['open_time'])/60000
-    df2 = pd.read_csv(f'{bin.MYDIR_5MIN}{symbol}')
-    time_F2 = int(df2.iloc[1]['open_time'] - df2.iloc[0]['open_time'])/60000
+    if len(filenames)!= 0:
+        symbol = filenames[0]
+        df = pd.read_csv(f'{bin.MYDIR_WORKER}{symbol}')
+        time_F = int(df.iloc[1]['open_time'] - df.iloc[0]['open_time'])/60000
+        df2 = pd.read_csv(f'{bin.MYDIR_5MIN}{symbol}')
+        time_F2 = int(df2.iloc[1]['open_time'] - df2.iloc[0]['open_time'])/60000
 
-    with open(f'{bin.MYDIR_WORKER}{symbol}') as f:
-        time_Work_F = sum(1 for line in f)-1
-    bin.VOLUME = int(time_Work_F)
-    print(bin.VOLUME)
-    customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Рабочий ТF - {int(time_F)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
-    customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Длительность - {int(time_Work_F*time_F/60)} часов' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
-    customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Следим за ценой - {int(time_F2)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
-    for name in filenames:
-        customtkinter.CTkLabel(frame_2_set2_3_1,text='Найден датасет '+ name , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
-        symbol=name  
+        with open(f'{bin.MYDIR_WORKER}{symbol}') as f:
+            time_Work_F = sum(1 for line in f)-1
+        bin.VOLUME = int(time_Work_F)
+        print(bin.VOLUME)
+        appearance_mode_menu0_his.set(f'{int(time_F2)}m')
+        if int(time_F)==60: 
+            appearance_mode_menu1_his.set(f'1h')
+            bin.TF = '1h'
+        else: 
+            appearance_mode_menu1_his.set(f'{int(time_F)}m')
+            bin.TF = f'{int(time_F)}m'
+        work_timeframe_str_HM = f'{int(time_F2)}m'
+        if int(time_Work_F*time_F) == 720: appearance_mode_menu2_his.set('12 часов')
+        elif int(time_Work_F*time_F) == 1440: appearance_mode_menu2_his.set('24 часа')
+        elif int(time_Work_F*time_F) == 2880: appearance_mode_menu2_his.set('2 дня')
+        elif int(time_Work_F*time_F) == 4320: appearance_mode_menu2_his.set('3 дня')
+        
+        
+        time_HM = int(time_Work_F*time_F)
+        customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Рабочий ТF - {int(time_F)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+        customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Длительность - {int(time_Work_F*time_F/60)} часов' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+        customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Следим за ценой - {int(time_F2)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+        for name in filenames:
+            customtkinter.CTkLabel(frame_2_set2_3_1,text='Найден датасет '+ name , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+            symbol=name  
 # стартуем историческую торговлю
 def start_historical_trade_strat_1():
     
@@ -693,6 +714,7 @@ def step_4_historical_trade_prom(frame):
         open_step_4_historical(frame,data_settings_1)
 
 def open_step_1_historical(frame):
+    global appearance_mode_menu0_his,appearance_mode_menu1_his,appearance_mode_menu2,appearance_mode_menu2_his,input_2_167
     print('1')
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
@@ -704,11 +726,11 @@ def open_step_1_historical(frame):
     frame_2_set2_3 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
     label_title1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Сбор данных", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
     label_title1_1_0 = customtkinter.CTkLabel(frame_2_set2_1, text="Следим за ценой", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
-    appearance_mode_menu0 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["1m", "5m"],command=get_setting_timeframe_slega)
+    appearance_mode_menu0_his = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["1m", "5m"],command=get_setting_timeframe_slega)
     label_title1_1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Рабочий таймфрейм", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
-    appearance_mode_menu1 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["5m", "15m", "30m", "1h"],command=get_setting_timeframe)
+    appearance_mode_menu1_his = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["5m", "15m", "30m", "1h"],command=get_setting_timeframe)
     label_title1_1_2 = customtkinter.CTkLabel(frame_2_set2_1, text="Длительность", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
-    appearance_mode_menu2 = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["12 часов", "24 часа", "2 дня", "3 дня"],command=get_setting_time)
+    appearance_mode_menu2_his = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["12 часов", "24 часа", "2 дня", "3 дня"],command=get_setting_time)
     
     label_title2_167 = customtkinter.CTkLabel(frame_2_set2_1, text="Сколько монет торговать", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     input_2_167 = customtkinter.CTkEntry(frame_2_set2_1, placeholder_text="10",justify="center")
@@ -730,11 +752,11 @@ def open_step_1_historical(frame):
     frame_2_set2_3.grid(row=0, column=3, sticky="ew",padx=10,columnspan = 2)
     label_title1_1.grid(row=0, column=0, sticky="ew")
     label_title1_1_0.grid(row=1, column=0, sticky="ew")
-    appearance_mode_menu0.grid(row=2, column=0, sticky="ew",pady=[0,5])
+    appearance_mode_menu0_his.grid(row=2, column=0, sticky="ew",pady=[0,5])
     label_title1_1_1.grid(row=3, column=0, sticky="ew")
-    appearance_mode_menu1.grid(row=4, column=0, sticky="ew",pady=[0,5])
+    appearance_mode_menu1_his.grid(row=4, column=0, sticky="ew",pady=[0,5])
     label_title1_1_2.grid(row=5, column=0, sticky="ew")
-    appearance_mode_menu2.grid(row=6, column=0, sticky="ew",pady=[0,5])
+    appearance_mode_menu2_his.grid(row=6, column=0, sticky="ew",pady=[0,5])
     label_title2_167.grid(row=7, column=0, sticky="ew")
     input_2_167.grid(row=8, column=0, sticky="ew",pady=[0,5])
     button4.grid(row=9, column=0, sticky="ew",pady=15,padx=20)
@@ -1303,7 +1325,6 @@ def get_setting_timeframe_real_test_trad(data):
 
 # стартуем реальную тестовую торговлю
 def start_real_test_trade_btn(strat_now_rt,real_test_frame_4,real_test_frame_3_1_1,real_test_frame_3_2_1,card_trade_menu,strat_mas_real_test):
-    print('111')
     try:
         global thread2
         logger('RT',f'------------------------------------------------------------------------')
