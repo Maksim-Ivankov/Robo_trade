@@ -5,6 +5,8 @@ import sys
 sys.path.insert(1,os.path.join(sys.path[0],'../'))
 from imports import *
 import strategy.strategys.strat_1 as str_1
+from texttable import Texttable
+import progressbar
 
 
 TF = '5m' # таймфрейм
@@ -12,7 +14,8 @@ wait_time = 5 # сколько минут ждать для обновления
 TP = 0.012 # Тейк профит, процент
 SL = 0.004 # Стоп лосс, процент
 DEPOSIT = 100 # Депозит
-DEPOSIT_START = DEPOSIT
+DEPOSIT_GLOBAL = DEPOSIT
+DEPOSIT_START = DEPOSIT_GLOBAL
 LEVERAGE = 20 # торговое плечо
 COMMISSION_MAKER = 0.002 # комиссия а вход
 COMMISSION_TAKER = 0.001 # комиссия на выхд
@@ -30,30 +33,8 @@ MYDIR_5MIN = '../ROBO_TRADE/DF/5min/'
 MYDIR_COIN = '../ROBO_TRADE/DF/coin.txt'
 MYDIR_COIN_PROCENT = '../ROBO_TRADE/DF/coin_procent.txt'
 
-#--------------------
 
-# Следим за ценой {wait_time*VOLUME/VOLUME_5MIN}мин
-# Рабочий таймфрейм {wait_time}мин
-# Длительность {wait_time*VOLUME/60}ч
-# Сколько монет торговать {how_mach_coin}
-# Ком мейк {COMMISSION_MAKER*100}%
-# Ком тейк {COMMISSION_TAKER*100}%
-# Тейк {TP*100}%
-# Стоп {SL*100}%
-# Депо {DEPOSIT}$
-# Плечо {LEVERAGE}
-# Объём торгов мин {CANDLE_COIN_MIN}
-# Объём торгов макс {CANDLE_COIN_MAX}
-# Верх канала {CANAL_MAX*100}%
-# Низ канала {CANAL_MIN*100}%
-# Угол лонг {CORNER_LONG}
-# Угол шорт {CORNER_SHORT}
-# 
-# 
-# 
-# 
 
-#--------------------
 
 
 how_mach_coin = 10
@@ -90,10 +71,11 @@ width_canvas = 700
 height_canvas = 300
 width_telo = 3 # Ширина тела свечи
 width_spile = 1 # Ширина хвоста, шпиля
-
+name_bot_historical = ''
 summ_strat = {}
 
 client = UMFutures(key=key, secret=secret)
+
 
 
 # Получите последние n свечей по n минут для торговой пары, обрабатываем и записывае данные в датафрейм
@@ -164,7 +146,7 @@ def print_log(msg):
     global data_print_ad_ht
     path ='H_log.txt'
     f = open(path,'a',encoding='utf-8')
-    f.write('\n'+time.strftime("%d.%m.%Y | %H:%M:%S | ", time.localtime())+msg)
+    f.write('\n'+msg)
     f.close()
                 
 # принтуем логи в фрейм в гуи и логи
@@ -278,16 +260,20 @@ def close_trade(status,procent,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAG
     global profit
     global loss
     global commission
+    global status_trade_close,DEPOSIT_GLOBAL
+    status_trade_close = status
     if status == '+': # если закрыли в плюс
-        profit = profit + LEVERAGE*DEPOSIT*procent
-        commission = commission + LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER)
-        DEPOSIT = DEPOSIT + LEVERAGE*DEPOSIT*procent - LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
+        profit = profit + LEVERAGE*DEPOSIT_GLOBAL*procent
+        commission = commission + LEVERAGE*DEPOSIT_GLOBAL*(COMMISSION_MAKER+COMMISSION_TAKER)
+        DEPOSIT_GLOBAL = DEPOSIT_GLOBAL + LEVERAGE*DEPOSIT_GLOBAL*procent - LEVERAGE*DEPOSIT_GLOBAL*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
+        DEPOSIT_GLOBAL = round(DEPOSIT_GLOBAL,2)
         open_sl = False
         # print_components_log(f'Сработал ТЕЙК|Депо={round(DEPOSIT,1)}, профит={round(profit,1)},ком={round(commission,1)}',frame_3_set4_1_1_1,'HT')
     if status == '-': # если закрыли в минус
-        loss = loss + LEVERAGE*DEPOSIT*procent
-        commission = commission + LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER)
-        DEPOSIT = DEPOSIT - LEVERAGE*DEPOSIT*procent - LEVERAGE*DEPOSIT*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
+        loss = loss + LEVERAGE*DEPOSIT_GLOBAL*procent
+        commission = commission + LEVERAGE*DEPOSIT_GLOBAL*(COMMISSION_MAKER+COMMISSION_TAKER)
+        DEPOSIT_GLOBAL = DEPOSIT_GLOBAL - LEVERAGE*DEPOSIT_GLOBAL*procent - LEVERAGE*DEPOSIT_GLOBAL*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
+        DEPOSIT_GLOBAL = round(DEPOSIT_GLOBAL,2)
         open_sl = False
 
         # print_components_log(f'Сработал СТОП|Депо={round(DEPOSIT,1)}, убыток={round(loss,1)},ком={round(commission,1)}',frame_3_set4_1_1_1,'HT')
@@ -387,11 +373,12 @@ def remove_csv(dir):
         
 # -------------------------------------- Перебор по датафрейму --------------------------------------
 
+
 # точка входа
 def start_trade_hist_model(strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX):
-    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss
+    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START
     open_sl = False # всегда при старте функции, мы не стоим в сделке
-    DEPOSIT = 100 # Всегда при старте фукнции делаем депозит стартовым
+    DEPOSIT_GLOBAL = DEPOSIT
     data_numbers = []
     profit = 0  # Обнуляем профит сделки при старте функции
     loss = 0  # Обнуляем размер лося на стедку при страте функции
@@ -403,8 +390,10 @@ def start_trade_hist_model(strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKE
     fi = open(MYDIR_COIN,'r') # открываем файл с монетами
     coin_mas_10 = fi.read().split('|') # записываем омнеты массивом сюда
     fi.close()
+    t = Texttable()
+    bar = progressbar.ProgressBar(maxval=VOLUME).start()
     for index in range(VOLUME):
-        print(index)
+        bar.update(index)
         data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
         if index>10: # начинаем не с нуля, а с 5-ой свечи
             if open_sl == False: # если нет позиции
@@ -435,13 +424,21 @@ def start_trade_hist_model(strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKE
                         if int(index2)>int(VOLUME_5MIN)-int(STEP_5_min_VALUE)-5:
                             break
                         for i in range(int(index2),int(index2)+int(STEP_5_min_VALUE),1):
-                            # print(f'{i} - {df_mal['close'][i]}|{price_trade} | {(float(df_mal['close'][i])/float(price_trade))*100}%')
-                            if check_trade(df_mal['close'][i],COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE): break # чекаем монету по шагам итерации между большим и мальеньким фреймом
-            if float(DEPOSIT)/float(DEPOSIT_START) < 0.4:
+                            if check_trade(df_mal['close'][i],COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE):break # чекаем монету по шагам итерации между большим и мальеньким фреймом
+            if float(DEPOSIT_GLOBAL)/float(DEPOSIT_START) < 0.4:
                 break
-    print('Закончили')
+    t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'1/220'],
+                [f'Следим за ценой {int(wait_time*VOLUME/VOLUME_5MIN)} мин',f'Ком мейк {COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_1.CANAL_MAX*100} %'],
+                [f'Рабочий таймфрейм {wait_time} мин',f'Ком тейк {COMMISSION_TAKER*100} %',f'Плечо {LEVERAGE}',f'Низ канала {str_1.CANAL_MIN*100} %'],
+                [f'Длительность {int(wait_time*VOLUME/60)} ч',f'Тейк {TP*100} %',f'Объём торгов мин {CANDLE_COIN_MIN}',f'Угол лонг {str_1.CORNER_LONG}'],
+                [f'Сколько монет торговать {how_mach_coin}',f'Стоп {SL*100} %',f'Объём торгов макс {CANDLE_COIN_MAX}',f'Угол шорт {str_1.CORNER_SHORT}'],
+                [f'Процент сделок в + {((count_long_take+count_short_take)/(count_long_take+count_short_take+count_long_loss+count_short_loss))*100} %',f'Сделок в + {count_long_take+count_short_take}',f'Седлок в - {count_long_loss+count_short_loss}',f'Всего сделок {count_long_take+count_short_take+count_long_loss+count_short_loss}'],
+                [f'Общий профит {profit} $',f'Общий убыток {loss} $',f'Комиссия {commission} $',f'ИТОГ: {round(profit-loss-commission,2)} $'],
+                [f'Депо ИТОГ: {DEPOSIT_GLOBAL} $',f'Депо старт {DEPOSIT_START} $',f'Депо ИТОГ,%: {round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2)}',f'']])
+    print(t.draw())
+    print_log(t.draw())
+    
                     
-
 
     # print_components_log('Закончил торговлю',frame_3_set4_1_1_1,'HT')
     # for widget in frame_3_set4_1_2.winfo_children():

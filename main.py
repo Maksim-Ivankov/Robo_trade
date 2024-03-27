@@ -633,6 +633,7 @@ def step_2_historical_trade_prom(frame,frame_2_set4_2_set_1,frame_2_set4_2_set_2
         bin.CANDLE_COIN_MIN = int(frame_2_set4_4_set_3.get())
         bin.CANDLE_COIN_MAX = int(frame_2_set4_4_set_4.get())
         name_bot_historical = input_2_1.get()
+        bin.name_bot_historical = input_2_1.get()
         bin.how_mach_coin = input_2_167.get()
         open_step_2_historical(frame)
 
