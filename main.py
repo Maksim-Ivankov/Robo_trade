@@ -1,6 +1,7 @@
 from imports import *
 import models.treayd_historical as bin
 import models.main_TV as TV
+from CTkTable import *
 import strategy.print_settings.strat1 as strat
 import strategy.print_settings.strat_real_test as strat_real_test
 import strategy.print_settings.strat_historical as strat_historical
@@ -1066,6 +1067,8 @@ def start_historical_trade_strat_1_set_validation(strat_mas_historical,frame_osn
         print('ОШИБКА начала исторической торговли по сету настроек')
 
 def start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log):
+    global table_strat_1_settings_trade,strat_mas_historical_onclock_treade
+    strat_mas_historical_onclock_treade = strat_mas_historical
     for key,value in enumerate(set_settings_strat_1):
             str_1.CANAL_MAX = float(value[6])
             str_1.CANAL_MIN = float(value[7])
@@ -1084,7 +1087,118 @@ def start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame
                                        int(value[5]), # Объём в свече макс
                                        1, # режим, 1 значит работаем по сету настроек
                                        f'{key}/{len(set_settings_strat_1)}') # Какой шаг из скольки
-            
+    bin.print_components_log(f'Закончили обработку данных',frame_log,'DF')
+    value_strat_1_settings_trade = [['Номер настроек','% к депо','Сделок всего','Сделок в +','Сделок в -','Общий профит','Общий убыток','Комиссия']]
+    # sorted(bin.OUR_SETTINGS_MAS_STRAT_1, key=lambda x: x[1])
+    # bin.OUR_SETTINGS_MAS_STRAT_1.reverse()
+    value_strat_1_settings_trade = value_strat_1_settings_trade + bin.OUR_SETTINGS_MAS_STRAT_1
+    table_strat_1_settings_trade = CTkTable(master=frame_osnova, row=1+len(set_settings_strat_1), column=8, values=value_strat_1_settings_trade,command = get_trade_for_settings_is_table)
+    table_strat_1_settings_trade.pack(expand=True, padx=20, pady=20)
+
+# обработчик нажатия на строку в таблице исторической торговли по сету настроек
+def get_trade_for_settings_is_table(data):
+    global strat_mas_historical_onclock_treade
+    data_parse = table_strat_1_settings_trade.get_row(data['row'])
+    for key,val in enumerate(bin.set_our_settings):
+        if val[10] == data_parse[0]:
+            get_window_trade_fore_once_settings(strat_mas_historical_onclock_treade,val)
+           
+    # print(data_parse)
+    
+# запуск окна с торговлей по заданым настройкам для таблице сета настроек
+def get_window_trade_fore_once_settings(strat_mas_historical,val):
+    settings_window_trade_once()
+    frame = customtkinter.CTkFrame(window_trade_once_set_1, corner_radius=0, fg_color="transparent")
+    
+    real_test_label_3_1 = customtkinter.CTkLabel(window_trade_once_set_1, text="Торговля по заданным настройкам сета настроек", fg_color="transparent",anchor='center',font=('Arial',15,'bold'))
+    
+    frame_set = customtkinter.CTkFrame(window_trade_once_set_1, corner_radius=0, fg_color="transparent")
+    real_test_label_3_212 = customtkinter.CTkLabel(frame_set, text="Выбранные настройки торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_set_our_set = customtkinter.CTkFrame(window_trade_once_set_1, corner_radius=0, fg_color="transparent")
+    frame_set_left = customtkinter.CTkFrame(frame_set_our_set, corner_radius=0, fg_color="transparent")
+    frame_set_center = customtkinter.CTkFrame(frame_set_our_set, corner_radius=0, fg_color="transparent")
+    frame_set_right = customtkinter.CTkFrame(frame_set_our_set, corner_radius=0, fg_color="transparent")
+    real_test_set_1 = customtkinter.CTkLabel(frame_set_left, text=f'Тейк - {val[0]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_set_2 = customtkinter.CTkLabel(frame_set_left, text=f'Стоп - {val[1]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_set_3 = customtkinter.CTkLabel(frame_set_left, text=f'Депозит - {val[2]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_set_4 = customtkinter.CTkLabel(frame_set_left, text=f'Плечо - {val[3]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_set_5 = customtkinter.CTkLabel(frame_set_center, text=f'Объем мин - {val[4]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_set_6 = customtkinter.CTkLabel(frame_set_center, text=f'Объём макс - {val[5]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_set_7 = customtkinter.CTkLabel(frame_set_center, text=f'Канал мин - {val[6]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_set_8 = customtkinter.CTkLabel(frame_set_center, text=f'Канал макс - {val[7]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_set_9 = customtkinter.CTkLabel(frame_set_right, text=f'Угол шорт - {val[8]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_set_10 = customtkinter.CTkLabel(frame_set_right, text=f'Угол лонг - {val[9]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_set_11 = customtkinter.CTkLabel(frame_set_right, text=f'Номер сборки - {val[10]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    
+    button3213 = customtkinter.CTkButton(window_trade_once_set_1, text="Запустить торговлю",command = lambda:start_historical_trade_strat_1_once_set(strat_mas_historical,val,real_test_frame_3_2_1_historical_table,real_test_frame_3_2_1_historical))
+    real_test_label_3_2 = customtkinter.CTkLabel(frame, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_frame_3_2_1_historical = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=560, height=100)
+    real_test_frame_3_2_1_historical_table = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="transparent",orientation='vertical', width=560, height=100)
+    
+    
+    real_test_label_3_1.pack(pady=[20,10])
+    frame_set.pack(pady=0)
+    real_test_label_3_212.pack(pady=0)
+    frame_set_our_set.pack(pady=0)
+    frame_set_left.grid(row=0,column=0,padx=10)
+    frame_set_center.grid(row=0,column=1,padx=10)
+    frame_set_right.grid(row=0,column=2,padx=10)
+    real_test_set_1.pack()
+    real_test_set_2.pack()
+    real_test_set_3.pack()
+    real_test_set_4.pack()
+    real_test_set_5.pack()
+    real_test_set_6.pack()
+    real_test_set_7.pack()
+    real_test_set_8.pack()
+    real_test_set_9.pack()
+    real_test_set_10.pack()
+    real_test_set_11.pack()
+    
+    button3213.pack(pady=20)
+    frame.pack(pady=[0,0])
+    real_test_label_3_2.pack(pady=0)
+    real_test_frame_3_2_1_historical.pack(pady=0)  
+    real_test_frame_3_2_1_historical_table.pack(pady=10) 
+    
+    window_trade_once_set_1.mainloop()
+    pass
+
+def start_historical_trade_strat_1_once_set(strat_mas_historical,val,window_trade_once_set_1,real_test_frame_3_2_1_historical):
+    str_1.CANAL_MAX = float(val[6])
+    str_1.CANAL_MIN = float(val[7])
+    str_1.CORNER_SHORT = int(val[8])
+    str_1.CORNER_LONG = int(val[9])
+    
+    thread29221221 = threading.Thread(target=lambda:bin.start_trade_hist_model(window_trade_once_set_1,
+                                                                                real_test_frame_3_2_1_historical,
+                                                                                strat_mas_historical,
+                                                                                bin.COMMISSION_MAKER,
+                                                                                bin.COMMISSION_TAKER,
+                                                                                float(val[0]), #тейк профит
+                                                                                float(val[1]),  # стоп лосс
+                                                                                int(val[2]), # Депозит
+                                                                                int(val[3]), # Плечо
+                                                                                int(val[4]), # Объём в свече мин
+                                                                                int(val[5]))) # Объём в свече макс)
+    thread29221221.start()
+    
+
+# найстройки окна торговли из таблицы сета настроек
+def settings_window_trade_once():
+    global window_trade_once_set_1
+    window_trade_once_set_1 = customtkinter.CTk()
+    window_trade_once_set_1.title("Robo_trade")
+    w = 600
+    h = 740
+    ws = window_trade_once_set_1.winfo_screenwidth()
+    hs = window_trade_once_set_1.winfo_screenheight()
+    x = (ws/2) - (w/2)
+    y = (hs/2) - (h/2)
+    window_trade_once_set_1.geometry('%dx%d+%d+%d' % (w, h, x, y))    
+    # выстраиваем сетку гридов
+    window_trade_once_set_1.grid_rowconfigure(0, weight=1)
+    window_trade_once_set_1.grid_columnconfigure(1, weight=1)
 
 # открываем блокнот для настроект 1 стратегии в сете
 def open_history_trade_strat_1_set():

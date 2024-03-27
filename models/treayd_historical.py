@@ -7,6 +7,7 @@ from imports import *
 import strategy.strategys.strat_1 as str_1
 from texttable import Texttable
 import progressbar
+from CTkTable import *
 
 
 TF = '5m' # таймфрейм
@@ -39,6 +40,8 @@ MYDIR_COIN_PROCENT = '../ROBO_TRADE/DF/coin_procent.txt'
 
 how_mach_coin = 10
 
+data_for_table_trade_regime_1 = [['Монета','Шаг','Тренд','TP','SL','Результат','Депозит',]]
+set_our_settings = []
 day_trade = round((wait_time*VOLUME)/(60*24),4)
 open_sl = False # флаг на открытые позиции
 open_position = False # флаг, стоим в позиции или нет
@@ -257,7 +260,7 @@ def close_trade(status,procent,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAG
     global profit
     global loss
     global commission
-    global status_trade_close,DEPOSIT_GLOBAL
+    global status_trade_close,DEPOSIT_GLOBAL,place_open_position_profit
     status_trade_close = status
     if status == '+': # если закрыли в плюс
         profit = profit + LEVERAGE*DEPOSIT_GLOBAL*procent
@@ -265,6 +268,7 @@ def close_trade(status,procent,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAG
         DEPOSIT_GLOBAL = DEPOSIT_GLOBAL + LEVERAGE*DEPOSIT_GLOBAL*procent - LEVERAGE*DEPOSIT_GLOBAL*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
         DEPOSIT_GLOBAL = round(DEPOSIT_GLOBAL,2)
         open_sl = False
+        place_open_position_profit = round(LEVERAGE*DEPOSIT_GLOBAL*procent-LEVERAGE*DEPOSIT_GLOBAL*(COMMISSION_MAKER+COMMISSION_TAKER),2)
         # print_components_log(f'Сработал ТЕЙК|Депо={round(DEPOSIT,1)}, профит={round(profit,1)},ком={round(commission,1)}',frame_3_set4_1_1_1,'HT')
     if status == '-': # если закрыли в минус
         loss = loss + LEVERAGE*DEPOSIT_GLOBAL*procent
@@ -272,6 +276,8 @@ def close_trade(status,procent,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAG
         DEPOSIT_GLOBAL = DEPOSIT_GLOBAL - LEVERAGE*DEPOSIT_GLOBAL*procent - LEVERAGE*DEPOSIT_GLOBAL*(COMMISSION_MAKER+COMMISSION_TAKER) # обновляем размер депо
         DEPOSIT_GLOBAL = round(DEPOSIT_GLOBAL,2)
         open_sl = False
+        place_open_position_profit = round(-LEVERAGE*DEPOSIT_GLOBAL*procent-LEVERAGE*DEPOSIT_GLOBAL*(COMMISSION_MAKER+COMMISSION_TAKER),2)
+    
 
         # print_components_log(f'Сработал СТОП|Депо={round(DEPOSIT,1)}, убыток={round(loss,1)},ком={round(commission,1)}',frame_3_set4_1_1_1,'HT')
 
@@ -283,22 +289,26 @@ def check_trade(price,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE):
     global count_short_take
     global count_short_loss
     global take_profit_price
-    global stop_loss_price
+    global stop_loss_price, signal_for_logs_regime_0
     if signal_trade == 'long':
         if float(now_price_trade)>float(take_profit_price):
+            signal_for_logs_regime_0 = 'Тейк'
             close_trade('+',TP,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAGE)
             count_long_take=count_long_take+1
             return 1
         if float(now_price_trade)<float(stop_loss_price):
+            signal_for_logs_regime_0 = 'Стоп'
             count_long_loss = count_long_loss + 1
             close_trade('-',SL,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAGE)
             return 1
     if signal_trade == 'short':
         if float(now_price_trade)<float(take_profit_price):
+            signal_for_logs_regime_0 = 'Тейк'
             close_trade('+',TP,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAGE)
             count_short_take = count_short_take+1
             return 1
         if float(now_price_trade)>float(stop_loss_price):
+            signal_for_logs_regime_0 = 'Стоп'
             count_short_loss = count_short_loss + 1
             close_trade('-',SL,COMMISSION_MAKER,COMMISSION_TAKER,DEPOSIT,LEVERAGE)
             return 1
@@ -374,7 +384,7 @@ flag_set_ferst_once = 0
 
 # точка входа
 def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,regime = 0,number_iteration_history_str=''):
-    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1,flag_set_ferst_once
+    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1,flag_set_ferst_once,set_our_settings,signal_for_logs_regime_0,place_open_position_step,place_open_position_trend,place_open_position_profit,take_profit_price,stop_loss_price
     open_sl = False # всегда при старте функции, мы не стоим в сделке
     DEPOSIT_GLOBAL = DEPOSIT
     data_numbers = []
@@ -394,6 +404,8 @@ def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSIO
     if regime==1 and flag_set_ferst_once==0:
         print_components_log(f'Торговля по сету настроек, начинаем',frame_log,'DF')
         flag_set_ferst_once = 1
+    if regime==0:
+        print_components_log(f'Торговля по заданным найстройкам, начинаем',frame_log,'DF')
     for index in range(VOLUME):
         bar.update(index)
         data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
@@ -408,6 +420,9 @@ def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSIO
                         if trend != 'нет сигнала': # если есть сигнал
                             symbol = result # сохраняем монету с сигналом
                             time_close_tf = prices['close_time'][index]
+                            place_open_position_step = index
+                            place_open_position_trend = trend
+                            
                             break
                         else:
                             trend = "нет сигнала"  
@@ -416,6 +431,7 @@ def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSIO
                 # если получили сигнал и объём за свечку больше минимального объема (настройка) и меншье максимального объёма (настройка)  
                 if trend != "нет сигнала":
                     # если есть сигнал, то открываем позицию - направление, объём, цена входа, 
+                    if regime==0: print_components_log(f'Открываем позицию в {trend} | Монета {symbol} | цена входа {prices['close'][index]}',frame_log,'DF')
                     open_position(trend,get_trade_VOLUME(prices['close'][index],DEPOSIT,LEVERAGE),prices['close'][index],SL,TP)   
             else: #если есть позиция
                 df = pd.read_csv(f'{MYDIR_WORKER}{symbol}.csv') # получили датафрейм из файла
@@ -426,42 +442,49 @@ def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSIO
                         if int(index2)>int(VOLUME_5MIN)-int(STEP_5_min_VALUE)-5:
                             break
                         for i in range(int(index2),int(index2)+int(STEP_5_min_VALUE),1):
-                            if check_trade(df_mal['close'][i],COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE):break # чекаем монету по шагам итерации между большим и мальеньким фреймом
+                            if check_trade(df_mal['close'][i],COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE):
+                                if regime==0: 
+                                    if take_profit_price>1:
+                                        take_profit_price = round(take_profit_price,3)
+                                        stop_loss_price = round(stop_loss_price,3)
+                                    data_for_table_trade_regime_1.append([symbol,place_open_position_step,place_open_position_trend,round(take_profit_price,2),stop_loss_price,place_open_position_profit,DEPOSIT_GLOBAL]) 
+                                    print_components_log(f'{signal_for_logs_regime_0}! Закрыли позицию, депозит - {DEPOSIT_GLOBAL}',frame_log,'DF')
+                                break # чекаем монету по шагам итерации между большим и мальеньким фреймом
             if float(DEPOSIT_GLOBAL)/float(DEPOSIT_START) < 0.4:
                 break
-    if regime == 0: number_iteration_history = 1
-    if regime == 1: number_iteration_history = number_iteration_history_str
-    print_components_log(f'Обработано {number_iteration_history} | ИТОГ: {round(profit-loss-commission,2)} $',frame_log,'DF')
-    print_log('---------------------------------------------------------------------------------------------------------------------------')
-    t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'{number_iteration_history}'],
-                [f'Следим за ценой {int(wait_time*VOLUME/VOLUME_5MIN)} мин',f'Ком мейк {COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_1.CANAL_MAX*100} %'],
-                [f'Рабочий таймфрейм {wait_time} мин',f'Ком тейк {COMMISSION_TAKER*100} %',f'Плечо {LEVERAGE}',f'Низ канала {str_1.CANAL_MIN*100} %'],
-                [f'Длительность {int(wait_time*VOLUME/60)} ч',f'Тейк {TP*100} %',f'Объём торгов мин {CANDLE_COIN_MIN}',f'Угол лонг {str_1.CORNER_LONG}'],
-                [f'Сколько монет торговать {how_mach_coin}',f'Стоп {SL*100} %',f'Объём торгов макс {CANDLE_COIN_MAX}',f'Угол шорт {str_1.CORNER_SHORT}'],
-                [f'Процент сделок в + {((count_long_take+count_short_take)/(count_long_take+count_short_take+count_long_loss+count_short_loss))*100} %',f'Сделок в + {count_long_take+count_short_take}',f'Седлок в - {count_long_loss+count_short_loss}',f'Всего сделок {count_long_take+count_short_take+count_long_loss+count_short_loss}'],
-                [f'Общий профит {profit} $',f'Общий убыток {loss} $',f'Комиссия {commission} $',f'ИТОГ: {round(profit-loss-commission,2)} $'],
-                [f'Депо ИТОГ: {DEPOSIT_GLOBAL} $',f'Депо старт {DEPOSIT_START} $',f'Депо ИТОГ,%: {round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2)}',f'']])
-    print(t.draw())
-    print_log(t.draw())
+    if regime == 0: 
+        number_iteration_history = 1
+        print_components_log(f'Закончили торговлю, депозит - {DEPOSIT_GLOBAL}',frame_log,'DF')
+        
+        table_strat_1_settings_trade = CTkTable(master=frame_osnova, row=1+len(data_for_table_trade_regime_1), column=7, values=data_for_table_trade_regime_1,font=('Arial',10,'bold'))
+        table_strat_1_settings_trade.pack(expand=True, padx=20, pady=20)
+        
+    if regime == 1: 
+        number_iteration_history = number_iteration_history_str
+        if count_long_take+count_short_take+count_long_loss+count_short_loss==0:
+            procent_trade_plus = 0
+        else:
+            procent_trade_plus = ((count_long_take+count_short_take)/(count_long_take+count_short_take+count_long_loss+count_short_loss))*100
+        
+        print_components_log(f'Обработано {number_iteration_history} | ИТОГ: {round(profit-loss-commission,2)} $',frame_log,'DF')
+        print_log('---------------------------------------------------------------------------------------------------------------------------')
+        t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'{number_iteration_history}'],
+                    [f'Следим за ценой {int(wait_time*VOLUME/VOLUME_5MIN)} мин',f'Ком мейк {COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_1.CANAL_MAX*100} %'],
+                    [f'Рабочий таймфрейм {wait_time} мин',f'Ком тейк {COMMISSION_TAKER*100} %',f'Плечо {LEVERAGE}',f'Низ канала {str_1.CANAL_MIN*100} %'],
+                    [f'Длительность {int(wait_time*VOLUME/60)} ч',f'Тейк {TP*100} %',f'Объём торгов мин {CANDLE_COIN_MIN}',f'Угол лонг {str_1.CORNER_LONG}'],
+                    [f'Сколько монет торговать {how_mach_coin}',f'Стоп {SL*100} %',f'Объём торгов макс {CANDLE_COIN_MAX}',f'Угол шорт {str_1.CORNER_SHORT}'],
+                    [f'Процент сделок в + {procent_trade_plus} %',f'Сделок в + {count_long_take+count_short_take}',f'Седлок в - {count_long_loss+count_short_loss}',f'Всего сделок {count_long_take+count_short_take+count_long_loss+count_short_loss}'],
+                    [f'Общий профит {profit} $',f'Общий убыток {loss} $',f'Комиссия {commission} $',f'ИТОГ: {round(profit-loss-commission,2)} $'],
+                    [f'Депо ИТОГ: {DEPOSIT_GLOBAL} $',f'Депо старт {DEPOSIT_START} $',f'Депо ИТОГ,%: {round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2)}',f'']])
+        print(t.draw())
+        print_log(t.draw())
+        set_our_settings.append([TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,str_1.CANAL_MAX,str_1.CANAL_MIN,str_1.CORNER_SHORT,str_1.CORNER_LONG,number_iteration_history_str])
+        OUR_SETTINGS_MAS_STRAT_1.append([number_iteration_history,round(profit-loss-commission,2),count_long_take+count_short_take+count_long_loss+count_short_loss,count_long_take+count_short_take,count_long_loss+count_short_loss,round(profit,1),round(loss,1),round(commission,1)])
+        print(set_our_settings)
+        
+    if regime == 0:
+        pass
     
-    if regime == 1:
-        OUR_SETTINGS_MAS_STRAT_1.append([number_iteration_history,round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2),round(profit-loss-commission,2),count_long_take+count_short_take+count_long_loss+count_short_loss,count_long_take+count_short_take,count_long_loss+count_short_loss,profit,loss,commission])
-        print(OUR_SETTINGS_MAS_STRAT_1)
-    
-                    
-
-    # print_components_log('Закончил торговлю',frame_3_set4_1_1_1,'HT')
-    # for widget in frame_3_set4_1_2.winfo_children():
-    #     widget.forget()
-    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Начальный депозит: {DEPOSIT_START}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Конечный депозит: {round(DEPOSIT,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Процент торговли: {round(float((float(DEPOSIT/DEPOSIT_START)-1)*100),1)}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Сделок совершено: {count_long_take+count_long_loss+count_short_take+count_short_loss}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"+ в лонг: {count_long_take} | + в шорт: {count_short_take}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"- в лонг: {count_long_loss} | - в шорт: {count_short_loss}", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Прибыль от сделок: {round(profit,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Убыток от сделок: {round(loss,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')
-    # customtkinter.CTkLabel(frame_3_set4_1_2, text=f"Комиссия биржи: {round(commission,1)}$", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).pack(pady=1, anchor='w')   
 
 
 
