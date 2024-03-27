@@ -1046,7 +1046,7 @@ def open_step_4_historical(frame,data_settings_1=[]):
     real_test_label_3_2.pack(pady=0)
     real_test_frame_3_2_1_historical.pack(pady=0)
     #---
-    
+
     real_test_frame_4.pack(pady=20)
 
 # Валидация на начало торговли по сету настроек на первой стратегии - если есть данные в файле и они правильные
@@ -1059,13 +1059,13 @@ def start_historical_trade_strat_1_set_validation(strat_mas_historical,frame_osn
                 if len(line.rstrip().split(',')) != 10:messagebox.showinfo('Внимание',f'ОШИБКА! Неправильное кол-во настроек в строке {line.rstrip()}')
                 set_settings_strat_1.append(line.rstrip().split(','))
                 
-            thread292212 = threading.Thread(target=lambda:start_set_hist_trade_strat_1(set_settings_strat_1,frame_osnova,frame_log))
+            thread292212 = threading.Thread(target=lambda:start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log))
             thread292212.start()
 
     except Exception as e:
         print('ОШИБКА начала исторической торговли по сету настроек')
 
-def start_set_hist_trade_strat_1(set_settings_strat_1,frame_osnova,frame_log):
+def start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log):
     for key,value in enumerate(set_settings_strat_1):
             str_1.CANAL_MAX = float(value[6])
             str_1.CANAL_MIN = float(value[7])

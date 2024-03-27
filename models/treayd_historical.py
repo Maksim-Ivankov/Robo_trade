@@ -150,16 +150,12 @@ def print_log(msg):
     f.write('\n'+msg)
     f.close()
                 
-# принтуем логи в фрейм в гуи и логи
+# принтуем в логи гуи
 def print_components_log(msg,frame,type):
     global data_print_ad_df
     global number_print_df
     global number_print_ht
     global data_print_ad_ht
-    path ='H_log.txt'
-    f = open(path,'a',encoding='utf-8')
-    f.write('\n'+time.strftime("%d.%m.%Y | %H:%M:%S | ", time.localtime())+msg)
-    f.close()
     if type == 'DF':
         number_print_df=number_print_df+1
         for widget in frame.winfo_children():
@@ -167,13 +163,13 @@ def print_components_log(msg,frame,type):
         data_print_ad_df.insert(0,customtkinter.CTkLabel(frame, text=str(number_print_df)+'. '+ msg, fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')))
         for component in data_print_ad_df:
             component.pack(anchor="w")
-    if type == 'HT':
-        number_print_ht=number_print_ht+1
-        for widget in frame.winfo_children():
-                widget.forget()
-        data_print_ad_ht.insert(0,customtkinter.CTkLabel(frame, text=str(number_print_ht)+'. '+ msg, fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')))
-        for component in data_print_ad_ht:
-            component.pack(anchor="w")          
+    # if type == 'HT':
+    #     number_print_ht=number_print_ht+1
+    #     for widget in frame.winfo_children():
+    #             widget.forget()
+    #     data_print_ad_ht.insert(0,customtkinter.CTkLabel(frame, text=str(number_print_ht)+'. '+ msg, fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')))
+    #     for component in data_print_ad_ht:
+    #         component.pack(anchor="w")          
 
 # генерируем фремы в файлы по кнопке с первого этапа
 def generate_dataframe(TF,VOLUME,VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM,frame_2_set2_2_1):
@@ -374,10 +370,11 @@ def remove_csv(dir):
         
 # -------------------------------------- Перебор по датафрейму --------------------------------------
 
+flag_set_ferst_once = 0
 
 # точка входа
 def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,regime = 0,number_iteration_history_str=''):
-    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1
+    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1,flag_set_ferst_once
     open_sl = False # всегда при старте функции, мы не стоим в сделке
     DEPOSIT_GLOBAL = DEPOSIT
     data_numbers = []
@@ -394,6 +391,9 @@ def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSIO
     t = Texttable()
     bar = progressbar.ProgressBar(maxval=VOLUME).start()
     number_iteration_history = 0
+    if regime==1 and flag_set_ferst_once==0:
+        print_components_log(f'Торговля по сету настроек, начинаем',frame_log,'DF')
+        flag_set_ferst_once = 1
     for index in range(VOLUME):
         bar.update(index)
         data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
@@ -431,6 +431,8 @@ def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSIO
                 break
     if regime == 0: number_iteration_history = 1
     if regime == 1: number_iteration_history = number_iteration_history_str
+    print_components_log(f'Обработано {number_iteration_history} | ИТОГ: {round(profit-loss-commission,2)} $',frame_log,'DF')
+    print_log('---------------------------------------------------------------------------------------------------------------------------')
     t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'{number_iteration_history}'],
                 [f'Следим за ценой {int(wait_time*VOLUME/VOLUME_5MIN)} мин',f'Ком мейк {COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_1.CANAL_MAX*100} %'],
                 [f'Рабочий таймфрейм {wait_time} мин',f'Ком тейк {COMMISSION_TAKER*100} %',f'Плечо {LEVERAGE}',f'Низ канала {str_1.CANAL_MIN*100} %'],
