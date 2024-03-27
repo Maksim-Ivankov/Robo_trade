@@ -502,7 +502,7 @@ def get_dataset_file_start(frame_2_set2_3_1):
 # стартуем историческую торговлю
 def start_historical_trade_strat_1():
     # global frame_3_set4_1_1_1_historical,frame_3_set4_1_2_historical,strat_mas_historical,real_test_frame_3_2_1_historical
-    print('Типа начали')
+    print('Начали историческую торговлю по 1 настройке')
     try:
         global thread2922
         logger('RT',f'------------------------------------------------------------------------')
@@ -1051,7 +1051,12 @@ def open_step_4_historical(frame,data_settings_1=[]):
 
 # Валидация на начало торговли по сету настроек на первой стратегии - если есть данные в файле и они правильные
 def start_historical_trade_strat_1_set_validation():
-    pass
+    # Проверить, есть ли данные в файле и они правильные
+    try:
+        thread29221 = threading.Thread(target=lambda:bin.start_trade_hist_model(strat_mas_historical,bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX,1,'111'))
+        thread29221.start()
+    except Exception as e:
+        print('ОШИБКА начала исторической торговли по сету настроек')
 
 # открываем блокнот дл янастроект 1 стратегии в сете
 def open_history_trade_strat_1_set():

@@ -73,6 +73,7 @@ width_telo = 3 # Ширина тела свечи
 width_spile = 1 # Ширина хвоста, шпиля
 name_bot_historical = ''
 summ_strat = {}
+OUR_SETTINGS_MAS_STRAT_1 = []
 
 client = UMFutures(key=key, secret=secret)
 
@@ -375,8 +376,8 @@ def remove_csv(dir):
 
 
 # точка входа
-def start_trade_hist_model(strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX):
-    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START
+def start_trade_hist_model(strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,regime = 0,number_iteration_history_str=''):
+    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1
     open_sl = False # всегда при старте функции, мы не стоим в сделке
     DEPOSIT_GLOBAL = DEPOSIT
     data_numbers = []
@@ -392,6 +393,7 @@ def start_trade_hist_model(strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKE
     fi.close()
     t = Texttable()
     bar = progressbar.ProgressBar(maxval=VOLUME).start()
+    number_iteration_history = 0
     for index in range(VOLUME):
         bar.update(index)
         data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
@@ -427,7 +429,9 @@ def start_trade_hist_model(strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKE
                             if check_trade(df_mal['close'][i],COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE):break # чекаем монету по шагам итерации между большим и мальеньким фреймом
             if float(DEPOSIT_GLOBAL)/float(DEPOSIT_START) < 0.4:
                 break
-    t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'1/220'],
+    if regime == 0: number_iteration_history = 1
+    if regime == 1: number_iteration_history = number_iteration_history_str
+    t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'{number_iteration_history}'],
                 [f'Следим за ценой {int(wait_time*VOLUME/VOLUME_5MIN)} мин',f'Ком мейк {COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_1.CANAL_MAX*100} %'],
                 [f'Рабочий таймфрейм {wait_time} мин',f'Ком тейк {COMMISSION_TAKER*100} %',f'Плечо {LEVERAGE}',f'Низ канала {str_1.CANAL_MIN*100} %'],
                 [f'Длительность {int(wait_time*VOLUME/60)} ч',f'Тейк {TP*100} %',f'Объём торгов мин {CANDLE_COIN_MIN}',f'Угол лонг {str_1.CORNER_LONG}'],
@@ -437,6 +441,10 @@ def start_trade_hist_model(strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKE
                 [f'Депо ИТОГ: {DEPOSIT_GLOBAL} $',f'Депо старт {DEPOSIT_START} $',f'Депо ИТОГ,%: {round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2)}',f'']])
     print(t.draw())
     print_log(t.draw())
+    
+    if regime == 1:
+        OUR_SETTINGS_MAS_STRAT_1.append([number_iteration_history,round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2),round(profit-loss-commission,2),count_long_take+count_short_take+count_long_loss+count_short_loss,count_long_take+count_short_take,count_long_loss+count_short_loss,profit,loss,commission])
+        print(OUR_SETTINGS_MAS_STRAT_1)
     
                     
 
