@@ -500,7 +500,7 @@ def get_dataset_file_start(frame_2_set2_3_1):
             customtkinter.CTkLabel(frame_2_set2_3_1,text='Найден датасет '+ name , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
             symbol=name  
 # стартуем историческую торговлю
-def start_historical_trade_strat_1():
+def start_historical_trade_strat_1(frame,frame_log):
     # global frame_3_set4_1_1_1_historical,frame_3_set4_1_2_historical,strat_mas_historical,real_test_frame_3_2_1_historical
     print('Начали историческую торговлю по 1 настройке')
     try:
@@ -519,7 +519,7 @@ def start_historical_trade_strat_1():
         #     widget.forget()
         # for widget in real_test_frame_3_2_1.winfo_children():
         #     widget.forget()
-        thread2922 = threading.Thread(target=lambda:bin.start_trade_hist_model(strat_mas_historical,bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX))
+        thread2922 = threading.Thread(target=lambda:bin.start_trade_hist_model(frame,frame_log,strat_mas_historical,bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX))
         thread2922.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Ошибка запуска торговли')
@@ -984,7 +984,7 @@ def open_step_4_historical(frame,data_settings_1=[]):
     label_title2_1_5 = customtkinter.CTkLabel(frame_2_strat_1, text=f"Выбраны стратегии:", fg_color="transparent",anchor='center',font=('Arial',12,'bold'),width=200)
     frame_2_set412 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="transparent")
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:open_step_3_historical(frame))
-    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_historical_trade_strat_1())
+    button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_historical_trade_strat_1(real_test_frame_4,real_test_frame_3_2_1_historical))
     stop_trade_real_test = customtkinter.CTkButton(frame_2_set412, text="Остановить торговлю", command=stop_real_test_trade)
     real_test_frame_3 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="#2B2B2B")
     real_test_frame_3_2 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
@@ -1032,7 +1032,7 @@ def open_step_4_historical(frame,data_settings_1=[]):
         label_title112_settings = customtkinter.CTkLabel(frame_2_strat_1_settings, text="Торговля стартегией 'Канал, тренд, локаль, объём'\nпо готовому сету настроек", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
         frame_2_strat_122_settings = customtkinter.CTkFrame(frame_2_strat_1_settings, corner_radius=10, fg_color="#2B2B2B")
         button3213_settings = customtkinter.CTkButton(frame_2_strat_122_settings, text="Загрузить сет настрорек",command = lambda:open_history_trade_strat_1_set())
-        button32132_settings = customtkinter.CTkButton(frame_2_strat_122_settings, text="Начать торговлю",command = lambda:start_historical_trade_strat_1_set_validation())
+        button32132_settings = customtkinter.CTkButton(frame_2_strat_122_settings, text="Начать торговлю",command = lambda:start_historical_trade_strat_1_set_validation(strat_mas_historical,real_test_frame_4,real_test_frame_3_2_1_historical))
         
         frame_2_strat_1_settings.pack(pady=20,ipadx=12)
         label_title112_settings.pack(pady=20)
@@ -1050,15 +1050,43 @@ def open_step_4_historical(frame,data_settings_1=[]):
     real_test_frame_4.pack(pady=20)
 
 # Валидация на начало торговли по сету настроек на первой стратегии - если есть данные в файле и они правильные
-def start_historical_trade_strat_1_set_validation():
-    # Проверить, есть ли данные в файле и они правильные
-    try:
-        thread29221 = threading.Thread(target=lambda:bin.start_trade_hist_model(strat_mas_historical,bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX,1,'111'))
-        thread29221.start()
+def start_historical_trade_strat_1_set_validation(strat_mas_historical,frame_osnova,frame_log):
+    try: 
+        set_settings_strat_1 = []
+        with open("strat_1_set.txt",encoding='utf-8') as file:
+            for line in file:
+                # если в одной из строк сета настроек неправильное кол-во настроек, выкидываем ошибку
+                if len(line.rstrip().split(',')) != 10:messagebox.showinfo('Внимание',f'ОШИБКА! Неправильное кол-во настроек в строке {line.rstrip()}')
+                set_settings_strat_1.append(line.rstrip().split(','))
+                
+            thread292212 = threading.Thread(target=lambda:start_set_hist_trade_strat_1(set_settings_strat_1,frame_osnova,frame_log))
+            thread292212.start()
+
     except Exception as e:
         print('ОШИБКА начала исторической торговли по сету настроек')
 
-# открываем блокнот дл янастроект 1 стратегии в сете
+def start_set_hist_trade_strat_1(set_settings_strat_1,frame_osnova,frame_log):
+    for key,value in enumerate(set_settings_strat_1):
+            str_1.CANAL_MAX = float(value[6])
+            str_1.CANAL_MIN = float(value[7])
+            str_1.CORNER_SHORT = int(value[8])
+            str_1.CORNER_LONG = int(value[9])
+            bin.start_trade_hist_model(frame_osnova,
+                                       frame_log,
+                                       strat_mas_historical,
+                                       bin.COMMISSION_MAKER,
+                                       bin.COMMISSION_TAKER,
+                                       float(value[0]), #тейк профит
+                                       float(value[1]),  # стоп лосс
+                                       int(value[2]), # Депозит
+                                       int(value[3]), # Плечо
+                                       int(value[4]), # Объём в свече мин
+                                       int(value[5]), # Объём в свече макс
+                                       1, # режим, 1 значит работаем по сету настроек
+                                       f'{key}/{len(set_settings_strat_1)}') # Какой шаг из скольки
+            
+
+# открываем блокнот для настроект 1 стратегии в сете
 def open_history_trade_strat_1_set():
     print('Открыли файл для сохранения настроек')
     os.system("notepad strat_1_set.txt")

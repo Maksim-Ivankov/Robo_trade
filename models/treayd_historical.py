@@ -376,7 +376,7 @@ def remove_csv(dir):
 
 
 # точка входа
-def start_trade_hist_model(strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,regime = 0,number_iteration_history_str=''):
+def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,regime = 0,number_iteration_history_str=''):
     global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1
     open_sl = False # всегда при старте функции, мы не стоим в сделке
     DEPOSIT_GLOBAL = DEPOSIT
