@@ -141,6 +141,12 @@ def remove_csv(dir):
     filelist = [ f for f in os.listdir(dir) if f.endswith(".csv") ]
     for f in filelist:
         os.remove(os.path.join(dir, f))
+        
+# удаление всех файлов txt в переданной директории
+def remove_txt(dir):
+    filelist = [ f for f in os.listdir(dir) if f.endswith(".txt") ]
+    for f in filelist:
+        os.remove(os.path.join(dir, f))
 
 # принтуем логи в файл
 def print_log(msg):
@@ -151,6 +157,13 @@ def print_log(msg):
     path ='H_log.txt'
     f = open(path,'a',encoding='utf-8')
     f.write('\n'+msg)
+    f.close()
+    
+# создаем файл с торговлей по текущим настройкам для сета настроек
+def print_trade_file(number,treyd):
+    path =f'DF/hist_strat_1_trade/{number}.txt'
+    f = open(path,'a',encoding='utf-8')
+    f.write('\n'+treyd)
     f.close()
                 
 # принтуем в логи гуи
@@ -384,7 +397,7 @@ flag_set_ferst_once = 0
 
 # точка входа
 def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,regime = 0,number_iteration_history_str=''):
-    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1,flag_set_ferst_once,set_our_settings,signal_for_logs_regime_0,place_open_position_step,place_open_position_trend,place_open_position_profit,take_profit_price,stop_loss_price
+    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1,flag_set_ferst_once,set_our_settings,signal_for_logs_regime_0,place_open_position_step,place_open_position_trend,place_open_position_profit,take_profit_price,stop_loss_price,table_strat_1_settings_trade_for_historical
     open_sl = False # всегда при старте функции, мы не стоим в сделке
     DEPOSIT_GLOBAL = DEPOSIT
     data_numbers = []
@@ -449,15 +462,21 @@ def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSIO
                                         stop_loss_price = round(stop_loss_price,3)
                                     data_for_table_trade_regime_1.append([symbol,place_open_position_step,place_open_position_trend,round(take_profit_price,2),stop_loss_price,place_open_position_profit,DEPOSIT_GLOBAL]) 
                                     print_components_log(f'{signal_for_logs_regime_0}! Закрыли позицию, депозит - {DEPOSIT_GLOBAL}',frame_log,'DF')
+                                if regime==1:
+                                    number = number_iteration_history_str.split('/')[0]
+                                    take_profit_price = round(take_profit_price,3)
+                                    stop_loss_price = round(stop_loss_price,3)
+                                    treyd = f'{symbol},{place_open_position_step},{place_open_position_trend},{round(take_profit_price,2)},{stop_loss_price},{place_open_position_profit},{DEPOSIT_GLOBAL}'
+                                    print_trade_file(number,treyd)
                                 break # чекаем монету по шагам итерации между большим и мальеньким фреймом
             if float(DEPOSIT_GLOBAL)/float(DEPOSIT_START) < 0.4:
                 break
     if regime == 0: 
         number_iteration_history = 1
         print_components_log(f'Закончили торговлю, депозит - {DEPOSIT_GLOBAL}',frame_log,'DF')
-        
-        table_strat_1_settings_trade = CTkTable(master=frame_osnova, row=1+len(data_for_table_trade_regime_1), column=7, values=data_for_table_trade_regime_1,font=('Arial',10,'bold'))
-        table_strat_1_settings_trade.pack(expand=True, padx=20, pady=20)
+        # рисуем таблицу для нажатия и вывода графика
+        table_strat_1_settings_trade_for_historical = CTkTable(master=frame_osnova, row=1+len(data_for_table_trade_regime_1), column=7, values=data_for_table_trade_regime_1,font=('Arial',10,'bold'),command = onclick_stroka_table_trade_str_1_set)
+        table_strat_1_settings_trade_for_historical.pack(expand=True, padx=20, pady=20)
         
     if regime == 1: 
         number_iteration_history = number_iteration_history_str
@@ -487,9 +506,15 @@ def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSIO
     
 
 
+def onclick_stroka_table_trade_str_1_set(data):
+    global table_strat_1_settings_trade_for_historical
+    data_parse = table_strat_1_settings_trade_for_historical.get_row(data['row'])
+    # for key,val in enumerate(bin.set_our_settings):
+    print(data_parse)
+    print_graph_historical_of_once_settings()
 
-
-
+def print_graph_historical_of_once_settings():
+    pass
 
 
 

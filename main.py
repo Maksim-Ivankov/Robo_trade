@@ -1068,6 +1068,7 @@ def start_historical_trade_strat_1_set_validation(strat_mas_historical,frame_osn
 
 def start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log):
     global table_strat_1_settings_trade,strat_mas_historical_onclock_treade
+    bin.remove_txt('DF/hist_strat_1_trade/') # удаляем все файлы с сохраненной торговлей по сету настроек
     strat_mas_historical_onclock_treade = strat_mas_historical
     for key,value in enumerate(set_settings_strat_1):
             str_1.CANAL_MAX = float(value[6])
@@ -1101,6 +1102,8 @@ def get_trade_for_settings_is_table(data):
     data_parse = table_strat_1_settings_trade.get_row(data['row'])
     for key,val in enumerate(bin.set_our_settings):
         if val[10] == data_parse[0]:
+            bin.data_print_ad_df[:] = []
+            bin.number_print_df = 0
             get_window_trade_fore_once_settings(strat_mas_historical_onclock_treade,val)
            
     # print(data_parse)
@@ -1165,11 +1168,12 @@ def get_window_trade_fore_once_settings(strat_mas_historical,val):
     pass
 
 def start_historical_trade_strat_1_once_set(strat_mas_historical,val,window_trade_once_set_1,real_test_frame_3_2_1_historical):
+
     str_1.CANAL_MAX = float(val[6])
     str_1.CANAL_MIN = float(val[7])
     str_1.CORNER_SHORT = int(val[8])
     str_1.CORNER_LONG = int(val[9])
-    
+    bin.data_for_table_trade_regime_1 = [['Монета','Шаг','Тренд','TP','SL','Результат','Депозит',]]
     thread29221221 = threading.Thread(target=lambda:bin.start_trade_hist_model(window_trade_once_set_1,
                                                                                 real_test_frame_3_2_1_historical,
                                                                                 strat_mas_historical,
