@@ -503,6 +503,8 @@ def get_dataset_file_start(frame_2_set2_3_1):
 # стартуем историческую торговлю
 def start_historical_trade_strat_1(frame,frame_log):
     # global frame_3_set4_1_1_1_historical,frame_3_set4_1_2_historical,strat_mas_historical,real_test_frame_3_2_1_historical
+    clear_frame(frame)
+    clear_frame(frame_log)
     print('Начали историческую торговлю по 1 настройке')
     try:
         global thread2922
@@ -1117,6 +1119,7 @@ def get_trade_for_settings_is_table(data):
     
 # запуск окна с торговлей по заданым настройкам для таблице сета настроек
 def get_window_trade_fore_once_settings(number,strat_mas_historical,val):
+    global table_strat_1_settings_trade_for_historical
     settings_window_trade_once()
     frame = customtkinter.CTkFrame(window_trade_once_set_1, corner_radius=0, fg_color="transparent")
     
@@ -1162,8 +1165,7 @@ def get_window_trade_fore_once_settings(number,strat_mas_historical,val):
     # закрываем файл
     file1.close
     
-    table_strat_1_settings_trade_for_historical = CTkTable(master=real_test_frame_3_2_1_historical_table, row=len(data_for_table_trade_regime_1_step_2), column=7, values=data_for_table_trade_regime_1_step_2,font=('Arial',10,'bold'))
-    # table_strat_1_settings_trade_for_historical = CTkTable(master=real_test_frame_3_2_1_historical_table, row=1+len(data_for_table_trade_regime_1_step_2), column=7, values=data_for_table_trade_regime_1_step_2,font=('Arial',10,'bold'),command = onclick_stroka_table_trade_str_1_set)
+    table_strat_1_settings_trade_for_historical = CTkTable(master=real_test_frame_3_2_1_historical_table, row=len(data_for_table_trade_regime_1_step_2), column=7, values=data_for_table_trade_regime_1_step_2,font=('Arial',10,'bold'),command = onclick_stroka_table_trade_str_1_set)
     table_strat_1_settings_trade_for_historical.pack(expand=True, padx=20, pady=20)
     
     real_test_label_3_1.pack(pady=[20,10])
@@ -1193,6 +1195,15 @@ def get_window_trade_fore_once_settings(number,strat_mas_historical,val):
     
     window_trade_once_set_1.mainloop()
     pass
+
+def onclick_stroka_table_trade_str_1_set(data):
+    global table_strat_1_settings_trade_for_historical
+    data_parse = table_strat_1_settings_trade_for_historical.get_row(data['row'])
+    # for key,val in enumerate(bin.set_our_settings):
+    print(data_parse)
+    bin.print_graph_historical_of_once_settings(data_parse[0],data_parse[1],data_parse[2],data_parse[3],data_parse[4])
+
+
 
 def start_historical_trade_strat_1_once_set(strat_mas_historical,val,window_trade_once_set_1,real_test_frame_3_2_1_historical):
     clear_frame(window_trade_once_set_1)

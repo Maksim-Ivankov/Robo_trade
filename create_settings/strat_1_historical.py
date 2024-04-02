@@ -2,7 +2,7 @@ import random
 
 # 0.012,0.004,100,20,200000,5000000,0.85,0.15,10,10
 # Ниже число, сколько настроек создать
-how_mach_settings = 10
+how_mach_settings = 50
 
 # принтуем логи в файл
 def print_log(msg):

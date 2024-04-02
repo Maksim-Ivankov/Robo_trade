@@ -5,6 +5,7 @@ import sys
 sys.path.insert(1,os.path.join(sys.path[0],'../'))
 from imports import *
 import strategy.strategys.strat_1 as str_1
+import graph_by.graph_historical as graph
 from texttable import Texttable
 import progressbar
 from CTkTable import *
@@ -511,10 +512,11 @@ def onclick_stroka_table_trade_str_1_set(data):
     data_parse = table_strat_1_settings_trade_for_historical.get_row(data['row'])
     # for key,val in enumerate(bin.set_our_settings):
     print(data_parse)
-    print_graph_historical_of_once_settings()
+    print_graph_historical_of_once_settings(data_parse[0],data_parse[1],data_parse[2],data_parse[3],data_parse[4])
 
-def print_graph_historical_of_once_settings():
-    pass
+def print_graph_historical_of_once_settings(symbol,step_input,trend,TP,SL):
+    df = pd.read_csv(f'{MYDIR_WORKER}{symbol}.csv')
+    graph.draw_graph(df,VOLUME,step_input,trend,TP,SL)
 
 
 
