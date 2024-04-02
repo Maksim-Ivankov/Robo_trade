@@ -1066,7 +1066,14 @@ def start_historical_trade_strat_1_set_validation(strat_mas_historical,frame_osn
     except Exception as e:
         print('ОШИБКА начала исторической торговли по сету настроек')
 
+# отчистка фрейма
+def clear_frame(frame):
+    for widget in frame.winfo_children():
+            widget.forget()
+
 def start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log):
+    clear_frame(frame_osnova)
+    clear_frame(frame_log)
     global table_strat_1_settings_trade,strat_mas_historical_onclock_treade
     bin.remove_txt('DF/hist_strat_1_trade/') # удаляем все файлы с сохраненной торговлей по сету настроек
     strat_mas_historical_onclock_treade = strat_mas_historical
@@ -1104,12 +1111,12 @@ def get_trade_for_settings_is_table(data):
         if val[10] == data_parse[0]:
             bin.data_print_ad_df[:] = []
             bin.number_print_df = 0
-            get_window_trade_fore_once_settings(strat_mas_historical_onclock_treade,val)
+            get_window_trade_fore_once_settings(val[10],strat_mas_historical_onclock_treade,val)
            
     # print(data_parse)
     
 # запуск окна с торговлей по заданым настройкам для таблице сета настроек
-def get_window_trade_fore_once_settings(strat_mas_historical,val):
+def get_window_trade_fore_once_settings(number,strat_mas_historical,val):
     settings_window_trade_once()
     frame = customtkinter.CTkFrame(window_trade_once_set_1, corner_radius=0, fg_color="transparent")
     
@@ -1133,11 +1140,31 @@ def get_window_trade_fore_once_settings(strat_mas_historical,val):
     real_test_set_10 = customtkinter.CTkLabel(frame_set_right, text=f'Угол лонг - {val[9]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     real_test_set_11 = customtkinter.CTkLabel(frame_set_right, text=f'Номер сборки - {val[10]}', fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     
-    button3213 = customtkinter.CTkButton(window_trade_once_set_1, text="Запустить торговлю",command = lambda:start_historical_trade_strat_1_once_set(strat_mas_historical,val,real_test_frame_3_2_1_historical_table,real_test_frame_3_2_1_historical))
-    real_test_label_3_2 = customtkinter.CTkLabel(frame, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
-    real_test_frame_3_2_1_historical = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=560, height=100)
-    real_test_frame_3_2_1_historical_table = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="transparent",orientation='vertical', width=560, height=100)
+    # button3213 = customtkinter.CTkButton(window_trade_once_set_1, text="Запустить торговлю",command = lambda:start_historical_trade_strat_1_once_set(strat_mas_historical,val,real_test_frame_3_2_1_historical_table,real_test_frame_3_2_1_historical))
+    # real_test_label_3_2 = customtkinter.CTkLabel(frame, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    #real_test_frame_3_2_1_historical = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=560, height=100)
     
+    
+    real_test_frame_3_2_1_historical_table = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="transparent",orientation='vertical', width=560, height=550)
+    
+    # прочитать файл и засунуть в массив
+    data_for_table_trade_regime_1_step_2 = [['Монета','Шаг','Тренд','TP','SL','Результат','Депозит',]]
+    number_set = number.split('/')[0]
+    # получим объект файла
+    file1 = open(f"DF/hist_strat_1_trade/{number_set}.txt", "r")
+    # считываем все строки
+    lines = file1.readlines()
+    # итерация по строкам
+    for line in lines:
+        if line=='\n':
+            continue
+        data_for_table_trade_regime_1_step_2.append(line.split(','))
+    # закрываем файл
+    file1.close
+    
+    table_strat_1_settings_trade_for_historical = CTkTable(master=real_test_frame_3_2_1_historical_table, row=len(data_for_table_trade_regime_1_step_2), column=7, values=data_for_table_trade_regime_1_step_2,font=('Arial',10,'bold'))
+    # table_strat_1_settings_trade_for_historical = CTkTable(master=real_test_frame_3_2_1_historical_table, row=1+len(data_for_table_trade_regime_1_step_2), column=7, values=data_for_table_trade_regime_1_step_2,font=('Arial',10,'bold'),command = onclick_stroka_table_trade_str_1_set)
+    table_strat_1_settings_trade_for_historical.pack(expand=True, padx=20, pady=20)
     
     real_test_label_3_1.pack(pady=[20,10])
     frame_set.pack(pady=0)
@@ -1158,17 +1185,18 @@ def get_window_trade_fore_once_settings(strat_mas_historical,val):
     real_test_set_10.pack()
     real_test_set_11.pack()
     
-    button3213.pack(pady=20)
+    # button3213.pack(pady=20)
     frame.pack(pady=[0,0])
-    real_test_label_3_2.pack(pady=0)
-    real_test_frame_3_2_1_historical.pack(pady=0)  
+    # real_test_label_3_2.pack(pady=0)
+    # real_test_frame_3_2_1_historical.pack(pady=0)  
     real_test_frame_3_2_1_historical_table.pack(pady=10) 
     
     window_trade_once_set_1.mainloop()
     pass
 
 def start_historical_trade_strat_1_once_set(strat_mas_historical,val,window_trade_once_set_1,real_test_frame_3_2_1_historical):
-
+    clear_frame(window_trade_once_set_1)
+    clear_frame(real_test_frame_3_2_1_historical)
     str_1.CANAL_MAX = float(val[6])
     str_1.CANAL_MIN = float(val[7])
     str_1.CORNER_SHORT = int(val[8])
