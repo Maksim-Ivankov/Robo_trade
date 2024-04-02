@@ -8,7 +8,7 @@ import strategy.print_settings.strat_historical as strat_historical
 import models.real_test_trade as real
 import models.treayd_historical_2_bollindger as bin_2
 import strategy.strategys.strat_1 as str_1
-
+from tkinter import *
 
 
 
@@ -18,6 +18,7 @@ work_timeframe_HM = 1
 work_timeframe_str_HM = '1m'
 timeframe_HM = 5
 time_HM = 720
+flag_pricel = 0
 
 # открываем по центру
 win = customtkinter.CTk()
@@ -1148,10 +1149,11 @@ def get_window_trade_fore_once_settings(number,strat_mas_historical,val):
     #real_test_frame_3_2_1_historical = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=560, height=100)
     
     
-    real_test_frame_3_2_1_historical_table = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="transparent",orientation='vertical', width=560, height=550)
+    real_test_frame_3_2_1_historical_graph = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="transparent",orientation='vertical', width=560, height=200)
+    real_test_frame_3_2_1_historical_table = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="transparent",orientation='vertical', width=560, height=350)
     
     # прочитать файл и засунуть в массив
-    data_for_table_trade_regime_1_step_2 = [['Монета','Шаг','Тренд','TP','SL','Результат','Депозит',]]
+    data_for_table_trade_regime_1_step_2 = [['Монета','Шаг','Тренд','TP','SL','Результат','Депозит']]
     number_set = number.split('/')[0]
     # получим объект файла
     file1 = open(f"DF/hist_strat_1_trade/{number_set}.txt", "r")
@@ -1164,6 +1166,8 @@ def get_window_trade_fore_once_settings(number,strat_mas_historical,val):
         data_for_table_trade_regime_1_step_2.append(line.split(','))
     # закрываем файл
     file1.close
+    
+    
     
     table_strat_1_settings_trade_for_historical = CTkTable(master=real_test_frame_3_2_1_historical_table, row=len(data_for_table_trade_regime_1_step_2), column=7, values=data_for_table_trade_regime_1_step_2,font=('Arial',10,'bold'),command = onclick_stroka_table_trade_str_1_set)
     table_strat_1_settings_trade_for_historical.pack(expand=True, padx=20, pady=20)
@@ -1191,19 +1195,75 @@ def get_window_trade_fore_once_settings(number,strat_mas_historical,val):
     frame.pack(pady=[0,0])
     # real_test_label_3_2.pack(pady=0)
     # real_test_frame_3_2_1_historical.pack(pady=0)  
+    
+    print_graph_profit(real_test_frame_3_2_1_historical_graph,data_for_table_trade_regime_1_step_2)
+    
+    real_test_frame_3_2_1_historical_graph.pack(pady=10) 
     real_test_frame_3_2_1_historical_table.pack(pady=10) 
     
     window_trade_once_set_1.mainloop()
     pass
 
+# обработчик клика на строку таблицы и рисуем график
 def onclick_stroka_table_trade_str_1_set(data):
     global table_strat_1_settings_trade_for_historical
     data_parse = table_strat_1_settings_trade_for_historical.get_row(data['row'])
     # for key,val in enumerate(bin.set_our_settings):
-    print(data_parse)
-    bin.print_graph_historical_of_once_settings(data_parse[0],data_parse[1],data_parse[2],data_parse[3],data_parse[4])
+    bin.print_graph_historical_of_once_settings(data_parse[0],int(data_parse[1]),data_parse[2],float(data_parse[3]),float(data_parse[4]))
 
+# рисуем график дохода по торговле с заданными настройками
+def print_graph_profit(frame,data_for_table_trade_regime_1_step_2):
+    global data_profit,flag_pricel
+    graph_profit = Canvas(frame, width = 500, height = 200, bg = '#161A1E',border=0,bd=0,highlightthickness=0)
+    data_profit = []
+    for key,value in enumerate(data_for_table_trade_regime_1_step_2):
+        if key==0: continue
+        data_profit.append(float(value[6]))
+    price_max = max(data_profit)
+    price_min = min(data_profit)
+    OldRange = (price_max - price_min) 
+    NewRange = 200 
+    OldRange1 = len(data_profit)
+    NewRange1 = (500/(OldRange1))
+    y0 = (((100 - price_min) * NewRange) / OldRange)
+    graph_profit.create_line(0,200-y0,500,200-y0,width=1,fill="#B5F674")
+    flag_pricel=0
+    graph_profit.bind('<Motion>', lambda event:mmove_profit(event,graph_profit,OldRange,price_min))
+    
+    for index,value in enumerate(data_profit):
+        x = (index * NewRange1)
+        y = (((value - price_min) * NewRange) / OldRange)
+        if value>=100:
+            graph_profit.tag_lower(graph_profit.create_rectangle(x, 200-y0, x+NewRange1, 200-y,outline="#0ECB81", fill="#0ECB81"))
+        else:
+            graph_profit.tag_lower(graph_profit.create_rectangle(x, 200-y0, x+NewRange1, 200-y,outline="#F6465D", fill="#F6465D"))
+            
+    
+    graph_profit.pack()
 
+# бработчик перемещения мышкой по графику
+def mmove_profit(event,graph_profit,OldRange,price_min):
+    global flag_pricel,canvas_id_profit
+    y = graph_profit.canvasy(event.y)
+    if flag_pricel!=0:
+        # прицел
+        graph_profit.coords(canvas_id_profit,0, y, 500, y)    
+        # цена
+        graph_profit.coords(price_rectangle_profit,470, y-7,500, y+7)
+        graph_profit.coords(price_rectangle_text_profit,485, y)
+        text_price = round(float((((200-y)*OldRange)/200)+price_min),1)
+        graph_profit.itemconfigure(price_rectangle_text_profit, text=text_price) 
+        return
+    canvas_id_profit = graph_profit.create_line(0, 0, 500, 0, width=1, fill='#424747')
+    
+    print_real_price_x_profit(y,graph_profit)
+    flag_pricel = 1
+
+# рисуем сноску с ценой
+def print_real_price_x_profit(y,graph_profit):
+    global price_rectangle_profit,price_rectangle_text_profit
+    price_rectangle_profit = graph_profit.create_rectangle(470, y-10, 500, y+10, fill="#363A45",outline='#363A45')
+    price_rectangle_text_profit = graph_profit.create_text(470,y-10,fill="#DADBDD",font=('Purisa',8),text='123')
 
 def start_historical_trade_strat_1_once_set(strat_mas_historical,val,window_trade_once_set_1,real_test_frame_3_2_1_historical):
     clear_frame(window_trade_once_set_1)

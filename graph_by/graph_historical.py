@@ -34,7 +34,7 @@ def paint_bar(canv,prices,prices_old,VOLUME,height_canvas,width_canvas):
     global price_max
     global mass_date_interval_graph
     global mass_date_line
-    global NewRange1
+    global NewRange1,OldRange1
     # определяем границы для масштабирования графика цены
     price_max = (prices_old.loc[prices_old['close'] == prices_old['close'].max()].iloc[0]['close'])
     price_min = (prices_old.loc[prices_old['close'] == prices_old['close'].min()].iloc[0]['close'])
@@ -64,13 +64,26 @@ def paint_bar(canv,prices,prices_old,VOLUME,height_canvas,width_canvas):
         VOLUME_y = (((row['VOLUME'] - price_min_volume) * NewRange_volume) / OldRange_volume)
         paint_one_volume(canvas_volume,x0,y0,y1,VOLUME_y)
 
+# рисуем тейк и стоп
 def print_tp_sl(canv,tp,sl,height):
     global price_min,NewRange,OldRange
-    y_tp = (((tp - price_min) * NewRange) / OldRange)
-    y_sl = (((sl - price_min) * NewRange) / OldRange)
+    y_tp = (((float(tp) - price_min) * NewRange) / OldRange)
+    y_sl = (((float(sl) - price_min) * NewRange) / OldRange)
     canv.create_line(-5000,height-y_tp,5000,height-y_tp,width=1,fill="#5DEB2E")
     canv.create_line(-5000,height-y_sl,5000,height-y_sl,width=1,fill="#EB2020")
 
+def print_place_input(step_input,df,canv,height):
+    global price_min,NewRange,OldRange,OldRange1
+    y_price_trade = df['close'][int(step_input)]
+    y_trade = (((float(y_price_trade) - price_min) * NewRange) / OldRange)
+    x_trade = ((float(step_input) * NewRange1) / OldRange1)+1.5
+    canv.create_line(x_trade-6,height-y_trade,x_trade+6,height-y_trade,width=3,fill="#EBEB58")
+    canv.create_line(x_trade,height-y_trade-6,x_trade,height-y_trade+6,width=3,fill="#EBEB58")
+    
+    canvas.xview_moveto(str((abs(-5000)+x_trade-300)/(abs(-5000)+5000)))
+    canvas_volume.xview_moveto(str((abs(-5000)+x_trade-300)/(abs(-5000)+5000)))
+    canvas_date.xview_moveto(str((abs(-5000)+x_trade-300)/(abs(-5000)+5000)))
+    
 # рисуем одну свечу    
 def paint_candle(canv,x0,y0,y1,high,low,height_canvas):
     height = height_canvas
@@ -372,10 +385,9 @@ def draw_graph(df,VOLUME,step_input,trend,TP,SL,bg="#161A1E"):
     # print_tools(canvas_tools)
     
     print_tp_sl(canvas,TP,SL,height)
+    print_place_input(step_input,df,canvas,height)
     
-    # canvas.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
-    # canvas_volume.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
-    # canvas_date.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))
+    
     
     win55.mainloop()
 
