@@ -394,10 +394,15 @@ def remove_csv(dir):
         
 # -------------------------------------- Перебор по датафрейму --------------------------------------
 
+# отчистка фрейма
+def clear_frame(frame):
+    for widget in frame.winfo_children():
+            widget.forget()
+
 flag_set_ferst_once = 0
 
 # точка входа
-def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,regime = 0,number_iteration_history_str=''):
+def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log,strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,regime = 0,number_iteration_history_str=''):
     global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1,flag_set_ferst_once,set_our_settings,signal_for_logs_regime_0,place_open_position_step,place_open_position_trend,place_open_position_profit,take_profit_price,stop_loss_price,table_strat_1_settings_trade_for_historical
     open_sl = False # всегда при старте функции, мы не стоим в сделке
     DEPOSIT_GLOBAL = DEPOSIT
@@ -415,18 +420,26 @@ def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSIO
     t = Texttable()
     bar = progressbar.ProgressBar(maxval=VOLUME).start()
     number_iteration_history = 0
+    
+    clear_frame(real_test_frame_indicator_hist)
+    
+    progressbar_hist_once = customtkinter.CTkProgressBar(real_test_frame_indicator_hist, orientation="horizontal",width=600)
+    progressbar_hist_once.pack()
+    
     if regime==1 and flag_set_ferst_once==0:
         print_components_log(f'Торговля по сету настроек, начинаем',frame_log,'DF')
         flag_set_ferst_once = 1
     if regime==0:
         print_components_log(f'Торговля по заданным найстройкам, начинаем',frame_log,'DF')
     for index in range(VOLUME):
+        progressbar_hist_once.set(index/VOLUME)
         bar.update(index)
         data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
         if index>10: # начинаем не с нуля, а с 5-ой свечи
             if open_sl == False: # если нет позиции
                 for x,result in enumerate(coin_mas_10):
                     df = pd.read_csv(f'{MYDIR_WORKER}{result}.csv') # получили датафрейм из файла
+                    if len(df) != VOLUME : continue
                     prices = df.iloc[data_numbers]
                     # print(f"{prices['VOLUME'][index]}>{CANDLE_COIN_MIN} and {prices['VOLUME'][index]}<{CANDLE_COIN_MAX}")
                     if prices['VOLUME'][index]>CANDLE_COIN_MIN and prices['VOLUME'][index]<CANDLE_COIN_MAX:
@@ -478,8 +491,10 @@ def start_trade_hist_model(frame_osnova,frame_log,strat_mas_historical,COMMISSIO
         # рисуем таблицу для нажатия и вывода графика
         table_strat_1_settings_trade_for_historical = CTkTable(master=frame_osnova, row=1+len(data_for_table_trade_regime_1), column=7, values=data_for_table_trade_regime_1,font=('Arial',10,'bold'),command = onclick_stroka_table_trade_str_1_set)
         table_strat_1_settings_trade_for_historical.pack(expand=True, padx=20, pady=20)
+        progressbar_hist_once.set(1)
         
     if regime == 1: 
+        progressbar_hist_once.set(1)
         number_iteration_history = number_iteration_history_str
         if count_long_take+count_short_take+count_long_loss+count_short_loss==0:
             procent_trade_plus = 0

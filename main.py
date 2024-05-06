@@ -523,7 +523,7 @@ def start_historical_trade_strat_1(frame,frame_log):
         #     widget.forget()
         # for widget in real_test_frame_3_2_1.winfo_children():
         #     widget.forget()
-        thread2922 = threading.Thread(target=lambda:bin.start_trade_hist_model(frame,frame_log,strat_mas_historical,bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX))
+        thread2922 = threading.Thread(target=lambda:bin.start_trade_hist_model(real_test_frame_indicator_hist,frame,frame_log,strat_mas_historical,bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX))
         thread2922.start()
     except ValueError: 
         messagebox.showinfo('Внимание','Ошибка запуска торговли')
@@ -941,7 +941,7 @@ def open_step_3_historical(frame):
 def open_step_4_historical(frame,data_settings_1=[]):
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
-    global name_bot_historical
+    global name_bot_historical,real_test_frame_indicator_hist
     global strat_mas_historical,real_test_frame_3_2_1_historical
     strat_now_rt = []
     for i in strat_mas_historical:
@@ -990,10 +990,13 @@ def open_step_4_historical(frame,data_settings_1=[]):
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:open_step_3_historical(frame))
     button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_historical_trade_strat_1(real_test_frame_4,real_test_frame_3_2_1_historical))
     stop_trade_real_test = customtkinter.CTkButton(frame_2_set412, text="Остановить торговлю", command=stop_real_test_trade)
+    real_test_frame_indicator_hist = customtkinter.CTkFrame(master=frame, corner_radius=0, fg_color="transparent")
     real_test_frame_3 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="#2B2B2B")
     real_test_frame_3_2 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
     
-    
+    progressbar_hist_once = customtkinter.CTkProgressBar(real_test_frame_indicator_hist, orientation="horizontal",width=600)
+    progressbar_hist_once.pack()
+    progressbar_hist_once.set(0)
     
     real_test_label_3_2 = customtkinter.CTkLabel(real_test_frame_3_2, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     real_test_frame_3_2_1_historical = customtkinter.CTkScrollableFrame(real_test_frame_3_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=460, height=260)
@@ -1045,6 +1048,7 @@ def open_step_4_historical(frame,data_settings_1=[]):
         button32132_settings.grid(row=0, column=1,padx=10)
     
     #---
+    real_test_frame_indicator_hist.pack(pady=8)
     real_test_frame_3.pack(pady=20)
     real_test_frame_3_2.grid(row=0, column=1, sticky="ew",padx=10)
     real_test_label_3_2.pack(pady=0)
@@ -1085,7 +1089,7 @@ def start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame
             str_1.CANAL_MIN = float(value[7])
             str_1.CORNER_SHORT = int(value[8])
             str_1.CORNER_LONG = int(value[9])
-            bin.start_trade_hist_model(frame_osnova,
+            bin.start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,
                                        frame_log,
                                        strat_mas_historical,
                                        bin.COMMISSION_MAKER,
@@ -1149,7 +1153,7 @@ def get_window_trade_fore_once_settings(number,strat_mas_historical,val):
     #real_test_frame_3_2_1_historical = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=560, height=100)
     
     
-    real_test_frame_3_2_1_historical_graph = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="transparent",orientation='vertical', width=560, height=200)
+    real_test_frame_3_2_1_historical_graph = customtkinter.CTkFrame(frame, corner_radius=5, fg_color="transparent")
     real_test_frame_3_2_1_historical_table = customtkinter.CTkScrollableFrame(frame, corner_radius=5, fg_color="transparent",orientation='vertical', width=560, height=350)
     
     # прочитать файл и засунуть в массив
@@ -1241,7 +1245,7 @@ def print_graph_profit(frame,data_for_table_trade_regime_1_step_2):
     
     graph_profit.pack()
 
-# бработчик перемещения мышкой по графику
+# обработчик перемещения мышкой по графику
 def mmove_profit(event,graph_profit,OldRange,price_min):
     global flag_pricel,canvas_id_profit
     y = graph_profit.canvasy(event.y)
@@ -1273,7 +1277,7 @@ def start_historical_trade_strat_1_once_set(strat_mas_historical,val,window_trad
     str_1.CORNER_SHORT = int(val[8])
     str_1.CORNER_LONG = int(val[9])
     bin.data_for_table_trade_regime_1 = [['Монета','Шаг','Тренд','TP','SL','Результат','Депозит',]]
-    thread29221221 = threading.Thread(target=lambda:bin.start_trade_hist_model(window_trade_once_set_1,
+    thread29221221 = threading.Thread(target=lambda:bin.start_trade_hist_model(real_test_frame_indicator_hist,window_trade_once_set_1,
                                                                                 real_test_frame_3_2_1_historical,
                                                                                 strat_mas_historical,
                                                                                 bin.COMMISSION_MAKER,
