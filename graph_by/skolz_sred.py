@@ -447,10 +447,10 @@ def draw_graph(df,frame,width=width_canvas,height=height_canvas,bg="#161A1E", ti
     print_tools(canvas_tools)
     
     # ниже скользящие средние
-    # n=20
-    # m=12
-    # print_middle_line(n,df,canvas)
-    # print_close_line(m,df,canvas)
+    n=20
+    m=12
+    print_middle_line(n,df,canvas)
+    print_close_line(m,df,canvas)
 
     
     canvas.xview_moveto(str((abs(-5000)+NewRange1-400)/(abs(-5000)+5000)))

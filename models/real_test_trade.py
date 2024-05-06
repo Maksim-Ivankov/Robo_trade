@@ -277,7 +277,7 @@ def check_if_signal(strat_mas_real_test,symbol,real_test_frame_3_2_1):
     for strat in strat_mas_real_test:
         match strat:
             case 'strat1' : summ_strat['Канал, тренд, локаль, объём'] = get_strat_1(symbol,TF,how_mach_candle_get_api,real_test_frame_3_2_1)
-            case 'strat2' : summ_strat['Суммарный тех индикатор TreadingView'] = get_strat_2(symbol,TF,real_test_frame_3_2_1)
+            case 'strat2' : summ_strat['Скользящие средние'] = get_strat_2(symbol,TF,real_test_frame_3_2_1)
             case 'strat3' : pass
             case 'strat4' : pass
             case 'strat5' : pass

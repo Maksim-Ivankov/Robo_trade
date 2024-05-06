@@ -5,6 +5,7 @@ import sys
 sys.path.insert(1,os.path.join(sys.path[0],'../'))
 from imports import *
 import strategy.strategys.strat_1 as str_1
+import strategy.strategys.strat_2 as str_2
 import graph_by.graph_historical as graph
 from texttable import Texttable
 import progressbar
@@ -34,8 +35,8 @@ MYDIR_WORKER = '../ROBO_TRADE/DF/worker/'
 MYDIR_5MIN = '../ROBO_TRADE/DF/5min/'
 MYDIR_COIN = '../ROBO_TRADE/DF/coin.txt'
 MYDIR_COIN_PROCENT = '../ROBO_TRADE/DF/coin_procent.txt'
-
-
+INDEX_START = 20
+str_2.INDEX_START = INDEX_START
 
 
 
@@ -331,12 +332,12 @@ def check_trade(price,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE):
 # -------------------------------------- СТРАТЕГИЯ --------------------------------------
 
 # точка входа в стратегии
-def check_if_signal(prices,index,strat_mas_historical):
+def check_if_signal(prices,index,strat_mas_historical,result):
     global summ_strat
     for strat in strat_mas_historical: # перебор по id выбранных стратегий
         match strat:
             case 'strat1' : summ_strat['Канал, тренд, локаль, объём'] = get_strat_1(prices,index)
-            case 'strat2' : pass
+            case 'strat2' : summ_strat['Скользящие средние'] = get_strat_2(prices,index,result)
             case 'strat3' : pass
             case 'strat4' : pass
             case 'strat5' : pass
@@ -381,6 +382,14 @@ def check_if_signal(prices,index,strat_mas_historical):
 def get_strat_1(prices,index):
     try:
         return str_1.strat_1(prices,index) 
+    except Exception as e:
+        # print_components_log(f'Ошибка работы стратегии Канал, тренд, локаль, объём! - {e}',real_test_frame_3_2_1,'OS1')
+        return 'нет сигнала'
+    
+# если вторая стратегия
+def get_strat_2(prices,index,result):
+    try:
+        return str_2.strat_2(prices,index,result) 
     except Exception as e:
         # print_components_log(f'Ошибка работы стратегии Канал, тренд, локаль, объём! - {e}',real_test_frame_3_2_1,'OS1')
         return 'нет сигнала'
@@ -435,7 +444,7 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
         progressbar_hist_once.set(index/VOLUME)
         bar.update(index)
         data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
-        if index>10: # начинаем не с нуля, а с 5-ой свечи
+        if index>INDEX_START: # начинаем не с нуля, а с 20-ой свечи
             if open_sl == False: # если нет позиции
                 for x,result in enumerate(coin_mas_10):
                     df = pd.read_csv(f'{MYDIR_WORKER}{result}.csv') # получили датафрейм из файла
@@ -443,13 +452,13 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
                     prices = df.iloc[data_numbers]
                     # print(f"{prices['VOLUME'][index]}>{CANDLE_COIN_MIN} and {prices['VOLUME'][index]}<{CANDLE_COIN_MAX}")
                     if prices['VOLUME'][index]>CANDLE_COIN_MIN and prices['VOLUME'][index]<CANDLE_COIN_MAX:
-                        trend = check_if_signal(prices,index,strat_mas_historical) # определяем тренд - стратегия
+                        trend = check_if_signal(prices,index,strat_mas_historical,result) # определяем тренд - стратегия
+                        # print(trend)
                         if trend != 'нет сигнала': # если есть сигнал
                             symbol = result # сохраняем монету с сигналом
                             time_close_tf = prices['close_time'][index]
                             place_open_position_step = index
                             place_open_position_trend = trend
-                            
                             break
                         else:
                             trend = "нет сигнала"  

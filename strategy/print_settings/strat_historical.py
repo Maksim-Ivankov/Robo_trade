@@ -2,7 +2,7 @@ import customtkinter
 from tkinter import messagebox
 import models.treayd_historical as bin
 import strategy.strategys.strat_1 as str_1
-
+import strategy.strategys.strat_2 as str_2
 
 # валидация инпутов настроек стратегии 1
 def strat1_param():
@@ -23,7 +23,18 @@ def strat1_param():
         
 # валидация инпутов настроек стратегии 2 
 def strat2_param():
-    pass
+    if frame_2_set4_4_set_133.get()=='': 
+        messagebox.showinfo('Внимание','Введите коэфициент основной скользящей средней')
+    elif frame_2_set4_4_set_12.get()=='': 
+        messagebox.showinfo('Внимание','Введите коэфициент медленной скользящей средней')
+    elif frame_2_set4_4_set_125.get()=='': 
+        messagebox.showinfo('Внимание','Введите кол-во совпадений в прошлом')
+    else:
+        str_2.MIDDLE_1 = int(frame_2_set4_4_set_133.get())
+        str_2.MIDDLE_2 = int(frame_2_set4_4_set_12.get())
+        str_2.MIDDLE_DATA = int(frame_2_set4_4_set_125.get())
+        return [bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,str_2.MIDDLE_1,str_2.MIDDLE_2,str_2.MIDDLE_DATA,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX]
+    
 
 # отрисовка настреок стратегии 1
 def strat1(frame):
@@ -65,6 +76,25 @@ def strat1(frame):
 
 # отрисовка настреок стратегии 2
 def strat2(frame):
-    label_title112 = customtkinter.CTkLabel(frame, text="Стратегия 'Суммарный тех индикатор TreadingView' настроек не требует", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+    global frame_2_set4_4_set_133, frame_2_set4_4_set_12,frame_2_set4_4_set_125
+    label_title112 = customtkinter.CTkLabel(frame, text="Настройки стартегии 'Скользящие средние'", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+    frame_2_strat_1= customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B")
+    label__2_set4_3_set_4 = customtkinter.CTkLabel(frame_2_strat_1, text="Коэфициент основной скользящей средней", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_2_set4_4_set_133 = customtkinter.CTkEntry(frame_2_strat_1, placeholder_text="6",justify="center")
+    label__2_set4_3_set_42 = customtkinter.CTkLabel(frame_2_strat_1, text="Коэфициент медленной скользящей средней", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_2_set4_4_set_12 = customtkinter.CTkEntry(frame_2_strat_1, placeholder_text="12",justify="center")
+    label__2_set4_3_set_425 = customtkinter.CTkLabel(frame_2_strat_1, text="Кол-во совпадений в прошлом", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_2_set4_4_set_125 = customtkinter.CTkEntry(frame_2_strat_1, placeholder_text="3",justify="center")
+    
+    frame_2_set4_4_set_133.insert(0, str_2.MIDDLE_1)
+    frame_2_set4_4_set_12.insert(0, str_2.MIDDLE_2)
+    frame_2_set4_4_set_125.insert(0, str_2.MIDDLE_DATA)
     
     label_title112.pack(pady=0, anchor='n')
+    frame_2_strat_1.pack(pady=20, anchor='n')
+    label__2_set4_3_set_4.pack(pady=[20,0], anchor='n')
+    frame_2_set4_4_set_133.pack(pady=0, anchor='n')
+    label__2_set4_3_set_42.pack(pady=0,padx=20, anchor='n')
+    frame_2_set4_4_set_12.pack(pady=0,padx=20, anchor='n')
+    label__2_set4_3_set_425.pack(pady=0,padx=20, anchor='n')
+    frame_2_set4_4_set_125.pack(pady=[0,20], anchor='n')
