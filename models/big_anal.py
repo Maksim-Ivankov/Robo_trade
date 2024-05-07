@@ -15,6 +15,8 @@ MYDIR_WORKER = '../ROBO_TRADE/DF/big_anal/worker/'
 MYDIR_COIN_PROCENT = '../ROBO_TRADE/DF/big_anal/coin_procent.txt'
 MYDIR_5MIN = '../ROBO_TRADE/DF/big_anal/mini/'
 MYDIR_COIN = '../ROBO_TRADE/DF/big_anal/coin.txt'
+TIME_ITERABLE = 12 # Время итерации торговли, часов
+TIME_SDVIG = 60 # Сдвиг итераций, минут
 
 wait_time = 5 # сколько минут ждать для обновления цены с биржи
 coin_mas_10 = []
