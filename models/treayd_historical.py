@@ -391,7 +391,7 @@ def get_strat_2(prices,index,result):
     try:
         return str_2.strat_2(prices,index,result) 
     except Exception as e:
-        # print_components_log(f'Ошибка работы стратегии Канал, тренд, локаль, объём! - {e}',real_test_frame_3_2_1,'OS1')
+        print(f'Ошибка работы стратегии - {e}')
         return 'нет сигнала'
 # -------------------------------------- СТРАТЕГИЯ --------------------------------------
 
@@ -453,7 +453,6 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
                     # print(f"{prices['VOLUME'][index]}>{CANDLE_COIN_MIN} and {prices['VOLUME'][index]}<{CANDLE_COIN_MAX}")
                     if prices['VOLUME'][index]>CANDLE_COIN_MIN and prices['VOLUME'][index]<CANDLE_COIN_MAX:
                         trend = check_if_signal(prices,index,strat_mas_historical,result) # определяем тренд - стратегия
-                        # print(trend)
                         if trend != 'нет сигнала': # если есть сигнал
                             symbol = result # сохраняем монету с сигналом
                             time_close_tf = prices['close_time'][index]
@@ -524,7 +523,7 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
         print_log(t.draw())
         set_our_settings.append([TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,str_1.CANAL_MAX,str_1.CANAL_MIN,str_1.CORNER_SHORT,str_1.CORNER_LONG,number_iteration_history_str])
         OUR_SETTINGS_MAS_STRAT_1.append([number_iteration_history,round(profit-loss-commission,2),count_long_take+count_short_take+count_long_loss+count_short_loss,count_long_take+count_short_take,count_long_loss+count_short_loss,round(profit,1),round(loss,1),round(commission,1)])
-        print(set_our_settings)
+        # print(set_our_settings)
         
     if regime == 0:
         pass
