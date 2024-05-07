@@ -1,5 +1,6 @@
 from imports import *
 import models.treayd_historical as bin
+import models.big_anal as biganal
 import models.main_TV as TV
 from CTkTable import *
 import strategy.print_settings.strat1 as strat
@@ -20,6 +21,14 @@ work_timeframe_str_HM = '1m'
 timeframe_HM = 5
 time_HM = 720
 flag_pricel = 0
+
+set1_timveframe_anal = {"5m":5, "15m":15, "30m":30, "1h":60,"1m":1}
+set1_time_anal = {"12 часов":720, "24 часа":1440, "2 дня":2880, "3 дня":4320}
+work_timeframe_HM_anal = 1
+work_timeframe_str_HM_anal = '1m'
+timeframe_HM_anal = 5
+time_HM_anal = 720
+flag_pricel_anal = 0
 
 # открываем по центру
 win = customtkinter.CTk()
@@ -155,6 +164,7 @@ def select_frame_by_name(name): #выбирает и открывает фрей
         third_frame.grid_forget()
     if name == "frame_4":
         frame_4.grid(row=0, column=1, sticky="nsew")
+        big_anal()
     else:
         frame_4.grid_forget()
     if name == "frame_5":
@@ -407,6 +417,182 @@ def profile():
     label_title14.grid(row=3, column=0, sticky="w",padx=20)
     label_title15.grid(row=3, column=1, sticky="w",padx=20)
 
+# --------------------------------- БИГ АНАЛ ---------------------------------
+# точка входа
+def big_anal():
+    for widget in frame_4.winfo_children(): # чистим табличку
+        widget.destroy() 
+    label_title1 = customtkinter.CTkLabel(frame_4, text="BIG TRADE", fg_color="transparent",anchor='center',font=('Arial',20,'bold'))
+    frame_2_set1 = customtkinter.CTkFrame(frame_4, corner_radius=10, fg_color="transparent")
+    button1 = customtkinter.CTkButton(frame_2_set1, text="Информация")
+    button2 = customtkinter.CTkButton(frame_2_set1, text="Инструкция")
+    button3 = customtkinter.CTkButton(frame_2_set1, text="История торгов",command=open_big_anal_trade_log)
+    frame_2_set1_step1 = customtkinter.CTkFrame(frame_4, corner_radius=10, fg_color="transparent")
+    
+    label_title1.pack(pady=20)
+    frame_2_set1.pack(pady=10,padx=20)
+    button1.grid(row=0, column=0, sticky="ew",padx=10)
+    button2.grid(row=0, column=1, sticky="ew",padx=10)
+    button3.grid(row=0, column=2, sticky="ew",padx=10)
+    frame_2_set1_step1.pack()
+    
+    open_step_1_big_anal(frame_2_set1_step1)
+
+# отрисовка инфы на первой вкладке
+def open_step_1_big_anal(frame):
+    global appearance_mode_menu0_his_anal,appearance_mode_menu1_his_anal,appearance_mode_menu2_his_anal,input_2_167_anal
+    for widget in frame.winfo_children(): # чистим табличку
+        widget.destroy()
+    label_title112 = customtkinter.CTkLabel(frame, text="Получите данные по монетам для торговли\n с биржи, либо используйте загруженные ранее данные", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+    frame_2_set2 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B")
+    frame_2_set2_1 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set2_2 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
+    frame_2_set2_3 = customtkinter.CTkFrame(frame_2_set2, corner_radius=0, fg_color="#2B2B2B")
+    label_title1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Сбор данных", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    label_title1_1_0 = customtkinter.CTkLabel(frame_2_set2_1, text="Следим за ценой", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
+    appearance_mode_menu0_his_anal = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["1m", "5m"],command=get_setting_timeframe_slega_anal)
+    label_title1_1_1 = customtkinter.CTkLabel(frame_2_set2_1, text="Рабочий таймфрейм", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
+    appearance_mode_menu1_his_anal = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["5m", "15m", "30m", "1h"],command=get_setting_timeframe_anal)
+    label_title1_1_2 = customtkinter.CTkLabel(frame_2_set2_1, text="Длительность", fg_color="transparent",anchor='center',font=('Arial',12,'normal'))
+    appearance_mode_menu2_his_anal = customtkinter.CTkOptionMenu(frame_2_set2_1, values=["12 часов", "24 часа", "2 дня", "3 дня"],command=get_setting_time_anal)
+    
+    label_title2_167 = customtkinter.CTkLabel(frame_2_set2_1, text="Сколько монет торговать", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    input_2_167_anal = customtkinter.CTkEntry(frame_2_set2_1, placeholder_text="10",justify="center")
+    
+    button4 = customtkinter.CTkButton(frame_2_set2_1, text="Получить данные", command=lambda:get_dataframe_with_binance_anal(frame_2_set2_2_1,frame_2_set2_3_1,input_2_167_anal))
+    label_title1_2 = customtkinter.CTkLabel(frame_2_set2_2, text="Монеты роста/падения", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    frame_2_set2_2_1 = customtkinter.CTkScrollableFrame(frame_2_set2_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=150, height=300)
+    label_title1_3_1 = customtkinter.CTkLabel(frame_2_set2_3, text="Датасет с биржи Binance", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    label_title1_3_2 = customtkinter.CTkLabel(frame_2_set2_3, text="                                     ", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
+    frame_2_set2_3_1 = customtkinter.CTkScrollableFrame(frame_2_set2_3, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=200, height=300)
+    
+    get_coin_proc_start_anal(frame_2_set2_2_1)
+    get_dataset_file_start_anal(frame_2_set2_3_1)
+    
+    label_title112.pack(pady=10,anchor='n')
+    frame_2_set2.pack(pady=10)
+    frame_2_set2_1.grid(row=0, column=1, sticky="ew",padx=10)
+    frame_2_set2_2.grid(row=0, column=2, sticky="ew",padx=10)
+    frame_2_set2_3.grid(row=0, column=3, sticky="ew",padx=10,columnspan = 2)
+    label_title1_1.grid(row=0, column=0, sticky="ew")
+    label_title1_1_0.grid(row=1, column=0, sticky="ew")
+    appearance_mode_menu0_his_anal.grid(row=2, column=0, sticky="ew",pady=[0,5])
+    label_title1_1_1.grid(row=3, column=0, sticky="ew")
+    appearance_mode_menu1_his_anal.grid(row=4, column=0, sticky="ew",pady=[0,5])
+    label_title1_1_2.grid(row=5, column=0, sticky="ew")
+    appearance_mode_menu2_his_anal.grid(row=6, column=0, sticky="ew",pady=[0,5])
+    label_title2_167.grid(row=7, column=0, sticky="ew")
+    input_2_167_anal.grid(row=8, column=0, sticky="ew",pady=[0,5])
+    button4.grid(row=9, column=0, sticky="ew",pady=15,padx=20)
+    label_title1_2.grid(row=0, column=0, sticky="ew",pady=10)
+    frame_2_set2_2_1.grid(row=1, column=0, sticky="ew",pady=[0,20])
+    label_title1_3_1.grid(row=0, column=0, sticky="ew",pady=10)
+    label_title1_3_2.grid(row=0, column=1, sticky="ew",pady=10)
+    frame_2_set2_3_1.grid(row=1, column=0, columnspan=2, sticky="ew",pady=[0,20])
+    
+
+    button32 = customtkinter.CTkButton(frame, text="Выбрать стратегию торговли",command=lambda:step_2_historical_trade_prom(frame,input_2_167_anal))
+    
+    input_2_167_anal.insert(0, biganal.how_mach_coin)
+    button32.pack(pady=20)
+
+# открытие логов в биг трейде
+def open_big_anal_trade_log():
+    print('11')
+
+# обработка выбора рабочег о таймфрейма в блоке создания датафреймов
+def get_setting_timeframe_anal(data):
+    global timeframe_HM_anal
+    timeframe_HM_anal = set1_timveframe_anal.get(data) # число 5,15,30,60
+    biganal.TF = data
+# обработка выбора таймфрейма слежения за ценой в блоке создания датафреймов | слежка, сколько времени работаем, по какому основному таймфрейму
+def get_setting_timeframe_slega_anal(data):
+    global work_timeframe_HM_anal
+    global work_timeframe_str_HM_anal
+    work_timeframe_str_HM_anal = data
+    work_timeframe_HM_anal = set1_timveframe_anal.get(data) # число 1 или 5
+    print(f'work_timeframe_HM - {work_timeframe_HM_anal}')
+# обработка выбора времени работы в блоке создания датафреймов
+def get_setting_time_anal(data):
+    global time_HM_anal
+    time_HM_anal = set1_time_anal.get(data) # сколько минут отрабатываем
+# кнопка - получить данные, формируем файлы датафреймов
+def get_dataframe_with_binance_anal(frame_2_set2_2_1,frame_2_set2_3,input_2_167_anal):
+    global work_timeframe_HM_anal
+    global timeframe_HM_anal
+    global time_HM_anal
+    global work_timeframe_str_HM_anal
+    biganal.VOLUME = int(time_HM_anal/timeframe_HM_anal)
+    biganal.VOLUME_5MIN = int(time_HM_anal/work_timeframe_HM_anal)
+    biganal.how_mach_coin = input_2_167_anal.get()
+    biganal.STEP_5_min_VALUE = biganal.VOLUME_5MIN/biganal.VOLUME
+    
+    logger('H','Историческая торговля, формируем датафреймы')
+    logger('H',f'Историческая торговля, настройки: рабочий таймфрейм {biganal.TF} мин')
+    logger('H',f'Историческая торговля, настройки: таймфрейм отслеживания цены {biganal.VOLUME_5MIN} мин')
+    logger('H',f'Историческая торговля, настройки: Время работы {str(time_HM/60)} часов')
+    for widget in frame_2_set2_2_1.winfo_children():
+            widget.destroy()
+    for widget in frame_2_set2_3.winfo_children():
+            widget.destroy()
+    biganal.number_print_df = 0
+    biganal.data_print_ad_df[:] = []
+    thread7654 = threading.Thread(target=lambda:biganal.generate_dataframe(biganal.TF,biganal.VOLUME,biganal.VOLUME_5MIN,frame_2_set2_3,work_timeframe_str_HM_anal,frame_2_set2_2_1))
+    thread7654.start()
+    time.sleep(1)
+    
+# отрисовка монет из файла, если он не пустой
+def get_coin_proc_start_anal(frame_2_set2_2_1):
+    try:
+        file = open('../ROBO_TRADE/DF/big_anal/coin_procent.txt', mode="r")
+        biganal.coin_mas_10 = file.read().split('|')
+        biganal.how_mach_coin = len(biganal.coin_mas_10)
+        if biganal.coin_mas_10:
+            i=-1
+            for coin in biganal.coin_mas_10:
+                i=i+1
+                customtkinter.CTkButton(frame_2_set2_2_1, text=coin).grid(row=i, column=0, sticky="ew",pady=5)
+    except Exception as e:
+        print(f'Нет файла с монетами - {e}')
+# отрисовка датафреймов из файла           
+def get_dataset_file_start_anal(frame_2_set2_3_1):
+    global appearance_mode_menu0_his_anal,appearance_mode_menu1_his_anal,work_timeframe_str_HM_anal,time_HM_anal,appearance_mode_menu2_his_anal
+    mypath = '../ROBO_TRADE/DF/big_anal/mini/'
+    filenames = next(walk(mypath), (None, None, []))[2]  # [] if no file
+    if len(filenames)!= 0:
+        symbol = filenames[0]
+        df = pd.read_csv(f'{biganal.MYDIR_WORKER}{symbol}')
+        time_F = int(df.iloc[1]['open_time'] - df.iloc[0]['open_time'])/60000
+        df2 = pd.read_csv(f'{biganal.MYDIR_5MIN}{symbol}')
+        time_F2 = int(df2.iloc[1]['open_time'] - df2.iloc[0]['open_time'])/60000
+
+        with open(f'{biganal.MYDIR_WORKER}{symbol}') as f:
+            time_Work_F = sum(1 for line in f)-1
+        biganal.VOLUME = int(time_Work_F)
+        biganal.VOLUME_5MIN = int(time_Work_F*time_F)/int(time_F2)
+        biganal.STEP_5_min_VALUE = (int(time_Work_F*time_F)/int(time_F2))/int(time_Work_F)
+        appearance_mode_menu0_his_anal.set(f'{int(time_F2)}m')
+        if int(time_F)==60: 
+            appearance_mode_menu1_his_anal.set(f'1h')
+            biganal.TF = '1h'
+        else: 
+            appearance_mode_menu1_his_anal.set(f'{int(time_F)}m')
+            biganal.TF = f'{int(time_F)}m'
+        work_timeframe_str_HM_anal = f'{int(time_F2)}m'
+        if int(time_Work_F*time_F) == 720: appearance_mode_menu2_his_anal.set('12 часов')
+        elif int(time_Work_F*time_F) == 1440: appearance_mode_menu2_his_anal.set('24 часа')
+        elif int(time_Work_F*time_F) == 2880: appearance_mode_menu2_his_anal.set('2 дня')
+        elif int(time_Work_F*time_F) == 4320: appearance_mode_menu2_his_anal.set('3 дня')
+        biganal.wait_time = int(time_F)
+        
+        time_HM_anal = int(time_Work_F*time_F)
+        customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Рабочий ТF - {int(time_F)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+        customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Длительность - {int(time_Work_F*time_F/60)} часов' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+        customtkinter.CTkLabel(frame_2_set2_3_1,text=f'Следим за ценой - {int(time_F2)} мин' , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+        for name in filenames:
+            customtkinter.CTkLabel(frame_2_set2_3_1,text='Найден датасет '+ name , fg_color="#DAE2EC",text_color='#242424',anchor='w',font=('Arial',12,'normal')).pack(anchor="w")
+            symbol=name  
+   
 # --------------------------------- ИСТОРИЧЕСКАЯ ТОРГОВЛЯ ---------------------------------
 
 # обработка выбора рабочег о таймфрейма в блоке создания датафреймов
@@ -808,7 +994,7 @@ def open_step_2_historical(frame):
     frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
     frame_2_set4_1_1 = customtkinter.CTkScrollableFrame(frame_2_set4_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=500, height=450)
     radiobutton_1 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat1", offvalue="0",text="Канал, тренд, локаль, объём",text_color='#242424')
-    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat2", offvalue="1",text="Скользящие средние",text_color='#242424')
+    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat2", offvalue="1",text="Скользящие средние, коридор",text_color='#242424')
     # radiobutton_3 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat3", offvalue="2",text="BarUpDn",text_color='#242424')
     # radiobutton_4 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat4", offvalue="3",text="Полосы Боллинджера направленные",text_color='#242424')
     # radiobutton_5 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_historical,variable=check_var_historical, onvalue="strat5", offvalue="4",text="Channel BreakOut",text_color='#242424')
@@ -949,7 +1135,7 @@ def open_step_4_historical(frame,data_settings_1=[]):
     for i in strat_mas_historical:
         match i:
             case 'strat1' : strat_now_rt.append('Канал, тренд, локаль, объём')
-            case 'strat2' : strat_now_rt.append('Скользящие средние')
+            case 'strat2' : strat_now_rt.append('Скользящие средние, коридор')
             # case 'strat3' : strat_now_rt.append('BarUpDn')
             # case 'strat4' : strat_now_rt.append('Полосы Боллинджера направленные')
             # case 'strat5' : strat_now_rt.append('Channel BreakOut')
@@ -1033,10 +1219,12 @@ def open_step_4_historical(frame,data_settings_1=[]):
         if len(strat_mas_historical)==1 and strat_mas_historical[0] == 'strat2':
             frame_2_strat_122= customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B",width=800)
             frame_2_strat_122.pack(pady=10, anchor='n')
-            customtkinter.CTkLabel(frame_2_strat_122, text='Настройки стратегии - Скользящие средние', fg_color="transparent",text_color='white',anchor='center',font=('Arial',14,'bold'),width=200).grid(row=0, column=0,columnspan=2, sticky="ew",padx=10)
+            customtkinter.CTkLabel(frame_2_strat_122, text='Настройки стратегии - Скользящие средние, коридор', fg_color="transparent",text_color='white',anchor='center',font=('Arial',14,'bold'),width=200).grid(row=0, column=0,columnspan=2, sticky="ew",padx=10)
             customtkinter.CTkLabel(frame_2_strat_122, text=f"Коэфициент основной скользящей средней, {int(data_settings_1[6])} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=1, column=0, sticky="w",padx=10)
             customtkinter.CTkLabel(frame_2_strat_122, text=f"Коэфициент медленной скользящей средней, {int(data_settings_1[7])} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=2, column=0, sticky="w",padx=10)
             customtkinter.CTkLabel(frame_2_strat_122, text=f"Кол-во совпадений в прошлом, {int(data_settings_1[8])} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=3, column=0, sticky="w",padx=10)
+            customtkinter.CTkLabel(frame_2_strat_122, text=f"Прижатие к верху коридора, {(data_settings_1[9])} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=4, column=0, sticky="w",padx=10)
+            customtkinter.CTkLabel(frame_2_strat_122, text=f"Прижатие к низу коридора, {(data_settings_1[10])} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=5, column=0, sticky="w",padx=10)
     frame_2_set412.pack(pady=20, anchor='n')
     button3212.grid(row=0, column=0, sticky="ew",padx=10)
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
@@ -1060,7 +1248,7 @@ def open_step_4_historical(frame,data_settings_1=[]):
     # условие на вывод торговли по сету готовых настроек для второй стратегии
     if strat_mas_historical[0] == 'strat2' and len(strat_mas_historical)==1:
         frame_2_strat_1_settings = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B",width=800)
-        label_title112_settings = customtkinter.CTkLabel(frame_2_strat_1_settings, text="Торговля стартегией 'Скользящие средние'\nпо готовому сету настроек", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
+        label_title112_settings = customtkinter.CTkLabel(frame_2_strat_1_settings, text="Торговля стартегией 'Скользящие средние, коридор'\nпо готовому сету настроек", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
         frame_2_strat_122_settings = customtkinter.CTkFrame(frame_2_strat_1_settings, corner_radius=10, fg_color="#2B2B2B")
         button3213_settings = customtkinter.CTkButton(frame_2_strat_122_settings, text="Загрузить сет настрорек",command = lambda:open_history_trade_strat_2_set())
         button32132_settings = customtkinter.CTkButton(frame_2_strat_122_settings, text="Начать торговлю",command = lambda:start_historical_trade_strat_2_set_validation(strat_mas_historical,real_test_frame_4,real_test_frame_3_2_1_historical))
@@ -1088,7 +1276,7 @@ def start_historical_trade_strat_1_set_validation(strat_mas_historical,frame_osn
         with open("strat_1_set.txt",encoding='utf-8') as file:
             for line in file:
                 # если в одной из строк сета настроек неправильное кол-во настроек, выкидываем ошибку
-                if len(line.rstrip().split(',')) != 10:messagebox.showinfo('Внимание',f'ОШИБКА! Неправильное кол-во настроек в строке {line.rstrip()}')
+                if len(line.rstrip().split(',')) != 10:messagebox.showinfo('Внимание',f'ОШИБКА! Неправильное кол-во настроек в строке (10) {line.rstrip()}')
                 set_settings_strat_1.append(line.rstrip().split(','))
                 
             thread292212 = threading.Thread(target=lambda:start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log))
@@ -1104,10 +1292,10 @@ def start_historical_trade_strat_2_set_validation(strat_mas_historical,frame_osn
         with open("strat_2_set.txt",encoding='utf-8') as file:
             for line in file:
                 # если в одной из строк сета настроек неправильное кол-во настроек, выкидываем ошибку
-                if len(line.rstrip().split(',')) != 9:messagebox.showinfo('Внимание',f'ОШИБКА! Неправильное кол-во настроек в строке {line.rstrip()}')
+                if len(line.rstrip().split(',')) != 11:messagebox.showinfo('Внимание',f'ОШИБКА! Неправильное кол-во настроек в строке (11) {line.rstrip()}')
                 set_settings_strat_1.append(line.rstrip().split(','))
                 
-            thread292212 = threading.Thread(target=lambda:start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log))
+            thread292212 = threading.Thread(target=lambda:start_set_hist_trade_strat_2(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log))
             thread292212.start()
 
     except Exception as e:
@@ -1125,9 +1313,43 @@ def start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame
     bin.remove_txt('DF/hist_strat_1_trade/') # удаляем все файлы с сохраненной торговлей по сету настроек
     strat_mas_historical_onclock_treade = strat_mas_historical
     for key,value in enumerate(set_settings_strat_1):
+            str_1.CANAL_MAX = float(value[6])
+            str_1.CANAL_MIN = float(value[7])
+            str_1.CORNER_SHORT = int(value[8])
+            str_1.CORNER_LONG = int(value[9])
+            bin.start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,
+                                       frame_log,
+                                       strat_mas_historical,
+                                       bin.COMMISSION_MAKER,
+                                       bin.COMMISSION_TAKER,
+                                       float(value[0]), #тейк профит
+                                       float(value[1]),  # стоп лосс
+                                       int(value[2]), # Депозит
+                                       int(value[3]), # Плечо
+                                       int(value[4]), # Объём в свече мин
+                                       int(value[5]), # Объём в свече макс
+                                       1, # режим, 1 значит работаем по сету настроек
+                                       f'{key}/{len(set_settings_strat_1)}') # Какой шаг из скольки
+    bin.print_components_log(f'Закончили обработку данных',frame_log,'DF')
+    value_strat_1_settings_trade = [['Номер настроек','% к депо','Сделок всего','Сделок в +','Сделок в -','Общий профит','Общий убыток','Комиссия']]
+    # sorted(bin.OUR_SETTINGS_MAS_STRAT_1, key=lambda x: x[1])
+    # bin.OUR_SETTINGS_MAS_STRAT_1.reverse()
+    value_strat_1_settings_trade = value_strat_1_settings_trade + bin.OUR_SETTINGS_MAS_STRAT_1
+    table_strat_1_settings_trade = CTkTable(master=frame_osnova, row=1+len(set_settings_strat_1), column=8, values=value_strat_1_settings_trade,command = get_trade_for_settings_is_table)
+    table_strat_1_settings_trade.pack(expand=True, padx=20, pady=20)
+
+def start_set_hist_trade_strat_2(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log):
+    clear_frame(frame_osnova)
+    clear_frame(frame_log)
+    global table_strat_1_settings_trade,strat_mas_historical_onclock_treade
+    bin.remove_txt('DF/hist_strat_1_trade/') # удаляем все файлы с сохраненной торговлей по сету настроек
+    strat_mas_historical_onclock_treade = strat_mas_historical
+    for key,value in enumerate(set_settings_strat_1):
             str_2.MIDDLE_1 = float(value[6])
             str_2.MIDDLE_2 = float(value[7])
             str_2.MIDDLE_DATA = int(value[8])
+            str_2.CANAL_MAX = float(value[9])
+            str_2.CANAL_MIN = float(value[10])
             bin.start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,
                                        frame_log,
                                        strat_mas_historical,
@@ -1706,7 +1928,7 @@ def step_2_real_test_trade(frame):
     frame_2_set4_1 = customtkinter.CTkFrame(frame_2_set4_0, corner_radius=0, fg_color="#2B2B2B")
     frame_2_set4_1_1 = customtkinter.CTkScrollableFrame(frame_2_set4_1, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=500, height=450)
     radiobutton_1 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat1", offvalue="0",text="Канал, тренд, локаль, объём",text_color='#242424')
-    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat2", offvalue="1",text="Скользящие средние",text_color='#242424')
+    radiobutton_2 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat2", offvalue="1",text="Скользящие средние, коридор",text_color='#242424')
     # radiobutton_3 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat3", offvalue="2",text="BarUpDn",text_color='#242424')
     # radiobutton_4 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat4", offvalue="3",text="Полосы Боллинджера направленные",text_color='#242424')
     # radiobutton_5 = customtkinter.CTkCheckBox(frame_2_set4_1_1,  command=checkbox_event_strat_real_test,variable=check_var_real_test, onvalue="strat5", offvalue="4",text="Channel BreakOut",text_color='#242424')
@@ -1850,7 +2072,7 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
     for i in strat_mas_real_test:
         match i:
             case 'strat1' : strat_now_rt.append('Канал, тренд, локаль, объём')
-            case 'strat2' : strat_now_rt.append('Скользящие средние')
+            case 'strat2' : strat_now_rt.append('Скользящие средние, коридор')
             # case 'strat3' : strat_now_rt.append('BarUpDn')
             # case 'strat4' : strat_now_rt.append('Полосы Боллинджера направленные')
             # case 'strat5' : strat_now_rt.append('Channel BreakOut')
@@ -1933,7 +2155,7 @@ def step_4_real_test_trade(frame,data_settings_1=[]):
         if len(strat_mas_real_test)==1 and strat_mas_real_test[0] == 'strat2':
             frame_2_strat_122= customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B",width=800)
             frame_2_strat_122.pack(pady=10, anchor='n')
-            customtkinter.CTkLabel(frame_2_strat_122, text='Настройки стратегии - Скользящие средние', fg_color="transparent",text_color='white',anchor='center',font=('Arial',14,'bold'),width=200).grid(row=0, column=0,columnspan=2, sticky="ew",padx=10)
+            customtkinter.CTkLabel(frame_2_strat_122, text='Настройки стратегии - Скользящие средние, коридор', fg_color="transparent",text_color='white',anchor='center',font=('Arial',14,'bold'),width=200).grid(row=0, column=0,columnspan=2, sticky="ew",padx=10)
             customtkinter.CTkLabel(frame_2_strat_122, text=f"Коэфициент основной скользящей средней, {int(data_settings_1[6])} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=1, column=0, sticky="w",padx=10)
             customtkinter.CTkLabel(frame_2_strat_122, text=f"Коэфициент медленной скользящей средней, {int(data_settings_1[7])} %", fg_color="transparent",anchor='center',font=('Arial',12,'bold')).grid(row=2, column=0, sticky="w",padx=10)
     frame_2_set412.pack(pady=20, anchor='n')

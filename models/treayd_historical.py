@@ -511,14 +511,24 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
         
         print_components_log(f'Обработано {number_iteration_history} | ИТОГ: {round(profit-loss-commission,2)} $',frame_log,'DF')
         print_log('---------------------------------------------------------------------------------------------------------------------------')
-        t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'{number_iteration_history}'],
-                    [f'Следим за ценой {int(wait_time*VOLUME/VOLUME_5MIN)} мин',f'Ком мейк {COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_1.CANAL_MAX*100} %'],
-                    [f'Рабочий таймфрейм {wait_time} мин',f'Ком тейк {COMMISSION_TAKER*100} %',f'Плечо {LEVERAGE}',f'Низ канала {str_1.CANAL_MIN*100} %'],
-                    [f'Длительность {int(wait_time*VOLUME/60)} ч',f'Тейк {TP*100} %',f'Объём торгов мин {CANDLE_COIN_MIN}',f'Угол лонг {str_1.CORNER_LONG}'],
-                    [f'Сколько монет торговать {how_mach_coin}',f'Стоп {SL*100} %',f'Объём торгов макс {CANDLE_COIN_MAX}',f'Угол шорт {str_1.CORNER_SHORT}'],
-                    [f'Процент сделок в + {procent_trade_plus} %',f'Сделок в + {count_long_take+count_short_take}',f'Седлок в - {count_long_loss+count_short_loss}',f'Всего сделок {count_long_take+count_short_take+count_long_loss+count_short_loss}'],
-                    [f'Общий профит {profit} $',f'Общий убыток {loss} $',f'Комиссия {commission} $',f'ИТОГ: {round(profit-loss-commission,2)} $'],
-                    [f'Депо ИТОГ: {DEPOSIT_GLOBAL} $',f'Депо старт {DEPOSIT_START} $',f'Депо ИТОГ,%: {round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2)}',f'']])
+        if strat_mas_historical[0] == 'strat1':
+            t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'{number_iteration_history}'],
+                        [f'Следим за ценой {int(wait_time*VOLUME/VOLUME_5MIN)} мин',f'Ком мейк {COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_1.CANAL_MAX*100} %'],
+                        [f'Рабочий таймфрейм {wait_time} мин',f'Ком тейк {COMMISSION_TAKER*100} %',f'Плечо {LEVERAGE}',f'Низ канала {str_1.CANAL_MIN*100} %'],
+                        [f'Длительность {int(wait_time*VOLUME/60)} ч',f'Тейк {TP*100} %',f'Объём торгов мин {CANDLE_COIN_MIN}',f'Угол лонг {str_1.CORNER_LONG}'],
+                        [f'Сколько монет торговать {how_mach_coin}',f'Стоп {SL*100} %',f'Объём торгов макс {CANDLE_COIN_MAX}',f'Угол шорт {str_1.CORNER_SHORT}'],
+                        [f'Процент сделок в + {procent_trade_plus} %',f'Сделок в + {count_long_take+count_short_take}',f'Седлок в - {count_long_loss+count_short_loss}',f'Всего сделок {count_long_take+count_short_take+count_long_loss+count_short_loss}'],
+                        [f'Общий профит {profit} $',f'Общий убыток {loss} $',f'Комиссия {commission} $',f'ИТОГ: {round(profit-loss-commission,2)} $'],
+                        [f'Депо ИТОГ: {DEPOSIT_GLOBAL} $',f'Депо старт {DEPOSIT_START} $',f'Депо ИТОГ,%: {round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2)}',f'']])
+        if strat_mas_historical[0] == 'strat2':
+            t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'{number_iteration_history}'],
+                        [f'Следим за ценой {int(wait_time*VOLUME/VOLUME_5MIN)} мин',f'Ком мейк {COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_2.CANAL_MAX*100} %'],
+                        [f'Рабочий таймфрейм {wait_time} мин',f'Ком тейк {COMMISSION_TAKER*100} %',f'Плечо {LEVERAGE}',f'Низ канала {str_2.CANAL_MIN*100} %'],
+                        [f'Длительность {int(wait_time*VOLUME/60)} ч',f'Тейк {TP*100} %',f'Объём торгов мин {CANDLE_COIN_MIN}',f'Угол лонг -'],
+                        [f'Сколько монет торговать {how_mach_coin}',f'Стоп {SL*100} %',f'Объём торгов макс {CANDLE_COIN_MAX}',f'Угол шорт -'],
+                        [f'Процент сделок в + {procent_trade_plus} %',f'Сделок в + {count_long_take+count_short_take}',f'Седлок в - {count_long_loss+count_short_loss}',f'Всего сделок {count_long_take+count_short_take+count_long_loss+count_short_loss}'],
+                        [f'Общий профит {profit} $',f'Общий убыток {loss} $',f'Комиссия {commission} $',f'ИТОГ: {round(profit-loss-commission,2)} $'],
+                        [f'Депо ИТОГ: {DEPOSIT_GLOBAL} $',f'Депо старт {DEPOSIT_START} $',f'Депо ИТОГ,%: {round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2)}',f'']])
         print(t.draw())
         print_log(t.draw())
         set_our_settings.append([TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,str_1.CANAL_MAX,str_1.CANAL_MIN,str_1.CORNER_SHORT,str_1.CORNER_LONG,number_iteration_history_str])

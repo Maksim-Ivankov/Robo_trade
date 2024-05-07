@@ -22,7 +22,9 @@ for i in range(0,how_mach_settings):
     MIDDLE_1 = random.choice([2,3,4,5,6,7,8,9,10,11,12,13,14])
     MIDDLE_2 = random.choice([2,3,4,5,6,7,8,9,10,11,12,13,14])
     MIDDLE_DATA = random.choice([1,2,3,4,5,6,7,8,9,10])
-    str_settings=f'{TP},{SL},{DEPOSIT},{LEVERAGE},{CANDLE_COIN_MIN},{CANDLE_COIN_MAX},{MIDDLE_1},{MIDDLE_2},{MIDDLE_DATA}'
+    CANAL_MAX = random.choice([0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8,0.81,0.82,0.83,0.84,0.85,0.86,0.87,0.88,0.89,0.9])
+    CANAL_MIN = random.choice([0.1,0.11,0.12,0.13,0.14,0.15,0.16,0.17,0.18,0.19,0.20,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.30])
+    str_settings=f'{TP},{SL},{DEPOSIT},{LEVERAGE},{CANDLE_COIN_MIN},{CANDLE_COIN_MAX},{MIDDLE_1},{MIDDLE_2},{MIDDLE_DATA},{CANAL_MAX},{CANAL_MIN}'
     print_log(str_settings)
 
 

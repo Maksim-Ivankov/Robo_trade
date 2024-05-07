@@ -19,7 +19,18 @@ def strat1_param():
         str_1.CANAL_MIN = float(float(frame_2_set4_3_set_4.get())/100)
         str_1.CORNER_LONG = int(frame_2_set4_4_set_1.get())
         str_1.CORNER_SHORT = int(frame_2_set4_4_set_2.get())
-        return [bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,str_1.CANAL_MAX,str_1.CANAL_MIN,str_1.CORNER_LONG,str_1.CORNER_SHORT,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX]
+        return [bin.COMMISSION_MAKER,
+                bin.COMMISSION_TAKER,
+                bin.TP,
+                bin.SL,
+                bin.DEPOSIT,
+                bin.LEVERAGE,
+                str_1.CANAL_MAX,
+                str_1.CANAL_MIN,
+                str_1.CORNER_LONG,
+                str_1.CORNER_SHORT,
+                bin.CANDLE_COIN_MIN,
+                bin.CANDLE_COIN_MAX]
         
 # валидация инпутов настроек стратегии 2 
 def strat2_param():
@@ -29,11 +40,27 @@ def strat2_param():
         messagebox.showinfo('Внимание','Введите коэфициент медленной скользящей средней')
     elif frame_2_set4_4_set_125.get()=='': 
         messagebox.showinfo('Внимание','Введите кол-во совпадений в прошлом')
+    elif frame_2_set4_4_set_1252.get()=='': 
+        messagebox.showinfo('Внимание','Введите верх канала')
+    elif frame_2_set4_4_set_1254.get()=='': 
+        messagebox.showinfo('Внимание','Введите низ канала')
     else:
         str_2.MIDDLE_1 = int(frame_2_set4_4_set_133.get())
         str_2.MIDDLE_2 = int(frame_2_set4_4_set_12.get())
         str_2.MIDDLE_DATA = int(frame_2_set4_4_set_125.get())
-        return [bin.COMMISSION_MAKER,bin.COMMISSION_TAKER,bin.TP,bin.SL,bin.DEPOSIT,bin.LEVERAGE,str_2.MIDDLE_1,str_2.MIDDLE_2,str_2.MIDDLE_DATA,bin.CANDLE_COIN_MIN,bin.CANDLE_COIN_MAX]
+        str_2.CANAL_MAX = float(float(frame_2_set4_4_set_1252.get())/100)
+        str_2.CANAL_MIN = float(float(frame_2_set4_4_set_1254.get())/100)
+        return [bin.COMMISSION_MAKER,
+                bin.COMMISSION_TAKER,
+                bin.TP,
+                bin.SL,
+                bin.DEPOSIT,
+                bin.LEVERAGE,
+                str_2.MIDDLE_1,
+                str_2.MIDDLE_2,
+                str_2.MIDDLE_DATA,
+                str_2.CANAL_MAX,
+                str_2.CANAL_MIN]
     
 
 # отрисовка настреок стратегии 1
@@ -76,7 +103,7 @@ def strat1(frame):
 
 # отрисовка настреок стратегии 2
 def strat2(frame):
-    global frame_2_set4_4_set_133, frame_2_set4_4_set_12,frame_2_set4_4_set_125
+    global frame_2_set4_4_set_133, frame_2_set4_4_set_12,frame_2_set4_4_set_125,frame_2_set4_4_set_1252,frame_2_set4_4_set_1254
     label_title112 = customtkinter.CTkLabel(frame, text="Настройки стартегии 'Скользящие средние'", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
     frame_2_strat_1= customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B")
     label__2_set4_3_set_4 = customtkinter.CTkLabel(frame_2_strat_1, text="Коэфициент основной скользящей средней", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
@@ -85,10 +112,16 @@ def strat2(frame):
     frame_2_set4_4_set_12 = customtkinter.CTkEntry(frame_2_strat_1, placeholder_text="12",justify="center")
     label__2_set4_3_set_425 = customtkinter.CTkLabel(frame_2_strat_1, text="Кол-во совпадений в прошлом", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
     frame_2_set4_4_set_125 = customtkinter.CTkEntry(frame_2_strat_1, placeholder_text="3",justify="center")
+    label__2_set4_3_set_4251 = customtkinter.CTkLabel(frame_2_strat_1, text="Прижатие к верху коридора", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_2_set4_4_set_1252 = customtkinter.CTkEntry(frame_2_strat_1, placeholder_text="85",justify="center")
+    label__2_set4_3_set_4253 = customtkinter.CTkLabel(frame_2_strat_1, text="Прижатие к низу коридора", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    frame_2_set4_4_set_1254 = customtkinter.CTkEntry(frame_2_strat_1, placeholder_text="15",justify="center")
     
     frame_2_set4_4_set_133.insert(0, str_2.MIDDLE_1)
     frame_2_set4_4_set_12.insert(0, str_2.MIDDLE_2)
     frame_2_set4_4_set_125.insert(0, str_2.MIDDLE_DATA)
+    frame_2_set4_4_set_1252.insert(0, round(str_2.CANAL_MAX*100,3))
+    frame_2_set4_4_set_1254.insert(0, round(str_2.CANAL_MIN*100,3))
     
     label_title112.pack(pady=0, anchor='n')
     frame_2_strat_1.pack(pady=20, anchor='n')
@@ -97,4 +130,8 @@ def strat2(frame):
     label__2_set4_3_set_42.pack(pady=0,padx=20, anchor='n')
     frame_2_set4_4_set_12.pack(pady=0,padx=20, anchor='n')
     label__2_set4_3_set_425.pack(pady=0,padx=20, anchor='n')
-    frame_2_set4_4_set_125.pack(pady=[0,20], anchor='n')
+    frame_2_set4_4_set_125.pack(pady=0,padx=20, anchor='n')
+    label__2_set4_3_set_4251.pack(pady=0,padx=20, anchor='n')
+    frame_2_set4_4_set_1252.pack(pady=0,padx=20, anchor='n')
+    label__2_set4_3_set_4253.pack(pady=0,padx=20, anchor='n')
+    frame_2_set4_4_set_1254.pack(pady=[0,20], anchor='n')

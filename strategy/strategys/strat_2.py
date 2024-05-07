@@ -1,9 +1,14 @@
 # стратегия торговли № 2
 
+import numpy as np
+import statsmodels.api as sm
+
 MIDDLE_1 = 6
 MIDDLE_2 = 12
 INDEX_START = 20 # автоматом подсасется из bin. Руками не трогать
 MIDDLE_DATA = 3 # сколько шагов назад должны быть одинаковые по сигналу, чтобы сработало изменение
+CANAL_MAX = 0.85 # Верх канала
+CANAL_MIN = 0.15 # Низ канала
  
 data_mas = []
 
@@ -36,32 +41,70 @@ def strat_2(df,index_trade,result):
             sum_price=sum_price+df['close'][l]*(1-(2/(j-l+1))*0.01)
         save_middle_price_21 = sum_price/int(MIDDLE_2)
         data_mas.append(save_middle_price_11<save_middle_price_21) 
+
+    prepared_df = PrepareDF(df)
+    i=index_trade-2
+
+
     if all_the_same(data_mas)==True:
         # если в массиве все одинаковые
         if data_mas[0] == True and data_once==False:
-            data_mas[:] = []
-            return 'long'
+            if prepared_df['position_in_channel'][i-1]<CANAL_MIN: # проверяем, прижаты ли мы к верхней границе канала
+                data_mas[:] = []
+                return 'short'
         elif data_mas[0] == False and data_once==True:
-            data_mas[:] = []
-            return 'short'
+            if prepared_df['position_in_channel'][i-1]>CANAL_MAX: # проверяем, прижаты ли мы к нижней границе канала
+                data_mas[:] = []
+                return 'long'
         else:
             data_mas[:] = []
             return 'нет сигнала'
     else:
         data_mas[:] = []
         return 'нет сигнала'
-    # global reccomendation
-    # if symbol not in reccomendation: # если в массиве сигналов нет монеты, значит запускаем первый раз. Просто добавляем в массив и возвращаемся
-    #     reccomendation[symbol] = get_data(symbol,TF)
-    #     return 'нет сигнала'
-    # if reccomendation[symbol] == get_data(symbol,TF): # если сигнал раньше и сейчас совпадает, то - нет сигнала
-    #     return 'нет сигнала'
-    # elif get_data(symbol) == 'STRONG_BUY': # сигнал на покупку
-    #      return 'long'
-    # elif get_data(symbol) == 'STRONG_SELL': # сигнал на ПРОДАЖУ
-    #      return 'short'
-    
-    
+
+
+
+# сгенерируйте фрейм данных со всеми необходимыми данными
+def PrepareDF(DF):
+    ohlc = DF.iloc[:,[0,1,2,3,4,5]]
+    ohlc.columns = ["date","open","high","low","close","VOLUME"]
+    ohlc=ohlc.set_index('date')
+    df = indATR(ohlc,14).reset_index()
+    df['channel_max'] = df['high'].rolling(10).max() # определяем верхний уровень канала
+    df['channel_min'] = df['low'].rolling(10).min() # определяем нижний уровень канала
+    df['position_in_channel'] = (df['close']-df['channel_min']) / (df['channel_max']-df['channel_min']) # сейчас находимся выше середины канала или ниже
+    df = df.set_index('date')
+    df = df.reset_index()
+    return(df)
+
+# найти локальный максимум
+def isHCC(df,i):
+    HCC=0
+    if df['close'][i]>=df['close'][i+1] and df['close'][i]>=df['close'][i-1] and df['close'][i+1]<df['close'][i-1]:
+        #найдена вершина
+        HCC = i
+    return HCC
+
+# найти локальный минимум
+def isLCC(df,i):
+    LCC=0
+    if df['close'][i]<=df['close'][i+1] and df['close'][i]<=df['close'][i-1] and df['close'][i+1]>df['close'][i-1]:
+        #найдено Дно
+        LCC = i-1
+    return LCC
+
+# Индикатор истинного диапазона и среднего значения истинного диапазона
+def indATR(df,n):
+    df['H-L']=abs(df['high']-df['low'])
+    df['H-PC']=abs(df['high']-df['close'].shift(1))
+    df['L-PC']=abs(df['low']-df['close'].shift(1))
+    df['TR']=df[['H-L','H-PC','L-PC']].max(axis=1,skipna=False)
+    df['ATR'] = df['TR'].rolling(n).mean()
+    df_temp = df.drop(['H-L','H-PC','L-PC'],axis=1)
+    return df_temp
+
+
 
 
 
