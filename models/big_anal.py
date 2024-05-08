@@ -17,6 +17,11 @@ MYDIR_5MIN = '../ROBO_TRADE/DF/big_anal/mini/'
 MYDIR_COIN = '../ROBO_TRADE/DF/big_anal/coin.txt'
 TIME_ITERABLE = 12 # Время итерации торговли, часов
 TIME_SDVIG = 60 # Сдвиг итераций, минут
+work_timeframe_HM_anal = 0 # следим за ценой
+COMMISSION_MAKER = 0.002
+COMMISSION_TAKER = 0.001
+DLITELNOST = 0 # длительность таймферйма, часов
+COUNT_ITERACION = 0
 
 wait_time = 5 # сколько минут ждать для обновления цены с биржи
 coin_mas_10 = []
