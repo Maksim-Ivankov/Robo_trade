@@ -525,7 +525,6 @@ def open_step_1_big_anal(frame):
     input_2_167_anal.insert(0, biganal.how_mach_coin)
     button32.pack(pady=20)
 
-
 # валидация на данные с шага 1
 def step_2_historical_trade_prom_anal(frame,input_2_167_anal,input_2_1,frame_2_set4_3_set_1):
     if input_2_1.get()=='': 
@@ -788,6 +787,7 @@ def step_4_historical_trade_prom_anal(frame):
 
 # шаг 4 биг анал
 def open_step_4_anal(frame,data_settings_1):
+    global real_test_frame_indicator_anal
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
     
@@ -802,7 +802,7 @@ def open_step_4_anal(frame,data_settings_1):
                 lines_settings = len(fp.readlines())
 
     biganal.COUNT_ITERACION = int(round((float(biganal.DLITELNOST) - float(biganal.TIME_ITERABLE))/round(float(biganal.TIME_SDVIG)/60,1),0)+1)
-    print(f'Длительность таймфрейма, часов - {biganal.DLITELNOST}|Время итерации - {biganal.TIME_ITERABLE}|Сдвиг, в минутах - {biganal.TIME_SDVIG}')
+    # print(f'Длительность таймфрейма, часов - {biganal.DLITELNOST}|Время итерации - {biganal.TIME_ITERABLE}|Сдвиг, в минутах - {biganal.TIME_SDVIG}')
 
     label_title112 = customtkinter.CTkLabel(frame, text="Проверьте настройки и запустите торговлю", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
     frame_2_strat_1= customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B",width=800)
@@ -835,11 +835,22 @@ def open_step_4_anal(frame,data_settings_1):
     button3212 = customtkinter.CTkButton(frame_2_set412, text="Назад",command=lambda:open_step_3_anal(frame))
     if len(data_settings_1)!=0:
         if len(strat_mas_anal_2)==1 and strat_mas_anal_2[0] == 'strat1':
-            button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_anal_trade_strat_1_set_validation())
+            button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_anal_trade_strat_1_set_validation(strat_mas_anal_2,real_test_frame_4,real_test_frame_3_2_1_historical))
         if len(strat_mas_anal_2)==1 and strat_mas_anal_2[0] == 'strat2':
-            button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_anal_trade_strat_2_set_validation())
+            button3213 = customtkinter.CTkButton(frame_2_set412, text="Запустить торговлю",command = lambda:start_anal_trade_strat_2_set_validation(strat_mas_anal_2,real_test_frame_4,real_test_frame_3_2_1_historical))
+    real_test_frame_indicator_anal = customtkinter.CTkFrame(master=frame, corner_radius=0, fg_color="transparent")
+    real_test_frame_3 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="#2B2B2B")
+    real_test_frame_3_2 = customtkinter.CTkFrame(real_test_frame_3, corner_radius=0, fg_color="#2B2B2B")
     
+    progressbar_hist_once = customtkinter.CTkProgressBar(real_test_frame_indicator_anal, orientation="horizontal",width=600)
+    progressbar_hist_once.pack()
+    progressbar_hist_once.set(0)
     
+    real_test_label_3_2 = customtkinter.CTkLabel(real_test_frame_3_2, text="Логи торговли", fg_color="transparent",anchor='center',font=('Arial',12,'bold'))
+    real_test_frame_3_2_1_historical = customtkinter.CTkScrollableFrame(real_test_frame_3_2, corner_radius=5, fg_color="#DAE2EC",orientation='vertical', width=460, height=260) # логи
+    real_test_frame_4 = customtkinter.CTkFrame(master=frame, corner_radius=10, fg_color="transparent") # вывоб результатов
+
+
     label_title112.pack(pady=0, anchor='n')
     frame_2_strat_1.pack(pady=10, anchor='n')
     label_title2_1_0.pack(pady=5, anchor='n')
@@ -864,14 +875,109 @@ def open_step_4_anal(frame,data_settings_1):
     button3213.grid(row=0, column=1, sticky="ew",padx=10)
     
     #------------
-    
+    real_test_frame_indicator_anal.pack(pady=20)
+    real_test_frame_3.pack(pady=20)
+    real_test_frame_3_2.grid(row=0, column=1, sticky="ew",padx=10)
+    real_test_label_3_2.pack(pady=0)
+    real_test_frame_3_2_1_historical.pack(pady=0)
+    real_test_frame_4.pack(pady=20)
 
+# валидация запуска первой стратегии
+def start_anal_trade_strat_1_set_validation(strat_mas_anal_2,frame_osnova,frame_log):
+    try: 
+        set_settings_strat_1 = []
+        with open("strat_1_set.txt",encoding='utf-8') as file:
+            for line in file:
+                # если в одной из строк сета настроек неправильное кол-во настроек, выкидываем ошибку
+                if len(line.rstrip().split(',')) != 10:messagebox.showinfo('Внимание',f'ОШИБКА! Неправильное кол-во настроек в строке (10) {line.rstrip()}')
+                set_settings_strat_1.append(line.rstrip().split(','))
+                
+            thread292212 = threading.Thread(target=lambda:start_set_anal_trade_strat_1(strat_mas_anal_2,set_settings_strat_1,frame_osnova,frame_log))
+            thread292212.start()
 
-def start_anal_trade_strat_1_set_validation():
-    print('Стартуем страт 1')
+    except Exception as e:
+        print('ОШИБКА начала исторической торговли по сету настроек')
 
-def start_anal_trade_strat_2_set_validation():
-    print('Стартуем страт 2')
+# валидация второй стратегии
+def start_anal_trade_strat_2_set_validation(strat_mas_anal_2,frame_osnova,frame_log):
+    try: 
+        set_settings_strat_1 = []
+        with open("strat_2_set.txt",encoding='utf-8') as file:
+            for line in file:
+                # если в одной из строк сета настроек неправильное кол-во настроек, выкидываем ошибку
+                if len(line.rstrip().split(',')) != 11:messagebox.showinfo('Внимание',f'ОШИБКА! Неправильное кол-во настроек в строке (11) {line.rstrip()}')
+                set_settings_strat_1.append(line.rstrip().split(','))
+                
+            thread292212 = threading.Thread(target=lambda:start_set_anal_trade_strat_2(strat_mas_anal_2,set_settings_strat_1,frame_osnova,frame_log))
+            thread292212.start()
+
+    except Exception as e:
+        print('ОШИБКА начала исторической торговли по сету настроек')
+
+def start_set_anal_trade_strat_1(strat_mas_anal,set_settings_strat_1,frame_osnova,frame_log):
+    clear_frame(frame_osnova)
+    clear_frame(frame_log)
+    # global table_strat_1_settings_trade,strat_mas_historical_onclock_treade
+    bin.remove_txt('DF/big_anal/hist_strat_1_trade/') # удаляем все файлы с сохраненной торговлей по сету настроек
+    # strat_mas_historical_onclock_treade = strat_mas_historical
+    for key,value in enumerate(set_settings_strat_1):
+            str_1.CANAL_MAX = float(value[6])
+            str_1.CANAL_MIN = float(value[7])
+            str_1.CORNER_SHORT = int(value[8])
+            str_1.CORNER_LONG = int(value[9])
+            bin.start_trade_hist_model(real_test_frame_indicator_anal,frame_osnova,
+                                       frame_log,
+                                       strat_mas_anal,
+                                       bin.COMMISSION_MAKER,
+                                       bin.COMMISSION_TAKER,
+                                       float(value[0]), #тейк профит
+                                       float(value[1]),  # стоп лосс
+                                       int(value[2]), # Депозит
+                                       int(value[3]), # Плечо
+                                       int(value[4]), # Объём в свече мин
+                                       int(value[5]), # Объём в свече макс
+                                       5, # режим, 5 значит работаем по сету настроек в БИГ АНАЛЕ
+                                       f'{key}/{len(set_settings_strat_1)}') # Какой шаг из скольки
+    bin.print_components_log(f'Закончили обработку данных',frame_log,'DF')
+    value_strat_1_settings_trade = [['Номер настроек','% к депо','Сделок всего','Сделок в +','Сделок в -','Общий профит','Общий убыток','Комиссия']]
+    # sorted(bin.OUR_SETTINGS_MAS_STRAT_1, key=lambda x: x[1])
+    # bin.OUR_SETTINGS_MAS_STRAT_1.reverse()
+    value_strat_1_settings_trade = value_strat_1_settings_trade + bin.OUR_SETTINGS_MAS_STRAT_1
+    table_strat_1_settings_trade = CTkTable(master=frame_osnova, row=1+len(set_settings_strat_1), column=8, values=value_strat_1_settings_trade,command = get_trade_for_settings_is_table)
+    table_strat_1_settings_trade.pack(expand=True, padx=20, pady=20)
+
+def start_set_anal_trade_strat_2(strat_mas_anal,set_settings_strat_1,frame_osnova,frame_log):
+    clear_frame(frame_osnova)
+    clear_frame(frame_log)
+    # global table_strat_1_settings_trade,strat_mas_historical_onclock_treade
+    bin.remove_txt('DF/hist_strat_1_trade/') # удаляем все файлы с сохраненной торговлей по сету настроек
+    # strat_mas_historical_onclock_treade = strat_mas_historical
+    for key,value in enumerate(set_settings_strat_1):
+            str_2.MIDDLE_1 = float(value[6])
+            str_2.MIDDLE_2 = float(value[7])
+            str_2.MIDDLE_DATA = int(value[8])
+            str_2.CANAL_MAX = float(value[9])
+            str_2.CANAL_MIN = float(value[10])
+            bin.start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,
+                                       frame_log,
+                                       strat_mas_anal,
+                                       bin.COMMISSION_MAKER,
+                                       bin.COMMISSION_TAKER,
+                                       float(value[0]), #тейк профит
+                                       float(value[1]),  # стоп лосс
+                                       int(value[2]), # Депозит
+                                       int(value[3]), # Плечо
+                                       int(value[4]), # Объём в свече мин
+                                       int(value[5]), # Объём в свече макс
+                                       1, # режим, 1 значит работаем по сету настроек
+                                       f'{key}/{len(set_settings_strat_1)}') # Какой шаг из скольки
+    bin.print_components_log(f'Закончили обработку данных',frame_log,'DF')
+    value_strat_1_settings_trade = [['Номер настроек','% к депо','Сделок всего','Сделок в +','Сделок в -','Общий профит','Общий убыток','Комиссия']]
+    # sorted(bin.OUR_SETTINGS_MAS_STRAT_1, key=lambda x: x[1])
+    # bin.OUR_SETTINGS_MAS_STRAT_1.reverse()
+    value_strat_1_settings_trade = value_strat_1_settings_trade + bin.OUR_SETTINGS_MAS_STRAT_1
+    table_strat_1_settings_trade = CTkTable(master=frame_osnova, row=1+len(set_settings_strat_1), column=8, values=value_strat_1_settings_trade,command = get_trade_for_settings_is_table)
+    table_strat_1_settings_trade.pack(expand=True, padx=20, pady=20)
 
 # открытие логов в биг трейде
 def open_big_anal_trade_log():
@@ -1642,6 +1748,8 @@ def open_step_4_historical(frame,data_settings_1=[]):
     #---
 
     real_test_frame_4.pack(pady=20)
+
+    
 
 # Валидация на начало торговли по сету настроек на первой стратегии - если есть данные в файле и они правильные
 def start_historical_trade_strat_1_set_validation(strat_mas_historical,frame_osnova,frame_log):
