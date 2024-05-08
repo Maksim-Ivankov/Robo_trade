@@ -650,7 +650,7 @@ frame_2_set2_graph = customtkinter.CTkFrame(win)
 frame_3_set4_1 = customtkinter.CTkFrame(win)
 frame_3_set4_1_trat_2 = customtkinter.CTkFrame(win)
 
-
+#ff
 # выбор стратегии - внутренняя логика
 def checkbox_event_strat_anal():
     global strat_mas_anal_2
