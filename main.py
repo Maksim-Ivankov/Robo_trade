@@ -430,7 +430,8 @@ def big_anal():
     button1 = customtkinter.CTkButton(frame_2_set1, text="Информация")
     button2 = customtkinter.CTkButton(frame_2_set1, text="Инструкция")
     button3 = customtkinter.CTkButton(frame_2_set1, text="История торгов",command=open_big_anal_trade_log)
-    frame_2_set1_step1 = customtkinter.CTkFrame(frame_4, corner_radius=10, fg_color="transparent")
+    #frame_2_set1_step1 = customtkinter.CTkFrame(frame_4, corner_radius=10, fg_color="transparent")
+    frame_2_set1_step1 = customtkinter.CTkScrollableFrame(frame_4, corner_radius=5, fg_color="transparent",orientation='vertical', width=900, height=900)
     
     label_title1.pack(pady=20)
     frame_2_set1.pack(pady=10,padx=20)
@@ -1466,7 +1467,6 @@ def open_step_2_historical(frame):
     global strat_mas_historical
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
-    #ghio;
     label_title112 = customtkinter.CTkLabel(frame, text="Выберете одну или несколько стратегий реальной тестовой торговли", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
     frame_2_set4 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B")
     label__2_set4 = customtkinter.CTkLabel(frame_2_set4, text="Выбор стратегии", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
