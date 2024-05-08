@@ -1466,7 +1466,7 @@ def open_step_2_historical(frame):
     global strat_mas_historical
     for widget in frame.winfo_children(): # чистим табличку
         widget.destroy()
-    #gh
+    #ghio;
     label_title112 = customtkinter.CTkLabel(frame, text="Выберете одну или несколько стратегий реальной тестовой торговли", fg_color="transparent",anchor='center',font=('Arial',14,'normal'))
     frame_2_set4 = customtkinter.CTkFrame(frame, corner_radius=10, fg_color="#2B2B2B")
     label__2_set4 = customtkinter.CTkLabel(frame_2_set4, text="Выбор стратегии", fg_color="transparent",anchor='center',font=('Arial',14,'bold'))
