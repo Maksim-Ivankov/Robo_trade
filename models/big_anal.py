@@ -8,13 +8,16 @@ from CTkTable import *
 
 TF = '5m' # таймфрейм
 VOLUME = 144 # сколько свечей получить при запросе к бирже
+VOLUME_2 = VOLUME
 VOLUME_5MIN = 720 # сколько свечей получить в режиме слежения за ценой
 how_mach_coin = 10
 STEP_5_min_VALUE = 5
 MYDIR_WORKER = '../ROBO_TRADE/DF/big_anal/worker/'
+MYDIR_WORKER_2 = MYDIR_WORKER
 MYDIR_COIN_PROCENT = '../ROBO_TRADE/DF/big_anal/coin_procent.txt'
 MYDIR_5MIN = '../ROBO_TRADE/DF/big_anal/mini/'
 MYDIR_COIN = '../ROBO_TRADE/DF/big_anal/coin.txt'
+MYDIR_COIN_2 = MYDIR_COIN
 TIME_ITERABLE = 12 # Время итерации торговли, часов
 TIME_SDVIG = 60 # Сдвиг итераций, минут
 work_timeframe_HM_anal = 0 # следим за ценой
@@ -23,8 +26,10 @@ COMMISSION_TAKER = 0.001
 DLITELNOST = 0 # длительность таймферйма, часов
 COUNT_ITERACION = 0
 
+
 wait_time = 5 # сколько минут ждать для обновления цены с биржи
 coin_mas_10 = []
+coin_mas_10_2 = coin_mas_10
 data_print_ad_df = []
 
 client = UMFutures(key=key, secret=secret)

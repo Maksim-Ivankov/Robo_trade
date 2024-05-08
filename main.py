@@ -53,6 +53,7 @@ check_var_real_test = customtkinter.StringVar(value=strat_mas_real_test[0]) # п
 check_var_historical = customtkinter.StringVar(value=strat_mas_historical[0]) # первичный выбор настройки ртт шаг 2
 check_var_analgin = customtkinter.StringVar(value=strat_mas_anal_2[0]) # первичный выбор биг анал шаг 2
 sost_tg_message_real_test = 'off' # первичное состояние кнопки ТГ в РТТ
+regime_work_trade_1 = -1
 
 coin_mas_10 = []
         
@@ -650,7 +651,7 @@ frame_2_set2_graph = customtkinter.CTkFrame(win)
 frame_3_set4_1 = customtkinter.CTkFrame(win)
 frame_3_set4_1_trat_2 = customtkinter.CTkFrame(win)
 
-# fd
+
 # выбор стратегии - внутренняя логика
 def checkbox_event_strat_anal():
     global strat_mas_anal_2
@@ -915,7 +916,10 @@ def start_anal_trade_strat_2_set_validation(strat_mas_anal_2,frame_osnova,frame_
     except Exception as e:
         print('ОШИБКА начала исторической торговли по сету настроек')
 
+# запуск торговли на стратегии 1
 def start_set_anal_trade_strat_1(strat_mas_anal,set_settings_strat_1,frame_osnova,frame_log):
+    global regime_work_trade_1
+    regime_work_trade_1 = 5
     clear_frame(frame_osnova)
     clear_frame(frame_log)
     # global table_strat_1_settings_trade,strat_mas_historical_onclock_treade
@@ -947,7 +951,10 @@ def start_set_anal_trade_strat_1(strat_mas_anal,set_settings_strat_1,frame_osnov
     table_strat_1_settings_trade = CTkTable(master=frame_osnova, row=1+len(set_settings_strat_1), column=8, values=value_strat_1_settings_trade,command = get_trade_for_settings_is_table)
     table_strat_1_settings_trade.pack(expand=True, padx=20, pady=20)
 
+# запуск торговли на стратегии 2
 def start_set_anal_trade_strat_2(strat_mas_anal,set_settings_strat_1,frame_osnova,frame_log):
+    global regime_work_trade_1
+    regime_work_trade_1 = 5
     clear_frame(frame_osnova)
     clear_frame(frame_log)
     # global table_strat_1_settings_trade,strat_mas_historical_onclock_treade
@@ -959,7 +966,7 @@ def start_set_anal_trade_strat_2(strat_mas_anal,set_settings_strat_1,frame_osnov
             str_2.MIDDLE_DATA = int(value[8])
             str_2.CANAL_MAX = float(value[9])
             str_2.CANAL_MIN = float(value[10])
-            bin.start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,
+            bin.start_trade_hist_model(real_test_frame_indicator_anal,frame_osnova,
                                        frame_log,
                                        strat_mas_anal,
                                        bin.COMMISSION_MAKER,
@@ -970,7 +977,7 @@ def start_set_anal_trade_strat_2(strat_mas_anal,set_settings_strat_1,frame_osnov
                                        int(value[3]), # Плечо
                                        int(value[4]), # Объём в свече мин
                                        int(value[5]), # Объём в свече макс
-                                       1, # режим, 1 значит работаем по сету настроек
+                                       5, # режим, 5 значит работаем по сету настроек в БИГ АНАЛЕ
                                        f'{key}/{len(set_settings_strat_1)}') # Какой шаг из скольки
     bin.print_components_log(f'Закончили обработку данных',frame_log,'DF')
     value_strat_1_settings_trade = [['Номер настроек','% к депо','Сделок всего','Сделок в +','Сделок в -','Общий профит','Общий убыток','Комиссия']]
@@ -1789,8 +1796,10 @@ def clear_frame(frame):
             widget.forget()
 
 def start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log):
+    global regime_work_trade_1
     clear_frame(frame_osnova)
     clear_frame(frame_log)
+    regime_work_trade_1 = 1
     global table_strat_1_settings_trade,strat_mas_historical_onclock_treade
     bin.remove_txt('DF/hist_strat_1_trade/') # удаляем все файлы с сохраненной торговлей по сету настроек
     strat_mas_historical_onclock_treade = strat_mas_historical
@@ -1821,8 +1830,10 @@ def start_set_hist_trade_strat_1(strat_mas_historical,set_settings_strat_1,frame
     table_strat_1_settings_trade.pack(expand=True, padx=20, pady=20)
 
 def start_set_hist_trade_strat_2(strat_mas_historical,set_settings_strat_1,frame_osnova,frame_log):
+    global regime_work_trade_1
     clear_frame(frame_osnova)
     clear_frame(frame_log)
+    regime_work_trade_1 = 1
     global table_strat_1_settings_trade,strat_mas_historical_onclock_treade
     bin.remove_txt('DF/hist_strat_1_trade/') # удаляем все файлы с сохраненной торговлей по сету настроек
     strat_mas_historical_onclock_treade = strat_mas_historical
@@ -1953,10 +1964,10 @@ def get_window_trade_fore_once_settings(number,strat_mas_historical,val):
 
 # обработчик клика на строку таблицы и рисуем график
 def onclick_stroka_table_trade_str_1_set(data):
-    global table_strat_1_settings_trade_for_historical
+    global table_strat_1_settings_trade_for_historical,regime_work_trade_1
     data_parse = table_strat_1_settings_trade_for_historical.get_row(data['row'])
     # for key,val in enumerate(bin.set_our_settings):
-    bin.print_graph_historical_of_once_settings(data_parse[0],int(data_parse[1]),data_parse[2],float(data_parse[3]),float(data_parse[4]))
+    bin.print_graph_historical_of_once_settings(data_parse[0],int(data_parse[1]),data_parse[2],float(data_parse[3]),float(data_parse[4]),regime_work_trade_1)
 
 # рисуем график дохода по торговле с заданными настройками
 def print_graph_profit(frame,data_for_table_trade_regime_1_step_2):
@@ -2013,6 +2024,8 @@ def print_real_price_x_profit(y,graph_profit):
     price_rectangle_text_profit = graph_profit.create_text(470,y-10,fill="#DADBDD",font=('Purisa',8),text='123')
 
 def start_historical_trade_strat_1_once_set(strat_mas_historical,val,window_trade_once_set_1,real_test_frame_3_2_1_historical):
+    global regime_work_trade_1
+    regime_work_trade_1 = 0
     clear_frame(window_trade_once_set_1)
     clear_frame(real_test_frame_3_2_1_historical)
     str_1.CANAL_MAX = float(val[6])

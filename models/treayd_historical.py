@@ -10,6 +10,7 @@ import graph_by.graph_historical as graph
 from texttable import Texttable
 import progressbar
 from CTkTable import *
+import models.big_anal as biganal
 
 
 TF = '5m' # таймфрейм
@@ -39,7 +40,7 @@ INDEX_START = 20
 str_2.INDEX_START = INDEX_START
 
 
-
+trend = "нет сигнала"  
 how_mach_coin = 10
 
 data_for_table_trade_regime_1 = [['Монета','Шаг','Тренд','TP','SL','Результат','Депозит',]]
@@ -79,6 +80,7 @@ width_spile = 1 # Ширина хвоста, шпиля
 name_bot_historical = ''
 summ_strat = {}
 OUR_SETTINGS_MAS_STRAT_1 = []
+regime_work = 0
 
 client = UMFutures(key=key, secret=secret)
 
@@ -412,7 +414,7 @@ flag_set_ferst_once = 0
 
 # точка входа
 def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log,strat_mas_historical,COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,regime = 0,number_iteration_history_str=''):
-    global coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1,flag_set_ferst_once,set_our_settings,signal_for_logs_regime_0,place_open_position_step,place_open_position_trend,place_open_position_profit,take_profit_price,stop_loss_price,table_strat_1_settings_trade_for_historical
+    global regime_work,coin_mas_10,symbol,time_close_tf,STEP_5_min_VALUE,open_sl,data_numbers,profit,loss,commission,count_long_take,count_long_loss,count_short_take,count_short_loss,DEPOSIT_GLOBAL,wait_time,name_bot_historical,DEPOSIT_START,OUR_SETTINGS_MAS_STRAT_1,flag_set_ferst_once,set_our_settings,signal_for_logs_regime_0,place_open_position_step,place_open_position_trend,place_open_position_profit,take_profit_price,stop_loss_price,table_strat_1_settings_trade_for_historical
     open_sl = False # всегда при старте функции, мы не стоим в сделке
     DEPOSIT_GLOBAL = DEPOSIT
     data_numbers = []
@@ -423,14 +425,34 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
     count_long_loss = 0 # обнуляем количество лонговых позиций в минус при старте функции
     count_short_take = 0 # обнуляем количество шортовых позиций в плюс при старте функции
     count_short_loss = 0 # обнуляем количество шортовых позиций в минус при старте функции
-    fi = open(MYDIR_COIN,'r') # открываем файл с монетами
-    coin_mas_10 = fi.read().split('|') # записываем омнеты массивом сюда
+    if regime==0:
+        fi = open(MYDIR_COIN,'r') # открываем файл с монетами
+        coin_mas_10 = fi.read().split('|') # записываем омнеты массивом сюда
+    if regime==1:
+        fi = open(MYDIR_COIN,'r') # открываем файл с монетами
+        coin_mas_10 = fi.read().split('|') # записываем омнеты массивом сюда
+    if regime==5:
+        fi = open(biganal.MYDIR_COIN_2,'r') # открываем файл с монетами
+        biganal.coin_mas_10_2 = fi.read().split('|') # записываем омнеты массивом сюда
+
+
+    
     fi.close()
     t = Texttable()
-    bar = progressbar.ProgressBar(maxval=VOLUME).start()
+    if regime==0:
+        bar = progressbar.ProgressBar(maxval=VOLUME).start()
+        VOLUME_NOW = VOLUME
+    if regime==1:
+        bar = progressbar.ProgressBar(maxval=VOLUME).start()
+        VOLUME_NOW = VOLUME
+    if regime==5:
+        bar = progressbar.ProgressBar(maxval=biganal.VOLUME).start()
+        VOLUME_NOW = biganal.VOLUME
     number_iteration_history = 0
     
     clear_frame(real_test_frame_indicator_hist)
+
+    regime_work = regime
     
     progressbar_hist_once = customtkinter.CTkProgressBar(real_test_frame_indicator_hist, orientation="horizontal",width=600)
     progressbar_hist_once.pack()
@@ -440,42 +462,79 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
         flag_set_ferst_once = 1
     if regime==0:
         print_components_log(f'Торговля по заданным найстройкам, начинаем',frame_log,'DF')
-    for index in range(VOLUME):
-        progressbar_hist_once.set(index/VOLUME)
+    if regime==5 and flag_set_ferst_once==0:
+        print_components_log(f'Торговля по заданным найстройкам BIG TRADE, начинаем',frame_log,'DF')
+        flag_set_ferst_once = 1
+    for index in range(VOLUME_NOW):
+        progressbar_hist_once.set(index/VOLUME_NOW)
         bar.update(index)
         data_numbers.append(index) # добавляем в массив номера итераций - 0,1,2,3 - имитируем реальную торговлю
         if index>INDEX_START: # начинаем не с нуля, а с 20-ой свечи
             if open_sl == False: # если нет позиции
-                for x,result in enumerate(coin_mas_10):
-                    df = pd.read_csv(f'{MYDIR_WORKER}{result}.csv') # получили датафрейм из файла
-                    if len(df) != VOLUME : continue
-                    prices = df.iloc[data_numbers]
-                    # print(f"{prices['VOLUME'][index]}>{CANDLE_COIN_MIN} and {prices['VOLUME'][index]}<{CANDLE_COIN_MAX}")
-                    if prices['VOLUME'][index]>CANDLE_COIN_MIN and prices['VOLUME'][index]<CANDLE_COIN_MAX:
-                        trend = check_if_signal(prices,index,strat_mas_historical,result) # определяем тренд - стратегия
-                        if trend != 'нет сигнала': # если есть сигнал
-                            symbol = result # сохраняем монету с сигналом
-                            time_close_tf = prices['close_time'][index]
-                            place_open_position_step = index
-                            place_open_position_trend = trend
-                            break
+                try:
+                    if regime==0:
+                        coin_mas = coin_mas_10
+                    if regime==1:
+                        coin_mas = coin_mas_10
+                    if regime==5:
+                        coin_mas = biganal.coin_mas_10_2
+                    for x,result in enumerate(coin_mas):
+                        if regime==0:
+                            df = pd.read_csv(f'{MYDIR_WORKER}{result}.csv') # получили датафрейм из файла
+                            if len(df) != VOLUME : continue
+                        if regime==1:
+                            df = pd.read_csv(f'{MYDIR_WORKER}{result}.csv') # получили датафрейм из файла
+                            if len(df) != VOLUME : continue
+                        if regime==5:
+                            df = pd.read_csv(f'{biganal.MYDIR_WORKER_2}{result}.csv') # получили датафрейм из файла
+                            if len(df) != int(biganal.VOLUME) : continue
+
+                        prices = df.iloc[data_numbers]
+                        # print(f"{prices['VOLUME'][index]}>{CANDLE_COIN_MIN} and {prices['VOLUME'][index]}<{CANDLE_COIN_MAX}")
+                        if prices['VOLUME'][index]>CANDLE_COIN_MIN and prices['VOLUME'][index]<CANDLE_COIN_MAX:
+                            trend = check_if_signal(prices,index,strat_mas_historical,result) # определяем тренд - стратегия
+                            if trend != 'нет сигнала': # если есть сигнал
+                                symbol = result # сохраняем монету с сигналом
+                                time_close_tf = prices['close_time'][index]
+                                place_open_position_step = index
+                                place_open_position_trend = trend
+                                break
+                            else:
+                                trend = "нет сигнала"  
                         else:
                             trend = "нет сигнала"  
-                    else:
-                        trend = "нет сигнала"  
-                # если получили сигнал и объём за свечку больше минимального объема (настройка) и меншье максимального объёма (настройка)  
-                if trend != "нет сигнала":
-                    # если есть сигнал, то открываем позицию - направление, объём, цена входа, 
-                    if regime==0: print_components_log(f'Открываем позицию в {trend} | Монета {symbol} | цена входа {prices['close'][index]}',frame_log,'DF')
-                    open_position(trend,get_trade_VOLUME(prices['close'][index],DEPOSIT,LEVERAGE),prices['close'][index],SL,TP)   
+                    # если получили сигнал и объём за свечку больше минимального объема (настройка) и меншье максимального объёма (настройка)  
+                    if trend != "нет сигнала":
+                        # если есть сигнал, то открываем позицию - направление, объём, цена входа, 
+                        if regime==0: print_components_log(f'Открываем позицию в {trend} | Монета {symbol} | цена входа {prices['close'][index]}',frame_log,'DF')
+                        open_position(trend,get_trade_VOLUME(prices['close'][index],DEPOSIT,LEVERAGE),prices['close'][index],SL,TP)   
+                except Exception as e:
+                    print(f'Ошибка основного цикла | Определение сгнала не работает - {e}')
             else: #если есть позиция
-                df = pd.read_csv(f'{MYDIR_WORKER}{symbol}.csv') # получили датафрейм из файла
-                prices = df.iloc[data_numbers]
-                df_mal = pd.read_csv(f'{MYDIR_5MIN}{result}.csv') # получили датафрейм мини из файла
+                if regime==0:
+                    df = pd.read_csv(f'{MYDIR_WORKER}{symbol}.csv') # получили датафрейм из файла
+                    prices = df.iloc[data_numbers]
+                    df_mal = pd.read_csv(f'{MYDIR_5MIN}{result}.csv') # получили датафрейм мини из файла
+                if regime==1:
+                    df = pd.read_csv(f'{MYDIR_WORKER}{symbol}.csv') # получили датафрейм из файла
+                    prices = df.iloc[data_numbers]
+                    df_mal = pd.read_csv(f'{MYDIR_5MIN}{result}.csv') # получили датафрейм мини из файла
+                if regime==5:
+                    df = pd.read_csv(f'{biganal.MYDIR_WORKER_2}{symbol}.csv') # получили датафрейм из файла
+                    prices = df.iloc[data_numbers]
+                    df_mal = pd.read_csv(f'{biganal.MYDIR_5MIN}{result}.csv') # получили датафрейм мини из файла
+                
                 for index2, row in df_mal.iterrows(): # находим индекс, с которого начгнем следить за ценой
                     if row['close_time'] == prices['close_time'][index]:
-                        if int(index2)>int(VOLUME_5MIN)-int(STEP_5_min_VALUE)-5:
-                            break
+                        if regime==0:
+                            if int(index2)>int(VOLUME_5MIN)-int(STEP_5_min_VALUE)-5:
+                                break
+                        if regime==1:
+                            if int(index2)>int(VOLUME_5MIN)-int(STEP_5_min_VALUE)-5:
+                                break
+                        if regime==5:
+                            if int(index2)>int(biganal.VOLUME_5MIN)-int(biganal.STEP_5_min_VALUE)-5:
+                                break
                         for i in range(int(index2),int(index2)+int(STEP_5_min_VALUE),1):
                             if check_trade(df_mal['close'][i],COMMISSION_MAKER,COMMISSION_TAKER,TP,SL,DEPOSIT,LEVERAGE):
                                 if regime==0: 
@@ -485,6 +544,12 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
                                     data_for_table_trade_regime_1.append([symbol,place_open_position_step,place_open_position_trend,round(take_profit_price,2),stop_loss_price,place_open_position_profit,DEPOSIT_GLOBAL]) 
                                     print_components_log(f'{signal_for_logs_regime_0}! Закрыли позицию, депозит - {DEPOSIT_GLOBAL}',frame_log,'DF')
                                 if regime==1:
+                                    number = number_iteration_history_str.split('/')[0]
+                                    take_profit_price = round(take_profit_price,3)
+                                    stop_loss_price = round(stop_loss_price,3)
+                                    treyd = f'{symbol},{place_open_position_step},{place_open_position_trend},{round(take_profit_price,2)},{stop_loss_price},{place_open_position_profit},{DEPOSIT_GLOBAL}'
+                                    print_trade_file(number,treyd)
+                                if regime==5:
                                     number = number_iteration_history_str.split('/')[0]
                                     take_profit_price = round(take_profit_price,3)
                                     stop_loss_price = round(stop_loss_price,3)
@@ -511,6 +576,7 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
         
         print_components_log(f'Обработано {number_iteration_history} | ИТОГ: {round(profit-loss-commission,2)} $',frame_log,'DF')
         print_log('---------------------------------------------------------------------------------------------------------------------------')
+
         if strat_mas_historical[0] == 'strat1':
             t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'{number_iteration_history}'],
                         [f'Следим за ценой {int(wait_time*VOLUME/VOLUME_5MIN)} мин',f'Ком мейк {COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_1.CANAL_MAX*100} %'],
@@ -534,6 +600,39 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
         set_our_settings.append([TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,str_1.CANAL_MAX,str_1.CANAL_MIN,str_1.CORNER_SHORT,str_1.CORNER_LONG,number_iteration_history_str])
         OUR_SETTINGS_MAS_STRAT_1.append([number_iteration_history,round(profit-loss-commission,2),count_long_take+count_short_take+count_long_loss+count_short_loss,count_long_take+count_short_take,count_long_loss+count_short_loss,round(profit,1),round(loss,1),round(commission,1)])
         # print(set_our_settings)
+    if regime == 5: 
+        progressbar_hist_once.set(1)
+        number_iteration_history = number_iteration_history_str
+        if count_long_take+count_short_take+count_long_loss+count_short_loss==0:
+            procent_trade_plus = 0
+        else:
+            procent_trade_plus = ((count_long_take+count_short_take)/(count_long_take+count_short_take+count_long_loss+count_short_loss))*100
+        
+        print_components_log(f'Обработано {number_iteration_history} | ИТОГ: {round(profit-loss-commission,2)} $',frame_log,'DF')
+        print_log('---------------------------------------------------------------------------------------------------------------------------')
+        if strat_mas_historical[0] == 'strat1':
+            t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'{number_iteration_history}'],
+                        [f'Следим за ценой {int(biganal.wait_time*biganal.VOLUME/biganal.VOLUME_5MIN)} мин',f'Ком мейк {biganal.COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_1.CANAL_MAX*100} %'],
+                        [f'Рабочий таймфрейм {biganal.wait_time} мин',f'Ком тейк {biganal.COMMISSION_TAKER*100} %',f'Плечо {LEVERAGE}',f'Низ канала {str_1.CANAL_MIN*100} %'],
+                        [f'Длительность {int(biganal.wait_time*biganal.VOLUME/60)} ч',f'Тейк {TP*100} %',f'Объём торгов мин {CANDLE_COIN_MIN}',f'Угол лонг {str_1.CORNER_LONG}'],
+                        [f'Сколько монет торговать {biganal.how_mach_coin}',f'Стоп {SL*100} %',f'Объём торгов макс {CANDLE_COIN_MAX}',f'Угол шорт {str_1.CORNER_SHORT}'],
+                        [f'Процент сделок в + {procent_trade_plus} %',f'Сделок в + {count_long_take+count_short_take}',f'Седлок в - {count_long_loss+count_short_loss}',f'Всего сделок {count_long_take+count_short_take+count_long_loss+count_short_loss}'],
+                        [f'Общий профит {profit} $',f'Общий убыток {loss} $',f'Комиссия {commission} $',f'ИТОГ: {round(profit-loss-commission,2)} $'],
+                        [f'Депо ИТОГ: {DEPOSIT_GLOBAL} $',f'Депо старт {DEPOSIT_START} $',f'Депо ИТОГ,%: {round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2)}',f'']])
+        if strat_mas_historical[0] == 'strat2':
+            t.add_rows([[f'Дата {time.strftime("%d.%m.%Y", time.localtime())}',f'Время {time.strftime("%H:%M:%S", time.localtime())}',f'Имя бота {name_bot_historical}',f'{number_iteration_history}'],
+                        [f'Следим за ценой {int(biganal.wait_time*biganal.VOLUME/biganal.VOLUME_5MIN)} мин',f'Ком мейк {biganal.COMMISSION_MAKER*100} %',f'Депо {int(DEPOSIT)} $',f'Верх канала {str_2.CANAL_MAX*100} %'],
+                        [f'Рабочий таймфрейм {biganal.wait_time} мин',f'Ком тейк {biganal.COMMISSION_TAKER*100} %',f'Плечо {LEVERAGE}',f'Низ канала {str_2.CANAL_MIN*100} %'],
+                        [f'Длительность {int(biganal.wait_time*biganal.VOLUME/60)} ч',f'Тейк {TP*100} %',f'Объём торгов мин {CANDLE_COIN_MIN}',f'Угол лонг -'],
+                        [f'Сколько монет торговать {biganal.how_mach_coin}',f'Стоп {SL*100} %',f'Объём торгов макс {CANDLE_COIN_MAX}',f'Угол шорт -'],
+                        [f'Процент сделок в + {procent_trade_plus} %',f'Сделок в + {count_long_take+count_short_take}',f'Седлок в - {count_long_loss+count_short_loss}',f'Всего сделок {count_long_take+count_short_take+count_long_loss+count_short_loss}'],
+                        [f'Общий профит {profit} $',f'Общий убыток {loss} $',f'Комиссия {commission} $',f'ИТОГ: {round(profit-loss-commission,2)} $'],
+                        [f'Депо ИТОГ: {DEPOSIT_GLOBAL} $',f'Депо старт {DEPOSIT_START} $',f'Депо ИТОГ,%: {round(((DEPOSIT_GLOBAL/DEPOSIT_START)-1)*100,2)}',f'']])
+        print(t.draw())
+        print_log(t.draw())
+        set_our_settings.append([TP,SL,DEPOSIT,LEVERAGE,CANDLE_COIN_MIN,CANDLE_COIN_MAX,str_1.CANAL_MAX,str_1.CANAL_MIN,str_1.CORNER_SHORT,str_1.CORNER_LONG,number_iteration_history_str])
+        OUR_SETTINGS_MAS_STRAT_1.append([number_iteration_history,round(profit-loss-commission,2),count_long_take+count_short_take+count_long_loss+count_short_loss,count_long_take+count_short_take,count_long_loss+count_short_loss,round(profit,1),round(loss,1),round(commission,1)])
+        # print(set_our_settings)
         
     if regime == 0:
         pass
@@ -541,14 +640,19 @@ def start_trade_hist_model(real_test_frame_indicator_hist,frame_osnova,frame_log
 
 
 def onclick_stroka_table_trade_str_1_set(data):
+    global regime_work
     global table_strat_1_settings_trade_for_historical
     data_parse = table_strat_1_settings_trade_for_historical.get_row(data['row'])
     # for key,val in enumerate(bin.set_our_settings):
-    print(data_parse)
-    print_graph_historical_of_once_settings(data_parse[0],data_parse[1],data_parse[2],data_parse[3],data_parse[4])
+    print_graph_historical_of_once_settings(data_parse[0],data_parse[1],data_parse[2],data_parse[3],data_parse[4],regime_work)
 
-def print_graph_historical_of_once_settings(symbol,step_input,trend,TP,SL):
-    df = pd.read_csv(f'{MYDIR_WORKER}{symbol}.csv')
+def print_graph_historical_of_once_settings(symbol,step_input,trend,TP,SL,regime):
+    if regime==0:
+        df = pd.read_csv(f'{MYDIR_WORKER}{symbol}.csv')
+    if regime==1:
+        df = pd.read_csv(f'{MYDIR_WORKER}{symbol}.csv')
+    if regime==5:
+        df = pd.read_csv(f'{biganal.MYDIR_WORKER}{symbol}.csv')
     graph.draw_graph(df,VOLUME,step_input,trend,TP,SL)
 
 
